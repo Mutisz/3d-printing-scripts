@@ -13,11 +13,18 @@ STLs ready to slice.
 
 ## Usage
 
+Open the repo in the dev container (see below) and the dependencies are already
+there. Otherwise, install them yourself:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
 
+Then run whichever generator you need:
+
+```bash
 python make_card_holder.py
 python make_resource_tray.py
 ```
@@ -44,6 +51,22 @@ Shared build settings are `T` (wall thickness) and `F` (floor thickness), both
 
 Python 3 and the packages in [requirements.txt](requirements.txt) — `trimesh`
 with `manifold3d` for the booleans, plus its mesh and geometry helpers.
+
+## Dev container
+
+[.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) describes a
+ready-to-run environment, so nothing has to be installed on the host. Open the
+folder in VS Code and choose **Reopen in Container** (or use the `devcontainer`
+CLI, or GitHub Codespaces).
+
+It builds on the official `mcr.microsoft.com/devcontainers/python:3.14` image
+and runs `pip install -r requirements.txt` on create, so the generators work
+straight away. VS Code gets Ruff as the Python formatter, Pylance, and a 3D
+preview extension for opening the exported STLs in the editor.
+
+Dependency versions of the dev container features are pinned by digest in
+`devcontainer-lock.json`; delete it to pick up newer releases on the next
+rebuild.
 
 ## License
 
