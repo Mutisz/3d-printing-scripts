@@ -1,0 +1,33 @@
+{
+  "name": "3d-printing-scripts",
+  "image": "mcr.microsoft.com/devcontainers/python:3.14",
+  "mounts": [
+    "source=3d-printing-scripts-claude,target=/home/node/.claude,type=volume"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Base
+        "ms-azuretools.vscode-containers",
+        "anthropic.claude-code",
+        "esbenp.prettier-vscode",
+        // Python
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tatsy.vscode-3d-preview"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
+      }
+    }
+  },
+  "remoteUser": "vscode"
+}
