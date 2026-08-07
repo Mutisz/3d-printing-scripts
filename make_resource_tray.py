@@ -41,6 +41,10 @@ GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
 CFG = load_game(GAME_ID)
 WHERE = f"games/{GAME_ID}.json"
 
+# Emptied before anything is read, so dropping the section from the file
+# clears the trays it used to build rather than stranding them.
+OUTDIR = outdir(GAME_ID, "trays")
+
 TRAYS = CFG.get("trays")
 if not TRAYS:  # an ordinary state, not an error: exit clean so runners can tell
     print(f"{WHERE}: no 'trays' section, nothing to build")
@@ -49,8 +53,6 @@ if not TRAYS:  # an ordinary state, not an error: exit clean so runners can tell
 T = need(TRAYS, "wall", WHERE)  # wall and divider thickness
 F = need(TRAYS, "floor", WHERE)
 VARIANTS = need(TRAYS, "variants", WHERE)
-
-OUTDIR = outdir(GAME_ID)
 
 
 def resolve_sizes(where, comps, span):

@@ -46,9 +46,13 @@ for script, code in results:
     status = "ok" if code == 0 else f"FAIL (exit {code})"
     print(f"  {status:<16}{script}")
 
-stls = sorted(glob.glob(os.path.join(ROOT, MODELS_DIR, GAME_ID, "*.stl")))
+# One folder per generator under the game, each emptied by the generator that
+# owns it, so list the tree rather than one flat directory.
+game_dir = os.path.join(ROOT, MODELS_DIR, GAME_ID)
+stls = sorted(glob.glob(os.path.join(game_dir, "**", "*.stl"), recursive=True))
 print(f"  {len(stls)} STL(s) in {MODELS_DIR}/{GAME_ID}/")
 for path in stls:
-    print(f"    {os.path.basename(path):<50}{os.path.getsize(path) / 1024:>7.0f} KB")
+    rel = os.path.relpath(path, game_dir)
+    print(f"    {rel:<58}{os.path.getsize(path) / 1024:>7.0f} KB")
 
 raise SystemExit(1 if any(code for _, code in results) else 0)

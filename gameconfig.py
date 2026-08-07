@@ -10,19 +10,22 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 2
+Schema, version 3
 -----------------
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
-    "sleeve": [W, L],              sleeve size in mm, the default for every
-                                   variant; omit only if each states its own
-    "clearance": float,            added to the sleeve to get the cavity
     "wall": float,                 wall thickness
     "floor": float,                floor thickness
     "card_thickness": float,       for the capacity estimate
+    "sleeve": [W, L],              optional; sizes nothing, only checks the
+                                   cavity a variant's size leaves. Default
+                                   for every variant; omit it and only the
+                                   variants stating their own are checked
+    "clearance": float,            optional, default 0; how much bigger than
+                                   the sleeve the cavity has to come out
     "separator": {
       "thickness": float,
       "fit": float,                shrinks the sheet, and the tab, for a
@@ -32,14 +35,15 @@ Schema, version 2
                                    variant's side opening, less the fit
     "variants": {
       "<name>": {
-        "depth": float,            inside stack depth
+        "size": [W, L, H],         outside dimensions; the cavity is what is
+                                   left inside the walls and over the floor
         "corner": float,           wall fragment kept at each corner
         "pack_axis": "L" | "W",    dimension that repeats down a packed row
         "pack_count": int,
         "separators": int,         optional, default 0
-        "sleeve": [W, L]           optional; overrides the section's sleeve
-                                   for this variant, shell and separators
-                                   alike
+        "sleeve": [W, L]           optional; the sleeve this variant is
+                                   checked against, in place of the
+                                   section's
       }
     }
   },
@@ -84,10 +88,11 @@ import argparse
 import glob
 import json
 import os
+import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 
@@ -134,10 +139,19 @@ def need(mapping, key, where):
     return mapping[key]
 
 
-def outdir(game_id):
-    """Per-game output directory, created if absent."""
-    path = os.path.join(MODELS_DIR, game_id)
-    os.makedirs(path, exist_ok=True)
+def outdir(game_id, kind):
+    """Empty models/<game_id>/<kind>/, made fresh for one generator's parts.
+
+    A generator owns its subdirectory outright, so everything in it can go
+    before the run rather than the run having to guess which files were its
+    own by name. What is left afterwards is exactly what this run built:
+    rename a variant, or drop one, and the STL it used to write goes with
+    it instead of sitting in the folder waiting to be printed by mistake.
+    """
+    path = os.path.join(MODELS_DIR, game_id, kind)
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
     return path
 
 

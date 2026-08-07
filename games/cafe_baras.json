@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "game": {
     "id": "cafe_baras",
     "name": "Cafe Baras"
@@ -20,14 +20,22 @@
     },
     "variants": {
       "main_deck": {
-        "depth": 30.0,
+        "size": [
+          70.0,
+          94.0,
+          31.0
+        ],
         "corner": 10.0,
         "pack_axis": "W",
         "pack_count": 2,
         "separators": 0
       },
       "cafes_and_customers": {
-        "depth": 20.0,
+        "size": [
+          70.0,
+          94.0,
+          21.0
+        ],
         "corner": 10.0,
         "pack_axis": "W",
         "pack_count": 1,
