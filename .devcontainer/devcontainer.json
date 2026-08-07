@@ -2,12 +2,12 @@
   "name": "3d-printing-scripts",
   "image": "mcr.microsoft.com/devcontainers/python:3.14",
   "mounts": [
-    "source=3d-printing-scripts-claude,target=/home/node/.claude,type=volume"
+    "source=3d-printing-scripts-claude,target=/home/vscode/.claude,type=volume"
   ],
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {}
   },
-  "postCreateCommand": "pip install --no-cache-dir -r requirements.txt",
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.claude & pip install --no-cache-dir -r requirements.txt",
   "customizations": {
     "vscode": {
       "extensions": [
