@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "game": {
+    "id": "7_wonders_duel",
+    "name": "7 Wonders Duel"
+  },
+  "card_holders": {
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "variants": {
+      "main_deck": {
+        "sleeve": [46.0, 71.0],
+        "depth": 40.0,
+        "corner": 10.0,
+        "pack_axis": "W",
+        "pack_count": 1,
+        "separators": 2
+      },
+      "additional_deck": {
+        "sleeve": [46.0, 71.0],
+        "depth": 40.0,
+        "corner": 10.0,
+        "pack_axis": "W",
+        "pack_count": 1,
+        "separators": 2
+      }
+    }
+  }
+}

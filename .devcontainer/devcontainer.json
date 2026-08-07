@@ -22,6 +22,7 @@
         "tatsy.vscode-3d-preview"
       ],
       "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "[python]": {
           "editor.defaultFormatter": "charliermarsh.ruff"

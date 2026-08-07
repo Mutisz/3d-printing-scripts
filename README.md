@@ -57,12 +57,12 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
   "card_holders": {
     "sleeve": [67.0, 91.0], "clearance": 1.0, "wall": 1.0, "floor": 1.0,
     "card_thickness": 0.6,
-    "separator": { "thickness": 1.0, "fit": 0.2, "tab_length": 24.0, "tab_out": null },
+    "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
     "variants": { "main_deck": { "depth": 30.0, "corner": 10.0,
                                  "pack_axis": "W", "pack_count": 2,
                                  "separators": 0 } }
@@ -79,6 +79,34 @@ Sketch:
 Either top-level section may be omitted. Both generators validate what they read
 and fail with a message naming the conflict — and the offending key's path in
 the file — rather than exporting a bad mesh.
+
+### Per-variant sleeves
+
+`card_holders.sleeve` is the sleeve size the whole section works from. A variant
+holding a different card states its own and gets its own shell and its own
+separators — everything downstream of the sleeve is figured per variant.
+
+```jsonc
+"card_holders": {
+  "sleeve": [67.0, 91.0],                    // standard, used unless overridden
+  "variants": {
+    "main_deck":  { "depth": 30.0, /* ... */ },
+    "mini_cards": { "sleeve": [45.0, 68.0], "depth": 20.0, /* ... */ }
+  }
+}
+```
+
+Drop the section-level `sleeve` entirely if every variant names one; leave a
+variant without either and the build stops, naming the variant.
+
+### Separator tabs
+
+A separator's tabs are not configured. Each one fills the side opening its
+holder actually has — `L` less the two `corner` posts — minus the same `fit`
+that shrinks the sheet, so the tab is as long as it can be, reaches through the
+opening whatever the corner posts are set to, and cannot fall out of step with
+them. `separator.tab_out` still sets how far it stands proud; `null` means flush
+with the outer wall.
 
 ### Nested compartments
 

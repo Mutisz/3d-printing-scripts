@@ -10,31 +10,36 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 1
+Schema, version 2
 -----------------
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
-    "sleeve": [W, L],              sleeve size in mm
+    "sleeve": [W, L],              sleeve size in mm, the default for every
+                                   variant; omit only if each states its own
     "clearance": float,            added to the sleeve to get the cavity
     "wall": float,                 wall thickness
     "floor": float,                floor thickness
     "card_thickness": float,       for the capacity estimate
     "separator": {
       "thickness": float,
-      "fit": float,                shrinks the sheet for a looser fit
-      "tab_length": float,         tab length along L, centred
+      "fit": float,                shrinks the sheet, and the tab, for a
+                                   looser fit
       "tab_out": float | null      reach past the sheet; null means wall
-    },
+    },                             tab length is not set here: it fills the
+                                   variant's side opening, less the fit
     "variants": {
       "<name>": {
         "depth": float,            inside stack depth
         "corner": float,           wall fragment kept at each corner
         "pack_axis": "L" | "W",    dimension that repeats down a packed row
         "pack_count": int,
-        "separators": int          optional, default 0
+        "separators": int,         optional, default 0
+        "sleeve": [W, L]           optional; overrides the section's sleeve
+                                   for this variant, shell and separators
+                                   alike
       }
     }
   },
@@ -82,7 +87,7 @@ import os
 
 import trimesh
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 
