@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "cafe_baras",
+    "name": "Cafe Baras"
+  },
+  "card_holders": {
+    "sleeve": [
+      67.0,
+      91.0
+    ],
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2,
+      "tab_length": 24.0,
+      "tab_out": null
+    },
+    "variants": {
+      "main_deck": {
+        "depth": 30.0,
+        "corner": 10.0,
+        "pack_axis": "W",
+        "pack_count": 2,
+        "separators": 0
+      },
+      "cafes_and_customers": {
+        "depth": 20.0,
+        "corner": 10.0,
+        "pack_axis": "W",
+        "pack_count": 1,
+        "separators": 1
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "coins": {
+        "size": [
+          70.0,
+          94.0,
+          21.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "1",
+            "size": null
+          },
+          {
+            "name": "5",
+            "size": 30.0
+          }
+        ]
+      }
+    }
+  }
+}

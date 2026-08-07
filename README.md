@@ -8,8 +8,10 @@ STLs ready to slice.
 
 | Script | Makes |
 | --- | --- |
-| [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out |
+| [make_all.py](make_all.py) | Both generators below, in turn, for one game |
+| [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
 | [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions and optional raised floors for small pieces |
+| [gameconfig.py](gameconfig.py) | Not a generator — loads the per-game parameter files and documents their schema |
 
 ## Usage
 
@@ -22,30 +24,103 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Then run whichever generator you need:
+Every script takes one argument, the game to build:
 
 ```bash
-python make_card_holder.py
-python make_resource_tray.py
+python make_all.py cafe_baras           # everything for that game
+python make_card_holder.py cafe_baras   # or just one generator
+python make_resource_tray.py cafe_baras
 ```
 
-Each script prints its dimensions, mesh checks (watertight, body count, Euler
+Each generator prints its dimensions, mesh checks (watertight, body count, Euler
 number) and an estimated filament weight, then writes STLs to
-`./models/<GAME_ID>/`. That directory is git-ignored — the scripts are the
-source of truth, the models are output.
+`./models/<game_id>/`. That directory is git-ignored — the parameter files are
+the source of truth, the models are output.
+
+`make_all.py` runs both generators and ends with a pass/fail summary and a
+listing of everything in the output folder. A game that defines no trays (or no
+card holders) is not an error: the generator with nothing to do says so and
+exits clean.
 
 ## Configuring
 
-There is no CLI. Every knob lives in the `# ---- Parameters ----` block at the
-top of each script: edit it and re-run.
+Parameters live in one JSON file per game, `games/<game_id>.json`, holding both
+the card holders and the trays for that game. Nothing is configured by editing
+the scripts.
 
-Set `GAME_ID` to name the output folder and file prefix, then describe what you
-need in `VARIANTS` — one entry per part, keyed by name. The comments above
-`VARIANTS` document each field. Both scripts validate their inputs and fail with
-a message explaining the conflict rather than exporting a bad mesh.
+Each file declares the `schema_version` it was written against, and the loader
+refuses a version it does not understand rather than misreading it. The schema
+is documented in full in the [gameconfig.py](gameconfig.py) docstring — JSON has
+no comments, so that is where the field-by-field reference lives.
 
-Shared build settings are `T` (wall thickness) and `F` (floor thickness), both
-1.0 mm by default.
+Sketch:
+
+```jsonc
+{
+  "schema_version": 1,
+  "game": { "id": "cafe_baras", "name": "Cafe Baras" },
+  "card_holders": {
+    "sleeve": [67.0, 91.0], "clearance": 1.0, "wall": 1.0, "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": { "thickness": 1.0, "fit": 0.2, "tab_length": 24.0, "tab_out": null },
+    "variants": { "main_deck": { "depth": 30.0, "corner": 10.0,
+                                 "pack_axis": "W", "pack_count": 2,
+                                 "separators": 0 } }
+  },
+  "trays": {
+    "wall": 1.0, "floor": 1.0,
+    "variants": { "coins": { "size": [70.0, 94.0, 21.0], "split": "L",
+                             "compartments": [ { "name": "1", "size": null },
+                                               { "name": "5", "size": 30.0 } ] } }
+  }
+}
+```
+
+Either top-level section may be omitted. Both generators validate what they read
+and fail with a message naming the conflict — and the offending key's path in
+the file — rather than exporting a bad mesh.
+
+### Nested compartments
+
+A tray compartment that carries `compartments` of its own is subdivided across
+the *perpendicular* axis, so a row along `L` becomes columns along `W`. Nest as
+deep as you like; the axis flips at every level, which is what turns nesting
+into a grid. `depth` set on a parent becomes the default for everything under
+it.
+
+```jsonc
+"compartments": [
+  { "name": "cubes", "size": 40.0, "depth": 10.0, "compartments": [
+      { "name": "red",   "size": null },   // three equal columns,
+      { "name": "green", "size": null },   // each 10 mm deep
+      { "name": "blue",  "size": null }
+  ]},
+  { "name": "coins", "size": null }        // full-depth, rest of the tray
+]
+```
+
+### Notches
+
+Any compartment, at any nesting level, can have rounded finger slots cut down
+from the rim through a named wall. `side` picks the wall — `"W-"`, `"W+"`,
+`"L-"` or `"L+"`, the low or high side on that axis — and every wall qualifies,
+internal dividers included.
+
+```jsonc
+"notches": [
+  { "side": "L+", "width": 20.0, "depth": 8.0 },
+  { "side": "W-" }                          // width and depth defaulted
+]
+```
+
+`width` defaults to 60% of that wall's length, `depth` to half the
+compartment's, measured down from the rim and capped at the compartment's own
+depth. A notch on an outer wall opens to the outside; one on a divider opens a
+channel to the neighbour, so it stops short of the floor unless you push
+`depth` all the way. The report says which kind each notch turned out to be.
+
+Nothing overhangs — a notch only removes material from the rim down, leaving a
+shorter wall — so trays still print without supports.
 
 ## Requirements
 

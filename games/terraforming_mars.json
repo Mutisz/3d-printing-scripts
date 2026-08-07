@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "game": {
+    "id": "terraforming_mars",
+    "name": "Terraforming Mars"
+  },
+  "card_holders": {
+    "sleeve": [
+      67.0,
+      91.0
+    ],
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2,
+      "tab_length": 24.0,
+      "tab_out": null
+    },
+    "variants": {
+      "main_deck": {
+        "depth": 48.0,
+        "corner": 20.0,
+        "pack_axis": "L",
+        "pack_count": 3,
+        "separators": 0
+      },
+      "prelude_and_corps": {
+        "depth": 22.0,
+        "corner": 10.0,
+        "pack_axis": "W",
+        "pack_count": 3,
+        "separators": 0
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "player_cubes": {
+        "size": [
+          42.0,
+          77.0,
+          23.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "city_forest_tiles": {
+        "size": [
+          73.0,
+          171.0,
+          21.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "special_tiles": {
+        "size": [
+          52.0,
+          171.0,
+          10.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "ocean_tiles": {
+        "size": [
+          66.0,
+          48.0,
+          49.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "gold": {
+        "size": [
+          26.0,
+          220.0,
+          18.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "silver": {
+        "size": [
+          26.0,
+          171.0,
+          18.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "gold",
+            "size": 40
+          },
+          {
+            "name": "silver",
+            "size": null
+          }
+        ]
+      },
+      "bronze": {
+        "size": [
+          26.0,
+          171.0,
+          18.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "trade_fleets": {
+        "size": [
+          66.0,
+          66.0,
+          18.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "size": null
+          }
+        ]
+      },
+      "misc": {
+        "size": [
+          18.0,
+          220.0,
+          18.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "progress cubes",
+            "size": null
+          },
+          {
+            "name": "colony cubes",
+            "size": null
+          }
+        ]
+      },
+      "colonies": {
+        "size": [
+          48.0,
+          220.0,
+          67.0
+        ],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "5 tiles",
+            "size": null,
+            "compartments": [
+              {
+                "name": "cards",
+                "size": null,
+                "notches": [
+                  {
+                    "side": "W-",
+                    "depth": 50.0
+                  },
+                  {
+                    "side": "W+",
+                    "depth": 50.0
+                  }
+                ]
+              },
+              {
+                "name": "tiles",
+                "size": 30,
+                "notches": [
+                  {
+                    "side": "W-",
+                    "depth": 50.0
+                  },
+                  {
+                    "side": "W+",
+                    "depth": 50.0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "6 tiles",
+            "size": null,
+            "notches": [
+              {
+                "side": "W-",
+                "depth": 50.0
+              },
+              {
+                "side": "W+",
+                "depth": 50.0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

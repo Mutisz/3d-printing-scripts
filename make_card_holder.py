@@ -16,74 +16,91 @@ both long sides exposed and cards stay reachable while boxed. "W" butts the
 open long sides together for a shorter row -- access is blocked in the box,
 which costs nothing when the holders come out to play.
 
-Sleeves measured at 67 x 91 mm.
+Every dimension comes from games/<game_id>.json; see gameconfig for the
+schema. Run as: python3 make_card_holder.py <game_id>
 """
-
-import os
 
 import trimesh
 
-# ---- Parameters -------------------------------------------------------
-SLEEVE_W, SLEEVE_L = 67.0, 91.0
-CLEAR = 1.0  # clearance between cards and walls
-T = 1.0  # wall thickness
-F = 1.0  # floor thickness
-CARD_THICK = 0.6  # for the capacity estimate
+from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
 
-GAME_ID = "cafe_baras"
-# name -> variant spec.
-#   depth       inside stack depth
-#   corner      length of the wall fragment kept at each corner, along L
-#   pack_axis   dimension that repeats down a packed row, so the row length
-#               is pack_count * that: "L" (94 mm, end walls meet) or
-#               "W" (70 mm, open long sides meet)
-VARIANTS = {
-    "main_deck": {
-        "depth": 30.0,
-        "corner": 10.0,
-        "pack_axis": "W",
-        "pack_count": 2,
-    },
-    "cafes_and_customers": {
-        "depth": 20.0,
-        "corner": 10.0,
-        "pack_axis": "W",
-        "pack_count": 1,
-    },
-}
+GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
+CFG = load_game(GAME_ID)
+WHERE = f"games/{GAME_ID}.json"
 
-OUTDIR = f"./models/{GAME_ID}"
-# -----------------------------------------------------------------------
+HOLDERS = CFG.get("card_holders")
+if not HOLDERS:  # an ordinary state, not an error: exit clean so runners can tell
+    print(f"{WHERE}: no 'card_holders' section, nothing to build")
+    raise SystemExit(0)
+
+SLEEVE_W, SLEEVE_L = need(HOLDERS, "sleeve", WHERE)
+CLEAR = need(HOLDERS, "clearance", WHERE)  # clearance between cards and walls
+T = need(HOLDERS, "wall", WHERE)
+F = need(HOLDERS, "floor", WHERE)
+CARD_THICK = need(HOLDERS, "card_thickness", WHERE)
+VARIANTS = need(HOLDERS, "variants", WHERE)
+
+# Separators: a flat sheet the full size of the cavity, so it stands proud
+# of the cards by CLEAR and is easy to catch. A tab each side reaches out
+# through the open long side, showing the split from outside the holder.
+SEP = need(HOLDERS, "separator", WHERE)
+SEP_T = need(SEP, "thickness", f"{WHERE} separator")
+SEP_FIT = need(SEP, "fit", f"{WHERE} separator")
+SEP_TAB_LEN = need(SEP, "tab_length", f"{WHERE} separator")
+SEP_TAB_OUT = SEP.get("tab_out")
+if SEP_TAB_OUT is None:  # null means "land flush with the outer wall"
+    SEP_TAB_OUT = T
+
+OUTDIR = outdir(GAME_ID)
 
 INNER_W = SLEEVE_W + CLEAR
 INNER_L = SLEEVE_L + CLEAR
 W = INNER_W + 2 * T
 L = INNER_L + 2 * T
 
+SHEET_W = INNER_W - SEP_FIT
+SHEET_L = INNER_L - SEP_FIT
+SEP_W = SHEET_W + 2 * SEP_TAB_OUT  # separator width over the tabs
 
-def box(xr, yr, zr):
-    ext = [xr[1] - xr[0], yr[1] - yr[0], zr[1] - zr[0]]
-    ctr = [(xr[0] + xr[1]) / 2, (yr[0] + yr[1]) / 2, (zr[0] + zr[1]) / 2]
-    return trimesh.creation.box(
-        extents=ext, transform=trimesh.transformations.translation_matrix(ctr)
+
+def separator():
+    """Flat sheet with a tab each side, laid out print-ready on the bed."""
+    tab_y0 = (SHEET_L - SEP_TAB_LEN) / 2
+    tab_y = (tab_y0, tab_y0 + SEP_TAB_LEN)
+    return trimesh.boolean.union(
+        [
+            box((SEP_TAB_OUT, SEP_TAB_OUT + SHEET_W), (0, SHEET_L), (0, SEP_T)),
+            box((0, SEP_TAB_OUT), tab_y, (0, SEP_T)),
+            box((SEP_TAB_OUT + SHEET_W, SEP_W), tab_y, (0, SEP_T)),
+        ]
     )
 
 
-os.makedirs(OUTDIR, exist_ok=True)
-
 print("=" * 60)
-print("Card Holder Generator")
+print(f"Card Holder Generator -- {CFG['game']['name']}")
 print("=" * 60)
 print("Shell")
 print(f"  sleeve      {SLEEVE_W} x {SLEEVE_L} mm + {CLEAR} mm clearance")
 print(f"  inside      {INNER_W} x {INNER_L} mm")
 print(f"  outside     {W} x {L} mm")
 print(f"  thickness   {T} mm walls, {F} mm floor")
+print("Separator")
+print(f"  sheet       {SHEET_W} x {SHEET_L} mm, {SEP_T} mm thick")
+print(f"  tabs        {SEP_TAB_LEN} mm long, {SEP_TAB_OUT} mm out each side")
+print(
+    f"  overall     {SEP_W} mm wide vs {W} mm holder -> "
+    f"{'flush' if abs(SEP_W - W) < 1e-6 else 'proud' if SEP_W > W else 'recessed'}"
+)
 print()
 
+sep_mesh = separator()  # identical for every variant, exported per variant
+
 for name, spec in VARIANTS.items():
-    depth, corner = spec["depth"], spec["corner"]
-    pack_axis, pack_count = spec["pack_axis"], spec["pack_count"]
+    at = f"{WHERE} card_holders.variants.{name}"
+    depth, corner = need(spec, "depth", at), need(spec, "corner", at)
+    pack_axis = need(spec, "pack_axis", at)
+    pack_count = need(spec, "pack_count", at)
+    n_sep = spec.get("separators", 0)
 
     if pack_axis not in ("L", "W"):
         raise ValueError(f"[{name}] pack_axis must be 'L' or 'W', got {pack_axis!r}")
@@ -91,6 +108,16 @@ for name, spec in VARIANTS.items():
         raise ValueError(
             f"[{name}] corner must be in [{T}, {L / 2}) to leave posts and an "
             f"opening between them, got {corner}"
+        )
+    if n_sep and SEP_TAB_LEN > L - 2 * corner:
+        raise ValueError(
+            f"[{name}] {SEP_TAB_LEN} mm tab does not fit the {L - 2 * corner} mm "
+            f"side opening -- shorten SEP_TAB_LEN or the corner posts"
+        )
+    if n_sep * SEP_T >= depth:
+        raise ValueError(
+            f"[{name}] {n_sep} separators are {n_sep * SEP_T} mm of a "
+            f"{depth} mm stack, leaving no room for cards"
         )
 
     H = F + depth
@@ -114,6 +141,8 @@ for name, spec in VARIANTS.items():
 
     opening = L - 2 * corner
     trapped = opening < SLEEVE_L
+    sep_stack = n_sep * SEP_T
+    card_stack = depth - sep_stack
 
     print("-" * 60)
     print(f"[{name}]")
@@ -132,14 +161,24 @@ for name, spec in VARIANTS.items():
         f"{'OK, card cannot slide out' if trapped else 'CARD CAN ESCAPE'}"
     )
     print("  Mesh checks")
-    print(f"    watertight  {mesh.is_watertight}")
-    print(f"    bodies      {mesh.body_count}")
-    print(f"    euler       {mesh.euler_number}")
-    print(
-        f"    volume      {mesh.volume / 1000:.1f} cm^3 "
-        f"(~{mesh.volume * 1.24 / 1000:.0f} g)"
-    )
+    report_mesh(mesh)
+    if n_sep:
+        sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}.stl"
+        sep_mesh.export(sep_path)
+        print("  Separators")
+        print(f"    print     {n_sep}, {sep_stack:.1f} mm of the stack")
+        print(
+            f"    check     {SEP_TAB_LEN} mm tab in the {opening} mm opening -> "
+            f"OK, tab shows from outside"
+        )
+
     print("  Capacity")
-    print(f"    ~{depth / CARD_THICK:.0f} sleeved cards")
+    print(
+        f"    stack     {depth} mm less {sep_stack:.1f} mm of separators -> "
+        f"{card_stack:.1f} mm of cards"
+    )
+    print(f"    ~{card_stack / CARD_THICK:.0f} sleeved cards + {n_sep} separators")
     print(f"  -> {path}")
+    if n_sep:
+        print(f"  -> {sep_path}")
     print()
