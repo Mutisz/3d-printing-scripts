@@ -79,7 +79,6 @@ Sketch:
     "sleeve": [67.0, 91.0], "clearance": 1.0,
     "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
     "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 10.0,
-                                 "pack_axis": "W", "pack_count": 2,
                                  "separators": 0 } }
   },
   "trays": {

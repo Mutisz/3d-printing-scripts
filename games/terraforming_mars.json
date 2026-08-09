@@ -26,8 +26,6 @@
           49.0
         ],
         "corner": 20.0,
-        "pack_axis": "L",
-        "pack_count": 3,
         "separators": 0
       },
       "prelude_and_corps": {
@@ -37,8 +35,6 @@
           23.0
         ],
         "corner": 10.0,
-        "pack_axis": "W",
-        "pack_count": 3,
         "separators": 0
       }
     }

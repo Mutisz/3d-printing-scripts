@@ -12,12 +12,6 @@ Those openings are shorter than a card's 91 mm length, so the corner posts
 block a card from sliding straight out sideways; it would have to rotate
 first. Access without escape.
 
-Either packing axis is fine; pack_axis names the dimension that repeats
-down the row. "L" butts the solid end walls together, so every holder keeps
-both long sides exposed and cards stay reachable while boxed. "W" butts the
-open long sides together for a shorter row -- access is blocked in the box,
-which costs nothing when the holders come out to play.
-
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
 inside the walls. The sleeve size sets nothing. State one -- once for the
@@ -134,8 +128,6 @@ for name, spec in VARIANTS.items():
     corner = spec.get("corner")
     if corner is None:
         corner = 0.2 * L  # posts down 20% of each long wall, the middle 60% open
-    pack_axis = need(spec, "pack_axis", at)
-    pack_count = need(spec, "pack_count", at)
     n_sep = spec.get("separators", 0)
 
     INNER_W = W - 2 * T
@@ -146,8 +138,6 @@ for name, spec in VARIANTS.items():
     SHEET_L = INNER_L - SEP_FIT
     SEP_W = SHEET_W + 2 * SEP_TAB_OUT  # separator width over the tabs
 
-    if pack_axis not in ("L", "W"):
-        raise ValueError(f"[{name}] pack_axis must be 'L' or 'W', got {pack_axis!r}")
     if INNER_W <= 0 or INNER_L <= 0 or depth <= 0:
         raise ValueError(
             f"[{name}] outside {W} x {L} x {H} mm leaves nothing inside "
@@ -187,8 +177,6 @@ for name, spec in VARIANTS.items():
             f"{depth} mm stack, leaving no room for cards"
         )
 
-    row_w = pack_count * W if pack_axis == "W" else W
-    row_l = pack_count * L if pack_axis == "L" else L
     over = 2.0  # overshoot so cuts clear the outer faces
 
     mesh = trimesh.boolean.difference(
@@ -219,10 +207,6 @@ for name, spec in VARIANTS.items():
             f"{INNER_W - sleeve[0] - CLEAR:.1f} / {INNER_L - sleeve[1] - CLEAR:.1f} "
             f"mm to spare{'' if 'sleeve' not in spec else '   (this variant only)'}"
         )
-    print(
-        f"    packing   {pack_count} repeated along {pack_axis} -> "
-        f"{row_w:.1f} x {row_l:.1f} mm row"
-    )
     print("  Long sides")
     print(f"    posts     {corner:.1f} mm at each corner, full height, {T} mm thick")
     print(f"    opening   {OPENING:.1f} mm long, floor to rim ({depth} mm tall)")

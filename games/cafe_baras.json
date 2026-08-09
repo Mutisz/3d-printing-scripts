@@ -26,8 +26,6 @@
           31.0
         ],
         "corner": 10.0,
-        "pack_axis": "W",
-        "pack_count": 2,
         "separators": 0
       },
       "cafes_and_customers": {
@@ -37,8 +35,6 @@
           21.0
         ],
         "corner": 10.0,
-        "pack_axis": "W",
-        "pack_count": 1,
         "separators": 1
       }
     }

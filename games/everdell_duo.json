@@ -17,8 +17,6 @@
       "main_deck": {
         "size": [50.0, 69.0, 40.0],
         "sleeve": [46.0, 65.0],
-        "pack_axis": "W",
-        "pack_count": 2,
         "separators": 1
       }
     }

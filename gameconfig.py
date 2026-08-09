@@ -40,8 +40,6 @@ Schema, version 3
         "corner": float,           optional, default 20% of L at each end,
                                    leaving the middle 60% of each long wall
                                    open; the fragment kept at each corner
-        "pack_axis": "L" | "W",    dimension that repeats down a packed row
-        "pack_count": int,
         "separators": int,         optional, default 0
         "sleeve": [W, L]           optional; the sleeve this variant is
                                    checked against, in place of the
