@@ -1,0 +1,46 @@
+{
+  "schema_version": 3,
+  "game": {
+    "id": "parks",
+    "name": "PARKS"
+  },
+  "card_holders": {
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2,
+      "tab_out": null
+    },
+    "variants": {
+      "large": {
+        "size": [75.0, 126.0, 50.0],
+        "sleeve": [72.0, 123.0],
+        "separators": 0
+      },
+      "small": {
+        "size": [55.0, 80.0, 50.0],
+        "sleeve": [52.0, 77.0],
+        "separators": 2
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "resource_large": {
+        "size": [75.0, 79.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ]
+      }
+    }
+  },
+  "notes": "BOX 205x205x62, BOARD+MANUALS 12mm"
+}

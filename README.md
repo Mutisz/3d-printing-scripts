@@ -10,7 +10,7 @@ STLs ready to slice.
 | --- | --- |
 | [make_all.py](make_all.py) | Both generators below, in turn, for one game |
 | [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
-| [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions and optional raised floors for small pieces |
+| [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions, optional raised floors for small pieces, and walls that can be notched or opened out entirely |
 | [gameconfig.py](gameconfig.py) | Not a generator — loads the per-game parameter files and documents their schema |
 
 ## Usage
@@ -170,6 +170,44 @@ channel to the neighbour, so it stops short of the floor unless you push
 
 Nothing overhangs — a notch only removes material from the rim down, leaving a
 shorter wall — so trays still print without supports.
+
+### Open sides
+
+When a notch is not enough, `openings` takes the whole wall out instead — rim
+to floor, over the wall's whole length bar a post left standing at each end.
+That is the card holder's open side, in a tray: reach in from the side and lift
+a stack straight out, while the posts keep it from sliding out on its own.
+
+```jsonc
+"compartments": [
+  { "name": "event_tiles", "size": 46.0, "openings": [
+      { "side": "L-", "corner": 12.0 },      // 12 mm post at each end
+      { "side": "L+", "corner": 12.0 }
+  ]},
+  { "name": "pawns", "size": null, "openings": [
+      { "side": "L+" }                       // corner defaulted
+  ]}
+]
+```
+
+`side` names the wall exactly as a notch does, dividers included. `corner` is
+how much wall is kept at each end, and defaults to 20% of that wall — leaving
+the middle 60% open, the same span a notch defaults to. Set it to `0` to take
+the wall out entirely.
+
+The card holder's `corner` is the same setting under another roof, and takes the
+same default: state it, or get 20% of `L` at each end and the middle 60% of each
+long side open.
+
+`depth` defaults to the compartment's own depth, so the opening runs all the way
+down to the floor; give it a smaller number to leave a lip standing. Either way
+the cut only removes material downward from the rim, so this prints without
+supports too.
+
+Size the posts against what is inside: an opening shorter than the piece it
+holds cannot let that piece out sideways. On a divider, a full-depth opening
+merges the two compartments into one — the report says which walls turned out to
+be dividers and which face outside.
 
 ## Requirements
 

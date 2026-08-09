@@ -37,7 +37,9 @@ Schema, version 3
       "<name>": {
         "size": [W, L, H],         outside dimensions; the cavity is what is
                                    left inside the walls and over the floor
-        "corner": float,           wall fragment kept at each corner
+        "corner": float,           optional, default 20% of L at each end,
+                                   leaving the middle 60% of each long wall
+                                   open; the fragment kept at each corner
         "pack_axis": "L" | "W",    dimension that repeats down a packed row
         "pack_count": int,
         "separators": int,         optional, default 0
@@ -74,6 +76,18 @@ Schema, version 3
                 "depth": float     optional, default half the compartment;
                                    measured down from the rim, and capped
                                    at the compartment's own depth
+              }
+            ],
+            "openings": [          optional open sides: the whole wall taken
+                                   out but a corner post each end, the way a
+                                   card holder opens
+              {
+                "side": str,       which wall, as for a notch
+                "corner": float,   optional, default 20% of that wall each
+                                   end, leaving the middle 60%; 0 takes the
+                                   whole wall out
+                "depth": float     optional, default the compartment's own
+                                   depth, i.e. rim all the way to the floor
               }
             ]
           }

@@ -4,7 +4,9 @@ Card holders: top-loaded tray, open top, open long sides.
 Cards lie flat and stack upward, dropped in through the open top. The floor
 and the two short end walls are solid and full height. The two long walls
 are gone but for a short fragment at each corner -- four posts that leave
-the long sides open to reach in from.
+the long sides open to reach in from. How much wall each post keeps is
+corner, and unless the variant states one it is 20% of the length at each
+end, leaving the middle 60% of each long side open.
 
 Those openings are shorter than a card's 91 mm length, so the corner posts
 block a card from sliding straight out sideways; it would have to rotate
@@ -129,7 +131,9 @@ print()
 for name, spec in VARIANTS.items():
     at = f"{WHERE} card_holders.variants.{name}"
     W, L, H = dims(need(spec, "size", at), 3, at, "size")
-    corner = need(spec, "corner", at)
+    corner = spec.get("corner")
+    if corner is None:
+        corner = 0.2 * L  # posts down 20% of each long wall, the middle 60% open
     pack_axis = need(spec, "pack_axis", at)
     pack_count = need(spec, "pack_count", at)
     n_sep = spec.get("separators", 0)
@@ -152,7 +156,7 @@ for name, spec in VARIANTS.items():
     if not T <= corner < L / 2:
         raise ValueError(
             f"[{name}] corner must be in [{T}, {L / 2}) to leave posts and an "
-            f"opening between them, got {corner}"
+            f"opening between them, got {corner:.1f}"
         )
 
     sleeve = sleeve_of(spec, at)
@@ -174,7 +178,7 @@ for name, spec in VARIANTS.items():
 
     if n_sep and SEP_TAB_LEN <= 0:
         raise ValueError(
-            f"[{name}] the {OPENING} mm side opening is no wider than the "
+            f"[{name}] the {OPENING:.1f} mm side opening is no wider than the "
             f"{SEP_FIT} mm separator fit, leaving no tab -- shorten the corner posts"
         )
     if n_sep * SEP_T >= depth:
@@ -220,12 +224,12 @@ for name, spec in VARIANTS.items():
         f"{row_w:.1f} x {row_l:.1f} mm row"
     )
     print("  Long sides")
-    print(f"    posts     {corner} mm at each corner, full height, {T} mm thick")
-    print(f"    opening   {OPENING} mm long, floor to rim ({depth} mm tall)")
+    print(f"    posts     {corner:.1f} mm at each corner, full height, {T} mm thick")
+    print(f"    opening   {OPENING:.1f} mm long, floor to rim ({depth} mm tall)")
     if sleeve:
         trapped = OPENING < sleeve[1]
         print(
-            f"    check     {OPENING} mm opening vs {sleeve[1]} mm card -> "
+            f"    check     {OPENING:.1f} mm opening vs {sleeve[1]} mm card -> "
             f"{'OK, card cannot slide out' if trapped else 'CARD CAN ESCAPE'}"
         )
     else:

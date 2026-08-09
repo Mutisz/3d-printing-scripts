@@ -1,0 +1,209 @@
+{
+  "schema_version": 3,
+  "game": {
+    "id": "everdell_duo",
+    "name": "Everdell Duo"
+  },
+  "card_holders": {
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "variants": {
+      "main_deck": {
+        "size": [50.0, 69.0, 40.0],
+        "sleeve": [46.0, 65.0],
+        "pack_axis": "W",
+        "pack_count": 2,
+        "separators": 1
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "setup_1": {
+        "size": [244.0, 47.0, 20.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "a",
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "b",
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "c",
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "d",
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "e",
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        ]
+      },
+
+      "setup_2": {
+        "size": [138.4, 47.0, 20.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "events_other",
+            "size": 47.6,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "sesons",
+            "size": 47.6,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          {
+            "name": "day_night_pawns"
+          }
+        ]
+      },
+
+      "player_tray": {
+        "size": [52.8, 97.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "pawns",
+            "size": 45
+          },
+          {
+            "name": "resources"
+          }
+        ]
+      },
+
+      "campaign": {
+        "size": [105.6, 100.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "resource_sharing",
+            "size": 52
+          },
+          {
+            "name": "goals"
+          }
+        ]
+      },
+
+      "automa_pawns": {
+        "size": [105.6, 50.0, 20.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ]
+      },
+
+      "resources_1": {
+        "size": [69, 147.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "wood",
+            "size": 48
+          },
+          {
+            "name": "victory_points"
+          }
+        ]
+      },
+
+      "resources_2": {
+        "size": [69, 147.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "berries"
+          },
+          {
+            "name": "amber"
+          },
+          {
+            "name": "stones"
+          },
+          {
+            "name": "usage"
+          }
+        ]
+      },
+
+      "river": {
+        "size": [105.6, 97.0, 40.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ]
+      }
+    }
+  },
+  "notes": "BOX 244x244x50, EVENT TILE 44x44, EVENT STACK 15mm, BOARD 195x195"
+}
