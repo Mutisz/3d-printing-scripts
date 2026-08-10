@@ -15,15 +15,34 @@
       "tab_out": null
     },
     "variants": {
-      "large": {
+      "large_parks": {
         "size": [75.0, 126.0, 50.0],
         "sleeve": [72.0, 123.0],
-        "separators": 0
+        "corner": 30.0,
+        "contains": "Park cards"
       },
-      "small": {
-        "size": [55.0, 80.0, 50.0],
+
+      "small_equipment": {
+        "size": [55.0, 80.0, 30.0],
         "sleeve": [52.0, 77.0],
-        "separators": 2
+        "contains": "Equipment cards"
+      },
+      "small_canteens": {
+        "size": [55.0, 80.0, 20.0],
+        "sleeve": [52.0, 77.0],
+        "contains": "Canteen cards"
+      },
+
+      "small_ranger": {
+        "size": [55.0, 80.0, 10.0],
+        "sleeve": [52.0, 77.0],
+        "contains": "Ranger cards"
+      },
+      "small_season_year": {
+        "size": [55.0, 80.0, 15.0],
+        "sleeve": [52.0, 77.0],
+        "contains": "Season and year cards",
+        "print": 2
       }
     }
   },
@@ -31,12 +50,178 @@
     "wall": 1.0,
     "floor": 1.0,
     "variants": {
-      "resource_large": {
-        "size": [75.0, 79.0, 25.0],
+      "campfires": {
+        "size": [55.0, 80.0, 10.0],
         "split": "L",
         "compartments": [
           {
-            "name": "main"
+            "name": "main",
+            "contains": "Campfire tokens"
+          }
+        ]
+      },
+
+      "trail": {
+        "size": [75.0, 80.0, 30.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Trail tiles",
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        ]
+      },
+      "campsites": {
+        "size": [75.0, 80.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Campsite tiles",
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        ]
+      },
+
+      "tents": {
+        "size": [75.0, 80.0, 10.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Tents"
+          }
+        ]
+      },
+      "misc": {
+        "size": [75.0, 80.0, 15.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Camera token, First player token, Bison token"
+          }
+        ]
+      },
+      "meeples": {
+        "size": [37.5, 125.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "p1",
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          {
+            "name": "p2",
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          {
+            "name": "p3",
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          {
+            "name": "p4",
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          {
+            "name": "p5",
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        ]
+      },
+      "resources_1": {
+        "size": [37.5, 125.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "mountains"
+          },
+          {
+            "name": "trees"
+          }
+        ]
+      },
+
+      "resource_2": {
+        "size": [75.0, 79.0, 17.5],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Water or sun tokens",
+            "print": 2
+          }
+        ]
+      },
+      "resource_3": {
+        "size": [75.0, 79.0, 15],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Wildlife tokens",
+            "print": 2
+          }
+        ]
+      },
+
+      "pictures": {
+        "size": [130.0, 45.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main",
+            "contains": "Picture tokens"
           }
         ]
       }
