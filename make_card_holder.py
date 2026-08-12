@@ -12,6 +12,10 @@ Those openings are shorter than a card's 91 mm length, so the corner posts
 block a card from sliding straight out sideways; it would have to rotate
 first. Access without escape.
 
+A holder can be labelled: emboss raises text off the cavity floor, under
+where the cards sit, so a holder still says what deck it is for once it is
+out of the box and empty. It is the same option a tray compartment takes.
+
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
 inside the walls. The sleeve size sets nothing. State one -- once for the
@@ -26,6 +30,7 @@ schema. Run as: python3 make_card_holder.py <game_id>
 import trimesh
 
 from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
+from label import emboss_solid
 
 GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
 CFG = load_game(GAME_ID)
@@ -188,6 +193,12 @@ for name, spec in VARIANTS.items():
             box((-over, W + over), (corner, L - corner), (F, H + over)),
         ]
     )
+    label = spec.get("emboss")
+    if label:  # onto the cavity floor, after it has been milled out
+        solid, label_info = emboss_solid(
+            label, (T, W - T), (T, L - T), F, f"{at} emboss"
+        )
+        mesh = trimesh.boolean.union([mesh, solid])
     mesh.merge_vertices()
     mesh.update_faces(mesh.nondegenerate_faces())
     path = f"{OUTDIR}/{GAME_ID}_card_holder_{name}.stl"
@@ -218,6 +229,17 @@ for name, spec in VARIANTS.items():
         )
     else:
         print("    check     no sleeve stated, so nothing to check the opening against")
+    if label:
+        text, size, stroke, height, along, drawn_w, drawn_h = label_info
+        print("  Label")
+        print(f"    text      {text}")
+        print(
+            f"    letters   {size:.1f} mm cap, {stroke:.2f} mm stroke, "
+            f"{height:.2f} mm proud of the floor"
+        )
+        print(
+            f"    drawn     {drawn_w:.1f} x {drawn_h:.1f} mm, running along {along}"
+        )
     print("  Mesh checks")
     report_mesh(mesh)
     if n_sep:

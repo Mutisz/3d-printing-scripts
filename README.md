@@ -12,6 +12,8 @@ STLs ready to slice.
 | [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
 | [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions, optional raised floors for small pieces, and walls that can be notched or opened out entirely |
 | [gameconfig.py](gameconfig.py) | Not a generator — loads the per-game parameter files and documents their schema |
+| [label.py](label.py) | Not a generator — sizes and builds the embossed labels both generators offer |
+| [stroke_font.py](stroke_font.py) | Not a generator — the single-stroke font those labels are drawn with |
 
 ## Usage
 
@@ -207,6 +209,61 @@ Size the posts against what is inside: an opening shorter than the piece it
 holds cannot let that piece out sideways. On a divider, a full-depth opening
 merges the two compartments into one — the report says which walls turned out to
 be dividers and which face outside.
+
+### Embossed labels
+
+Any compartment with a floor of its own can have a label raised off it, so a
+tray comes out of the box knowing what goes where. A card holder takes the same
+option on its variant, which puts the label on the cavity floor, under where the
+cards sit — an empty holder still says which deck it belongs to.
+
+```jsonc
+"compartments": [
+  { "name": "coins", "size": 40.0, "emboss": { "text": "COINS" } },
+  { "name": "wood",  "size": null, "emboss": {
+      "text": "WOOD", "size": 6.0, "height": 1.0, "along": "L" } }
+]
+```
+
+`text` is all that is required. The label sizes itself to the compartment — up
+to a 10 mm cap, since a label is a label — and turns to run along whichever axis
+has more room, so a tray full of them needs no numbers typed per compartment.
+
+| key | default |
+| --- | --- |
+| `size` | cap height that fits the compartment, capped at 10 mm |
+| `stroke` | 14% of the cap height, never finer than 0.8 mm |
+| `height` | 0.6 mm standing off the floor |
+| `along` | `"W"` or `"L"`, whichever way the compartment is longer |
+
+```jsonc
+"card_holders": {
+  "variants": {
+    "main_deck": { "size": [70.0, 94.0, 31.0], "emboss": { "text": "MAIN DECK" } }
+  }
+}
+```
+
+The letters come from [stroke_font.py](stroke_font.py), a single-stroke font
+built into the repo rather than a font file — every line lands exactly one
+stroke wide, which is what a nozzle wants, and there is no font dependency to
+install. It covers `A–Z`, `0–9`, common punctuation and the Polish letters
+`Ą Ć Ę Ł Ń Ó Ś Ź Ż`; text is raised as capitals, and any character it has no
+glyph for stops the build rather than being dropped silently.
+
+An accented word is taller than its cap height, since the marks sit clear above
+the cap and below the baseline. A self-sizing label measures what it actually
+drew, so it shrinks to fit rather than running its accents into the wall.
+
+Two things are refused rather than printed badly: a label on a compartment that
+is split into sub-compartments — it has no floor of its own, so label the
+children instead — and a cap height under three times the stroke, which closes
+the letters into a blob. A stated `size` that overruns the floor is refused too,
+with the measurement it came to; leave `size` out and it fits itself instead.
+
+Whatever sits in a labelled compartment rests on the letters, so it sits
+`height` higher — 0.6 mm by default. That is nothing under a stack of cards, but
+it is worth dropping for anything that has to sit flat.
 
 ## Requirements
 

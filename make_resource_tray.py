@@ -32,6 +32,11 @@ what keeps the contents from following your fingers out, so how long they
 are is the one thing an opening is really configured by: corner, 20% of
 the wall at each end unless stated, the same default a card holder takes.
 
+A compartment can also be labelled: emboss raises its name, or whatever
+text you give it, off its own floor in a single-stroke font. The label
+sizes itself to the compartment and turns to run along whichever axis has
+the room, so in the ordinary case there is nothing to state but the words.
+
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 make_resource_tray.py <game_id>
 """
@@ -41,8 +46,10 @@ import math
 import trimesh
 
 from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
+from label import emboss_solid
 
 SIDES = ("W-", "W+", "L-", "L+")  # low/high side on each axis
+
 
 GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
 CFG = load_game(GAME_ID)
@@ -173,12 +180,13 @@ def opening_cut(side, xr, yr, H, corner, depth):
 def plan(comps, split, W, L, H, where):
     """Divide the cavity into compartments, recursing into nested ones.
 
-    Returns the cavity boxes to subtract from the blank, a flat record of what
-    went where for the report -- (name, level, is_leaf, xr, yr, depth, z0) --
-    and one row per notch and per opening cut.
+    Returns the cavity boxes to subtract from the blank, the label solids to
+    add back to it, a flat record of what went where for the report --
+    (name, level, is_leaf, xr, yr, depth, z0) -- and one row per notch, per
+    opening and per label.
     """
     over = 2.0  # overshoot so each cavity breaks through the top face
-    cuts, placed, notched, opened = [], [], [], []
+    cuts, adds, placed, notched, opened, embossed = [], [], [], [], [], []
 
     def add_notches(comp, xr, yr, depth, where, label):
         """Cut each requested slot through the named wall of this rectangle."""
@@ -299,6 +307,12 @@ def plan(comps, split, W, L, H, where):
             label = "  " * level + cname
             kids = comp.get("compartments")
             if kids:
+                if "emboss" in comp:
+                    raise ValueError(
+                        f"{here}: a label needs a floor to stand on, and this "
+                        f"compartment is split into {len(kids)} of its own -- "
+                        f"label those instead"
+                    )
                 placed.append((cname, level, False, cxr, cyr, depth, None))
                 # A container's walls are real walls, so they can be cut too.
                 add_notches(comp, cxr, cyr, depth, here, label)
@@ -324,9 +338,13 @@ def plan(comps, split, W, L, H, where):
             placed.append((cname, level, True, cxr, cyr, depth, z0))
             add_notches(comp, cxr, cyr, depth, here, label)
             add_openings(comp, cxr, cyr, depth, here, label)
+            if "emboss" in comp:
+                solid, row = emboss_solid(comp["emboss"], cxr, cyr, z0, here)
+                adds.append(solid)
+                embossed.append((label,) + row)
 
     carve(comps, split, (T, W - T), (T, L - T), H - F, where, 0)
-    return cuts, placed, notched, opened
+    return cuts, adds, placed, notched, opened, embossed
 
 
 print("=" * 66)
@@ -350,9 +368,11 @@ for name, spec in VARIANTS.items():
             f"{T} mm walls and a {F} mm floor"
         )
 
-    cuts, placed, notched, opened = plan(comps, split, W, L, H, at)
+    cuts, adds, placed, notched, opened, embossed = plan(comps, split, W, L, H, at)
 
     mesh = trimesh.boolean.difference([box((0, W), (0, L), (0, H))] + cuts)
+    if adds:  # labels go on after the cavities, or the cavities would eat them
+        mesh = trimesh.boolean.union([mesh] + adds)
     mesh.merge_vertices()
     mesh.update_faces(mesh.nondegenerate_faces())
     path = f"{OUTDIR}/{GAME_ID}_tray_{name}.stl"
@@ -399,6 +419,17 @@ for name, spec in VARIANTS.items():
             print(
                 f"    {label:<18}{side:>6}{corner:>8.1f}{gap:>8.1f}{o_depth:>7.1f}"
                 f"   {'outer, opens outside' if outer else 'divider, joins neighbour'}"
+            )
+    if embossed:
+        print("  Embossing")
+        print(
+            f"    {'compartment':<18}{'text':<14}{'cap':>6}{'stroke':>8}"
+            f"{'raise':>7}{'drawn':>14}  runs"
+        )
+        for label, text, size, stroke, height, along, drawn_w, drawn_h in embossed:
+            print(
+                f"    {label:<18}{text:<14}{size:>6.1f}{stroke:>8.2f}{height:>7.2f}"
+                f"{f'{drawn_w:.1f} x {drawn_h:.1f}':>14}  along {along}"
             )
     print("  Mesh checks")
     report_mesh(mesh)

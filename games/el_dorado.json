@@ -1,0 +1,163 @@
+{
+  "schema_version": 3,
+  "game": {
+    "id": "el_dorado",
+    "name": "El Dorado"
+  },
+  "card_holders": {
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2,
+      "tab_out": null
+    },
+    "sleeve": [60.0, 90.0],
+    "variants": {
+      "main": {
+        "size": [63.0, 93.0, 60.0],
+        "separators": 2,
+        "emboss": { "text": "WYPRAWY" }
+      },
+      "demons": {
+        "size": [63.0, 93.0, 15.0],
+        "emboss": { "text": "DEMONY" }
+      },
+      "companions": {
+        "size": [63.0, 93.0, 10.0],
+        "separators": 1,
+        "emboss": { "text": "TOWARZYSZE" }
+      },
+      "heroes": {
+        "size": [63.0, 93.0, 10.0],
+        "emboss": { "text": "BOHATEROWIE" }
+      },
+      "starting": {
+        "size": [63.0, 93.0, 25.0],
+        "emboss": { "text": "STARTOWE" }
+      },
+      "muisca": {
+        "size": [63.0, 93.0, 10.0],
+        "emboss": { "text": "MUISCA" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "meeples": {
+        "size": [63.0, 93.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "meeples",
+            "emboss": { "text": "POSZUKIWACZE" }
+          }
+        ]
+      },
+      "curses": {
+        "size": [63.0, 93.0, 25.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "curses",
+            "emboss": { "text": "KLĄTWY" }
+          }
+        ]
+      },
+
+      "addons": {
+        "size": [192.0, 81.0, 30.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "dragons",
+            "emboss": { "text": "SMOKI" }
+          },
+          {
+            "name": "temples",
+            "emboss": { "text": "ŚWIĄTYNIE" }
+          },
+          {
+            "name": "treasures",
+            "emboss": { "text": "SKARBY" }
+          },
+          {
+            "name": "dragons",
+            "emboss": { "text": "SMOKI" }
+          }
+        ]
+      },
+      "caves": {
+        "size": [192.0, 81.0, 30.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "caves",
+            "emboss": { "text": "JASKINIE" }
+          }
+        ]
+      },
+
+      "tiles_1": {
+        "size": [96.0, 212.0, 38.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "long"
+          }
+        ]
+      },
+      "tiles_2": {
+        "size": [96.0, 212.0, 38.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "short_1"
+          },
+          {
+            "name": "short_2"
+          }
+        ]
+      },
+
+      "player_boards_and_borders": {
+        "size": [40.0, 293.0, 60.0],
+        "split": "W",
+        "compartments": [
+          {
+            "name": "player_boards",
+            "size": 20.0
+          },
+          {
+            "name": "borders",
+            "compartments": [
+              {
+                "name": "half_1",
+                "openings": [
+                  {
+                    "side": "W+",
+                    "corner": 40
+                  }
+                ]
+              },
+              {
+                "name": "half_2",
+                "openings": [
+                  {
+                    "side": "W+",
+                    "corner": 40
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "notes": "BOX 295x293x65, MANUALS 5, MAP TILE 192x212x22"
+}

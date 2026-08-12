@@ -1,0 +1,96 @@
+{
+  "schema_version": 3,
+  "game": {
+    "id": "trakty_kontrakty",
+    "name": "Trakty i Kontrakty"
+  },
+  "card_holders": {
+    "clearance": 1.0,
+    "wall": 1.0,
+    "floor": 1.0,
+    "card_thickness": 0.6,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2,
+      "tab_out": null
+    },
+    "variants": {
+      "contracts": {
+        "size": [68.0, 93.0, 40.0],
+        "sleeve": [65.0, 90.0],
+        "separators": 0
+      },
+      "players": {
+        "size": [83.0, 138.0, 20.0],
+        "sleeve": [80.0, 118.0],
+        "corner": 40.0,
+        "separators": 0
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "variants": {
+      "players": {
+        "size": [83.0, 138.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ]
+      },
+
+      "orders_boons": {
+        "size": [62.0, 93.0, 30.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "orders",
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          {
+            "name": "boons",
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        ]
+      },
+      "amber": {
+        "size": [62.0, 93.0, 10.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ]
+      },
+
+      "coins": {
+        "size": [101.0, 93.0, 20.0],
+        "split": "L",
+        "compartments": [
+          {
+            "name": "main"
+          }
+        ],
+        "print": 2
+      }
+    }
+  },
+  "notes": "BOX 231x231x68, BOARD+MANUALS 13mm, ORDERS/BOONS TILES 42x59"
+}

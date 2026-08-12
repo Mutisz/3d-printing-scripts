@@ -41,9 +41,13 @@ Schema, version 3
                                    leaving the middle 60% of each long wall
                                    open; the fragment kept at each corner
         "separators": int,         optional, default 0
-        "sleeve": [W, L]           optional; the sleeve this variant is
+        "sleeve": [W, L],          optional; the sleeve this variant is
                                    checked against, in place of the
                                    section's
+        "emboss": {...}            optional raised label on the cavity
+                                   floor, under where the cards sit; the
+                                   same shape as a tray compartment's,
+                                   spelt out under trays below
       }
     }
   },
@@ -87,7 +91,21 @@ Schema, version 3
                 "depth": float     optional, default the compartment's own
                                    depth, i.e. rim all the way to the floor
               }
-            ]
+            ],
+            "emboss": {            optional raised label on this compartment's
+                                   own floor; leaf compartments only, since a
+                                   split one has no floor of its own
+              "text": str,         what to raise; upper-cased, and every
+                                   character must be one the stroke font has
+              "size": float,       optional cap height; the default fits the
+                                   compartment, up to 10 mm
+              "stroke": float,     optional line width, default 14% of the cap
+                                   and never under 0.8 mm
+              "height": float,     optional stand-off from the floor, default
+                                   0.6 mm
+              "along": "W" | "L"   optional axis the text runs along, default
+                                   whichever of the two is longer
+            }
           }
         ]
       }
