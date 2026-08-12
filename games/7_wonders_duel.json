@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "game": {
     "id": "7_wonders_duel",
     "name": "7 Wonders Duel"
@@ -18,19 +18,25 @@
         "size": [49.0, 74.0, 38.0],
         "sleeve": [46.0, 71.0],
         "corner": 10.0,
-        "separators": 2
+        "separators": {
+          "1": {},
+          "2": {}
+        }
       },
       "pantheon_deck": {
         "size": [74.0, 116.0, 12.0],
         "sleeve": [63.0, 113.0],
         "corner": 20.0,
-        "separators": 0
+        "separators": {}
       },
       "wonders_deck": {
         "size": [74.0, 116.0, 26.0],
         "sleeve": [68.0, 102.0],
         "corner": 20.0,
-        "separators": 2
+        "separators": {
+          "1": {},
+          "2": {}
+        }
       }
     }
   },
@@ -41,76 +47,65 @@
       "progress_tokens": {
         "size": [74.0, 116.0, 26.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "size": null
           }
-        ]
+        }
       },
       "influence_cubes": {
         "size": [74.0, 58.0, 12.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "size": null
           }
-        ]
+        }
       },
       "coins": {
         "size": [49.0, 165.0, 19.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "1",
+        "compartments": {
+          "1": {
             "size": null
           },
-          {
-            "name": "3",
+          "3": {
             "size": null
           },
-          {
-            "name": "6",
+          "6": {
             "size": null
           }
-        ]
+        }
       },
       "pantheon_and_edicts_tokens": {
         "size": [49.0, 165.0, 19.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "edicts",
+        "compartments": {
+          "edicts": {
             "size": null
           },
-          {
-            "name": "pantheon",
+          "pantheon": {
             "size": null
           },
-          {
-            "name": "donations",
+          "donations": {
             "size": 30
           }
-        ]
+        }
       },
       "misc": {
         "size": [32.0, 197.0, 38.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "tiles_1",
+        "compartments": {
+          "tiles_1": {
             "size": null
           },
-          {
-            "name": "tiles_2",
+          "tiles_2": {
             "size": null
           },
-          {
-            "name": "figures",
+          "figures": {
             "size": null
           }
-        ]
+        }
       }
     }
   }

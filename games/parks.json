@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "game": {
     "id": "parks",
     "name": "PARKS"
@@ -53,20 +53,18 @@
       "campfires": {
         "size": [55.0, 80.0, 10.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Campfire tokens"
           }
-        ]
+        }
       },
 
       "trail": {
         "size": [75.0, 80.0, 30.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Trail tiles",
             "openings": [
               {
@@ -77,14 +75,13 @@
               }
             ]
           }
-        ]
+        }
       },
       "campsites": {
         "size": [75.0, 80.0, 20.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Campsite tiles",
             "openings": [
               {
@@ -95,35 +92,32 @@
               }
             ]
           }
-        ]
+        }
       },
 
       "tents": {
         "size": [75.0, 80.0, 10.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Tents"
           }
-        ]
+        }
       },
       "misc": {
         "size": [75.0, 80.0, 15.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Camera token, First player token, Bison token"
           }
-        ]
+        }
       },
       "meeples": {
         "size": [37.5, 125.0, 25.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "p1",
+        "compartments": {
+          "p1": {
             "notches": [
               {
                 "side": "W-"
@@ -133,8 +127,7 @@
               }
             ]
           },
-          {
-            "name": "p2",
+          "p2": {
             "notches": [
               {
                 "side": "W-"
@@ -144,8 +137,7 @@
               }
             ]
           },
-          {
-            "name": "p3",
+          "p3": {
             "notches": [
               {
                 "side": "W-"
@@ -155,8 +147,7 @@
               }
             ]
           },
-          {
-            "name": "p4",
+          "p4": {
             "notches": [
               {
                 "side": "W-"
@@ -166,8 +157,7 @@
               }
             ]
           },
-          {
-            "name": "p5",
+          "p5": {
             "notches": [
               {
                 "side": "W-"
@@ -177,53 +167,46 @@
               }
             ]
           }
-        ]
+        }
       },
       "resources_1": {
         "size": [37.5, 125.0, 25.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "mountains"
-          },
-          {
-            "name": "trees"
-          }
-        ]
+        "compartments": {
+          "mountains": {},
+          "trees": {}
+        }
       },
 
       "resource_2": {
         "size": [75.0, 79.0, 17.5],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Water or sun tokens",
             "print": 2
           }
-        ]
+        }
       },
       "resource_3": {
         "size": [75.0, 79.0, 15],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Wildlife tokens",
             "print": 2
           }
-        ]
+        }
       },
 
       "pictures": {
         "size": [130.0, 45.0, 25.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main",
+        "compartments": {
+          "main": {
             "contains": "Picture tokens"
           }
-        ]
+        }
       }
     }
   },

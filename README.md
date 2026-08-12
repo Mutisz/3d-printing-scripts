@@ -74,20 +74,19 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
   "card_holders": {
     "wall": 1.0, "floor": 1.0, "card_thickness": 0.6,
     "sleeve": [67.0, 91.0], "clearance": 1.0,
     "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
     "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 10.0,
-                                 "separators": 0 } }
+                                 "separators": { "age-i": {}, "age-ii": {} } } }
   },
   "trays": {
     "wall": 1.0, "floor": 1.0,
     "variants": { "coins": { "size": [70.0, 94.0, 21.0], "split": "L",
-                             "compartments": [ { "name": "1", "size": null },
-                                               { "name": "5", "size": 30.0 } ] } }
+                             "compartments": { "1": {}, "5": { "size": 30.0 } } } }
   }
 }
 ```
@@ -121,14 +120,55 @@ Both keys are optional. Drop them and nothing is checked; state a `sleeve` on
 one variant only and that variant alone is. The escape check — is the side
 opening shorter than a card? — needs a sleeve too, and says so when it has none.
 
-### Separator tabs
+### Separators
 
-A separator's tabs are not configured. Each one fills the side opening its
-holder actually has — `L` less the two `corner` posts — minus the same `fit`
-that shrinks the sheet, so the tab is as long as it can be, reaches through the
+Separators are named rather than counted. Each key under a variant's
+`separators` is one sheet and one STL, and each entry states only what it wants
+of its own — an empty object takes the section's numbers for everything.
+
+```jsonc
+"card_holders": {
+  "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },  // defaults
+  "variants": {
+    "main_deck": { "separators": {
+        "age-i":   { "emboss": { "text": "AGE I" } },
+        "age-ii":  { "emboss": { "text": "AGE II" }, "thickness": 1.6 },
+        "spare":   {}                                // all of the above
+    }}
+  }
+}
+```
+
+`thickness`, `fit` and `tab_out` override the `separator` section per sheet, and
+`emboss` raises a label on the sheet face — the same label option compartments
+and holders take. The id names the file, so `age-i` above comes out as
+`<game>_card_separator_main_deck_age-i.stl`.
+
+A sheet's tabs are not configured. Each one fills the side opening its holder
+actually has — `L` less the two `corner` posts — minus the same `fit` that
+shrinks the sheet, so the tab is as long as it can be, reaches through the
 opening whatever the corner posts are set to, and cannot fall out of step with
-them. `separator.tab_out` still sets how far it stands proud; `null` means flush
-with the outer wall.
+them. `tab_out` still sets how far it stands proud; `null` means flush with the
+outer wall.
+
+The report lists every sheet with its thickness, footprint, tab length and
+width over the tabs — flagged `proud`, `flush` or `recessed` against the holder
+— and the combined stack is checked against the depth available for cards.
+
+### Compartments
+
+A tray's `compartments` is an object: each key names a compartment, and they sit
+in the row **in the order they are written**. Every key inside an entry is
+optional, so `{}` is a complete compartment — one that shares out whatever the
+sized ones leave over. A row of empty objects divides a tray evenly:
+
+```jsonc
+"compartments": { "red": {}, "green": {}, "blue": {} }
+```
+
+Names have to be unique within their row, and a repeated name is refused rather
+than quietly dropping one of the pair — it is the one mistake this shape makes
+easy, so the loader checks for it across the whole file.
 
 ### Nested compartments
 
@@ -139,14 +179,14 @@ into a grid. `depth` set on a parent becomes the default for everything under
 it.
 
 ```jsonc
-"compartments": [
-  { "name": "cubes", "size": 40.0, "depth": 10.0, "compartments": [
-      { "name": "red",   "size": null },   // three equal columns,
-      { "name": "green", "size": null },   // each 10 mm deep
-      { "name": "blue",  "size": null }
-  ]},
-  { "name": "coins", "size": null }        // full-depth, rest of the tray
-]
+"compartments": {
+  "cubes": { "size": 40.0, "depth": 10.0, "compartments": {
+      "red":   {},                    // three equal columns,
+      "green": {},                    // each 10 mm deep
+      "blue":  {}
+  }},
+  "coins": {}                         // full-depth, rest of the tray
+}
 ```
 
 ### Notches
@@ -180,15 +220,15 @@ That is the card holder's open side, in a tray: reach in from the side and lift
 a stack straight out, while the posts keep it from sliding out on its own.
 
 ```jsonc
-"compartments": [
-  { "name": "event_tiles", "size": 46.0, "openings": [
+"compartments": {
+  "event_tiles": { "size": 46.0, "openings": [
       { "side": "L-", "corner": 12.0 },      // 12 mm post at each end
       { "side": "L+", "corner": 12.0 }
   ]},
-  { "name": "pawns", "size": null, "openings": [
+  "pawns": { "openings": [
       { "side": "L+" }                       // corner defaulted
   ]}
-]
+}
 ```
 
 `side` names the wall exactly as a notch does, dividers included. `corner` is
@@ -218,11 +258,11 @@ option on its variant, which puts the label on the cavity floor, under where the
 cards sit — an empty holder still says which deck it belongs to.
 
 ```jsonc
-"compartments": [
-  { "name": "coins", "size": 40.0, "emboss": { "text": "COINS" } },
-  { "name": "wood",  "size": null, "emboss": {
+"compartments": {
+  "coins": { "size": 40.0, "emboss": { "text": "COINS" } },
+  "wood":  { "emboss": {
       "text": "WOOD", "size": 6.0, "height": 1.0, "along": "L" } }
-]
+}
 ```
 
 `text` is all that is required. The label sizes itself to the compartment — up

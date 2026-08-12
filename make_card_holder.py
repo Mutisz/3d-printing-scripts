@@ -14,7 +14,13 @@ first. Access without escape.
 
 A holder can be labelled: emboss raises text off the cavity floor, under
 where the cards sit, so a holder still says what deck it is for once it is
-out of the box and empty. It is the same option a tray compartment takes.
+out of the box and empty. It is the same option a tray compartment takes,
+and every separator takes it too -- which is the point of naming them, as
+a sheet reading AGE II is worth more than a sheet.
+
+Separators are named, not counted. Each id is one sheet and one STL, and
+each says only what it wants of its own: thickness, fit, tab_out, a label,
+or nothing at all.
 
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
@@ -61,6 +67,9 @@ CLEAR = HOLDERS.get("clearance", 0.0)
 # open long side, showing the split from outside the holder. The tab is as
 # long as that opening allows, so it is not configured: it follows the
 # variant's corner posts, less the same fit as the sheet.
+#
+# These are the numbers every sheet takes unless it states its own, so a
+# variant can slip one thicker or looser divider in among the rest.
 SEP = need(HOLDERS, "separator", WHERE)
 SEP_T = need(SEP, "thickness", f"{WHERE} separator")
 SEP_FIT = need(SEP, "fit", f"{WHERE} separator")
@@ -94,20 +103,20 @@ def sleeve_of(spec, at):
     return None if size is None else dims(size, 2, at, "sleeve")
 
 
-def separator(sheet_w, sheet_l, tab_len):
+def separator(sheet_w, sheet_l, tab_len, thick, tab_out):
     """Flat sheet with a tab each side, laid out print-ready on the bed."""
-    key = (sheet_w, sheet_l, tab_len)
+    key = (sheet_w, sheet_l, tab_len, thick, tab_out)
     if key not in SEP_CACHE:
         tab_y0 = (sheet_l - tab_len) / 2
         tab_y = (tab_y0, tab_y0 + tab_len)
-        far = SEP_TAB_OUT + sheet_w  # inner edge of the far tab
-        SEP_CACHE[key] = trimesh.boolean.union(
-            [
-                box((SEP_TAB_OUT, far), (0, sheet_l), (0, SEP_T)),
-                box((0, SEP_TAB_OUT), tab_y, (0, SEP_T)),
-                box((far, far + SEP_TAB_OUT), tab_y, (0, SEP_T)),
+        far = tab_out + sheet_w  # inner edge of the far tab
+        parts = [box((tab_out, far), (0, sheet_l), (0, thick))]
+        if tab_out > 0:  # a sheet asked to sit flush has no tabs to build
+            parts += [
+                box((0, tab_out), tab_y, (0, thick)),
+                box((far, far + tab_out), tab_y, (0, thick)),
             ]
-        )
+        SEP_CACHE[key] = trimesh.boolean.union(parts) if len(parts) > 1 else parts[0]
     return SEP_CACHE[key]
 
 
@@ -133,15 +142,17 @@ for name, spec in VARIANTS.items():
     corner = spec.get("corner")
     if corner is None:
         corner = 0.2 * L  # posts down 20% of each long wall, the middle 60% open
-    n_sep = spec.get("separators", 0)
+    seps = spec.get("separators") or {}
+    if not isinstance(seps, dict):
+        raise ValueError(
+            f"[{name}] separators must be an object keyed by separator id, got "
+            f"{seps!r} -- one entry per sheet, each stating whatever it wants "
+            f"of its own and taking the section's numbers for the rest"
+        )
 
     INNER_W = W - 2 * T
     INNER_L = L - 2 * T
     depth = H - F  # what is left over the floor is the card stack
-
-    SHEET_W = INNER_W - SEP_FIT
-    SHEET_L = INNER_L - SEP_FIT
-    SEP_W = SHEET_W + 2 * SEP_TAB_OUT  # separator width over the tabs
 
     if INNER_W <= 0 or INNER_L <= 0 or depth <= 0:
         raise ValueError(
@@ -169,16 +180,76 @@ for name, spec in VARIANTS.items():
     # posts allow and always clears them: nothing to configure, nothing to
     # keep in step when the corner changes.
     OPENING = L - 2 * corner
-    SEP_TAB_LEN = OPENING - SEP_FIT
 
-    if n_sep and SEP_TAB_LEN <= 0:
-        raise ValueError(
-            f"[{name}] the {OPENING:.1f} mm side opening is no wider than the "
-            f"{SEP_FIT} mm separator fit, leaving no tab -- shorten the corner posts"
+    sheets = []
+    for sid, sheet_spec in seps.items():
+        seat = f"{at} separators.{sid}"
+        if sheet_spec is None:  # a bare null reads as "nothing of my own"
+            sheet_spec = {}
+        if not isinstance(sheet_spec, dict):
+            raise ValueError(f"{seat}: must be an object, got {sheet_spec!r}")
+        if not sid or "/" in sid or "\\" in sid:
+            raise ValueError(
+                f"{at} separators: {sid!r} will not do as an id -- it names an "
+                f"STL, so it cannot be empty or carry a path separator"
+            )
+
+        thick = sheet_spec.get("thickness", SEP_T)
+        fit = sheet_spec.get("fit", SEP_FIT)
+        tab_out = sheet_spec.get("tab_out", SEP_TAB_OUT)
+        if tab_out is None:  # null means "land flush with the outer wall"
+            tab_out = T
+
+        if thick <= 0 or fit < 0 or tab_out < 0:
+            raise ValueError(
+                f"{seat}: thickness must be positive and fit and tab_out cannot "
+                f"be negative, got {thick}, {fit} and {tab_out}"
+            )
+
+        sheet_w, sheet_l = INNER_W - fit, INNER_L - fit
+        tab_len = OPENING - fit
+        if sheet_w <= 0 or sheet_l <= 0:
+            raise ValueError(
+                f"{seat}: a {fit} mm fit leaves no sheet inside the "
+                f"{INNER_W} x {INNER_L} mm cavity"
+            )
+        if tab_len <= 0:
+            raise ValueError(
+                f"{seat}: the {OPENING:.1f} mm side opening is no wider than the "
+                f"{fit} mm fit, leaving no tab -- shorten the corner posts"
+            )
+
+        mesh_sep = separator(sheet_w, sheet_l, tab_len, thick, tab_out)
+        sheet_label = None
+        if sheet_spec.get("emboss"):
+            # Onto the face of the sheet, which is the only surface a
+            # separator has: the tabs are a wall thick and hold nothing.
+            solid, sheet_label = emboss_solid(
+                sheet_spec["emboss"],
+                (tab_out, tab_out + sheet_w),
+                (0, sheet_l),
+                thick,
+                f"{seat} emboss",
+            )
+            mesh_sep = trimesh.boolean.union([mesh_sep, solid])
+
+        sheets.append(
+            {
+                "id": sid,
+                "mesh": mesh_sep,
+                "thick": thick,
+                "w": sheet_w,
+                "l": sheet_l,
+                "tab": tab_len,
+                "over": sheet_w + 2 * tab_out,  # width over the tabs
+                "label": sheet_label,
+            }
         )
-    if n_sep * SEP_T >= depth:
+
+    sep_stack = sum(sheet["thick"] for sheet in sheets)
+    if sep_stack >= depth:
         raise ValueError(
-            f"[{name}] {n_sep} separators are {n_sep * SEP_T} mm of a "
+            f"[{name}] {len(sheets)} separators are {sep_stack:.1f} mm of a "
             f"{depth} mm stack, leaving no room for cards"
         )
 
@@ -204,7 +275,6 @@ for name, spec in VARIANTS.items():
     path = f"{OUTDIR}/{GAME_ID}_card_holder_{name}.stl"
     mesh.export(path)
 
-    sep_stack = n_sep * SEP_T
     card_stack = depth - sep_stack
 
     print("-" * 60)
@@ -242,29 +312,45 @@ for name, spec in VARIANTS.items():
         )
     print("  Mesh checks")
     report_mesh(mesh)
-    if n_sep:
-        sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}.stl"
-        separator(SHEET_W, SHEET_L, SEP_TAB_LEN).export(sep_path)
+    sep_paths = []
+    if sheets:
         print("  Separators")
-        if abs(SEP_W - W) < 1e-6:
-            sits = "flush"
-        else:
-            sits = "proud" if SEP_W > W else "recessed"
-        print(f"    sheet     {SHEET_W:.1f} x {SHEET_L:.1f} mm, {SEP_T} mm thick")
-        print(f"    overall   {SEP_W:.1f} mm wide vs {W} mm holder -> {sits}")
-        print(f"    print     {n_sep}, {sep_stack:.1f} mm of the stack")
         print(
-            f"    tabs      {SEP_TAB_LEN:.1f} mm in the {OPENING} mm opening -> "
-            f"{SEP_FIT} mm of play"
+            f"    {'id':<14}{'thick':>6}{'sheet':>16}{'tab':>7}{'over tabs':>17}"
+            f"  label"
         )
+        for sheet in sheets:
+            over = sheet["over"]
+            sits = "flush"
+            if abs(over - W) > 1e-6:
+                sits = "proud" if over > W else "recessed"
+            footprint = f"{sheet['w']:.1f} x {sheet['l']:.1f}"
+            fits = f"{over:.1f} {sits}"
+            text = sheet["label"][0] if sheet["label"] else "--"
+            print(
+                f"    {sheet['id']:<14}{sheet['thick']:>6.1f}{footprint:>16}"
+                f"{sheet['tab']:>7.1f}{fits:>17}  {text}"
+            )
+            if sheet["label"]:
+                text, size, stroke, height, along, _, _ = sheet["label"]
+                print(
+                    f"    {'':<14}{size:.1f} mm cap, {stroke:.2f} mm stroke, "
+                    f"{height:.2f} mm proud, along {along}"
+                )
+            sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}_{sheet['id']}.stl"
+            sheet["mesh"].export(sep_path)
+            sep_paths.append(sep_path)
 
     print("  Capacity")
     print(
         f"    stack     {depth} mm less {sep_stack:.1f} mm of separators -> "
         f"{card_stack:.1f} mm of cards"
     )
-    print(f"    ~{card_stack / CARD_THICK:.0f} sleeved cards + {n_sep} separators")
+    print(
+        f"    ~{card_stack / CARD_THICK:.0f} sleeved cards + "
+        f"{len(sheets)} separators"
+    )
     print(f"  -> {path}")
-    if n_sep:
+    for sep_path in sep_paths:
         print(f"  -> {sep_path}")
     print()

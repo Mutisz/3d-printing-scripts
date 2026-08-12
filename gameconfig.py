@@ -10,10 +10,10 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 3
+Schema, version 5
 -----------------
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
@@ -26,8 +26,8 @@ Schema, version 3
                                    variants stating their own are checked
     "clearance": float,            optional, default 0; how much bigger than
                                    the sleeve the cavity has to come out
-    "separator": {
-      "thickness": float,
+    "separator": {                 what every separator takes unless it
+      "thickness": float,          states its own
       "fit": float,                shrinks the sheet, and the tab, for a
                                    looser fit
       "tab_out": float | null      reach past the sheet; null means wall
@@ -40,7 +40,18 @@ Schema, version 3
         "corner": float,           optional, default 20% of L at each end,
                                    leaving the middle 60% of each long wall
                                    open; the fragment kept at each corner
-        "separators": int,         optional, default 0
+        "separators": {            optional; one entry per sheet, keyed by
+                                   an id that also names its STL. Every key
+                                   inside is optional, so {} is a sheet on
+                                   the section's numbers
+          "<id>": {
+            "thickness": float,    optional, default the section's
+            "fit": float,          optional, default the section's
+            "tab_out": float,      optional, default the section's
+            "emboss": {...}        optional raised label on the sheet face,
+                                   the same shape as elsewhere
+          }
+        },
         "sleeve": [W, L],          optional; the sleeve this variant is
                                    checked against, in place of the
                                    section's
@@ -59,14 +70,16 @@ Schema, version 3
       "<name>": {
         "size": [W, L, H],         outside dimensions
         "split": "L" | "W",        axis the compartment row runs along
-        "compartments": [        a row running along "split"
-          {
-            "name": str,
-            "size": float | null,  extent along this row's axis; null shares
-                                   out whatever the sized ones leave over
+        "compartments": {          a row running along "split", laid out
+                                   in the order the names are written
+          "<name>": {              every key below is optional, so {} is a
+                                   compartment that shares out what is left
+            "size": float | null,  extent along this row's axis; leave it
+                                   out, or null, to share out whatever the
+                                   sized ones leave over
             "depth": float,        optional, default full inside depth; on a
                                    parent it becomes its children's default
-            "compartments": [...], optional; subdivides this compartment
+            "compartments": {...}, optional; subdivides this compartment
                                    across the perpendicular axis, same shape
                                    as here, nestable to any depth
             "notches": [           optional finger slots, cut from the rim
@@ -107,7 +120,7 @@ Schema, version 3
                                    whichever of the two is longer
             }
           }
-        ]
+        }
       }
     }
   }
@@ -122,7 +135,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 5
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 
@@ -132,6 +145,25 @@ def parse_game_id(description):
     ap = argparse.ArgumentParser(description=description)
     ap.add_argument("game_id", help="game to build, i.e. the games/<id>.json stem")
     return ap.parse_args().game_id
+
+
+def no_duplicate_keys(pairs):
+    """Build an object, refusing a repeated key rather than keeping one.
+
+    Names are load-bearing now -- they key compartments and separators, and
+    a repeat would quietly drop everything but the last one, taking a
+    compartment out of a tray without a word. JSON allows it; we do not.
+    """
+    out = {}
+    for key, value in pairs:
+        if key in out:
+            raise ValueError(
+                f"{key!r} appears twice in the same object -- names are how "
+                f"compartments and separators are told apart, so a repeat "
+                f"would silently drop one of them"
+            )
+        out[key] = value
+    return out
 
 
 def load_game(game_id):
@@ -149,9 +181,11 @@ def load_game(game_id):
 
     with open(path) as fh:
         try:
-            cfg = json.load(fh)
+            cfg = json.load(fh, object_pairs_hook=no_duplicate_keys)
         except json.JSONDecodeError as e:
             raise SystemExit(f"{path} is not valid JSON: {e}") from None
+        except ValueError as e:
+            raise SystemExit(f"{path}: {e}") from None
 
     found = cfg.get("schema_version")
     if found != SCHEMA_VERSION:

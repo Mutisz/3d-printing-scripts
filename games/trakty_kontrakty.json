@@ -1,5 +1,5 @@
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "game": {
     "id": "trakty_kontrakty",
     "name": "Trakty i Kontrakty"
@@ -18,13 +18,13 @@
       "contracts": {
         "size": [68.0, 93.0, 40.0],
         "sleeve": [65.0, 90.0],
-        "separators": 0
+        "separators": {}
       },
       "players": {
         "size": [83.0, 138.0, 20.0],
         "sleeve": [80.0, 118.0],
         "corner": 40.0,
-        "separators": 0
+        "separators": {}
       }
     }
   },
@@ -35,19 +35,16 @@
       "players": {
         "size": [83.0, 138.0, 20.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main"
-          }
-        ]
+        "compartments": {
+          "main": {}
+        }
       },
 
       "orders_boons": {
         "size": [62.0, 93.0, 30.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "orders",
+        "compartments": {
+          "orders": {
             "openings": [
               {
                 "side": "W-"
@@ -57,8 +54,7 @@
               }
             ]
           },
-          {
-            "name": "boons",
+          "boons": {
             "openings": [
               {
                 "side": "W-"
@@ -68,26 +64,22 @@
               }
             ]
           }
-        ]
+        }
       },
       "amber": {
         "size": [62.0, 93.0, 10.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main"
-          }
-        ]
+        "compartments": {
+          "main": {}
+        }
       },
 
       "coins": {
         "size": [101.0, 93.0, 20.0],
         "split": "L",
-        "compartments": [
-          {
-            "name": "main"
-          }
-        ],
+        "compartments": {
+          "main": {}
+        },
         "print": 2
       }
     }

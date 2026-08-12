@@ -7,10 +7,12 @@ when a tray has to drop into a game box insert. Compartments sit in a single
 row running along either the L or the W axis, separated by dividers as thick
 as the walls.
 
-Give a compartment an absolute size along the split axis, or null to let it
-share out whatever the fixed ones leave over. A compartment may also be
-shallower than the tray, which raises its floor and makes small pieces
-easier to pinch out.
+Compartments are named by their key, and sit in the row in the order they
+are written. Give one an absolute size along the split axis, or leave size
+out and it shares whatever the fixed ones leave over -- so {} is a whole
+compartment, and a row of them divides the tray evenly. A compartment may
+also be shallower than the tray, which raises its floor and makes small
+pieces easier to pinch out.
 
 A compartment that carries compartments of its own is subdivided in turn,
 across the perpendicular axis -- so a row along L becomes columns along W,
@@ -69,29 +71,54 @@ F = need(TRAYS, "floor", WHERE)
 VARIANTS = need(TRAYS, "variants", WHERE)
 
 
+def as_compartments(value, where):
+    """The compartments mapping, checked, with null entries read as empty.
+
+    Written order is laid-out order, which is the one thing an object gives
+    up over a list -- so it is worth saying out loud.
+    """
+    if not isinstance(value, dict):
+        raise ValueError(
+            f"{where}: compartments must be an object keyed by compartment "
+            f"name, got {value!r} -- they sit in the row in the order they "
+            f"are written"
+        )
+    out = {}
+    for cname, comp in value.items():
+        if not cname:
+            raise ValueError(f"{where}: every compartment needs a name to go by")
+        if comp is None:  # a bare null reads as "nothing of my own"
+            comp = {}
+        if not isinstance(comp, dict):
+            raise ValueError(f"{where}.{cname}: must be an object, got {comp!r}")
+        out[cname] = comp
+    return out
+
+
 def resolve_sizes(where, comps, span):
-    """Absolute size per compartment, sharing `span` out among the nulls."""
-    autos = [c for c in comps if c.get("size") is None]
-    fixed = sum(c["size"] for c in comps if c.get("size") is not None)
+    """Absolute size per compartment, sharing `span` out among the sizeless."""
+    specs = list(comps.values())
+    autos = [c for c in specs if c.get("size") is None]
+    fixed = sum(c["size"] for c in specs if c.get("size") is not None)
 
     if not autos:
         if abs(fixed - span) > 1e-6:
             raise ValueError(
                 f"{where}: compartments total {fixed:.1f} mm but {span:.1f} mm "
                 f"is available -- adjust a size, change the outside dimension, "
-                f"or set one size to null to absorb the difference"
+                f"or leave one size out to absorb the difference"
             )
-        return [c["size"] for c in comps]
+        return [c["size"] for c in specs]
 
     leftover = span - fixed
     if leftover <= 0:
         raise ValueError(
             f"{where}: fixed compartments already total {fixed:.1f} mm of the "
             f"{span:.1f} mm available, leaving nothing for the {len(autos)} "
-            f"sized null"
+            f"without a size"
         )
     share = leftover / len(autos)
-    return [share if c.get("size") is None else c["size"] for c in comps]
+    return [share if c.get("size") is None else c["size"] for c in specs]
 
 
 def wall_band(side, xr, yr):
@@ -290,8 +317,9 @@ def plan(comps, split, W, L, H, where):
             )
 
         pos = lo
-        for comp, size in zip(comps, resolve_sizes(where, comps, span)):
-            cname = need(comp, "name", where)
+        for (cname, comp), size in zip(
+            comps.items(), resolve_sizes(where, comps, span)
+        ):
             here = f"{where}.{cname}"
             if size <= 0:
                 raise ValueError(f"{here}: size must be positive, got {size}")
@@ -307,6 +335,7 @@ def plan(comps, split, W, L, H, where):
             label = "  " * level + cname
             kids = comp.get("compartments")
             if kids:
+                kids = as_compartments(kids, here)
                 if "emboss" in comp:
                     raise ValueError(
                         f"{here}: a label needs a floor to stand on, and this "
@@ -356,7 +385,8 @@ print()
 for name, spec in VARIANTS.items():
     at = f"{WHERE} trays.variants.{name}"
     W, L, H = need(spec, "size", at)
-    split, comps = need(spec, "split", at), need(spec, "compartments", at)
+    split = need(spec, "split", at)
+    comps = as_compartments(need(spec, "compartments", at), at)
 
     if split not in ("L", "W"):
         raise ValueError(f"{at}: split must be 'L' or 'W', got {split!r}")
