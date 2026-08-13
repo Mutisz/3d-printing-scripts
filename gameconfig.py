@@ -10,22 +10,30 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 6
+Schema, version 7
 -----------------
 {
-  "schema_version": 6,
+  "schema_version": 7,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
     "wall": float,                 wall thickness
     "floor": float,                floor thickness
-    "card_thickness": float,       for the capacity estimate
-    "sleeve": [W, L],              optional; sizes nothing, only checks the
-                                   cavity a variant's size leaves. Default
-                                   for every variant; omit it and only the
-                                   variants stating their own are checked
-    "clearance": float,            optional, default 0; how much bigger than
+    "validation": {                optional, and every key in it optional
+                                   too: none of this sizes anything, it only
+                                   checks the cavity a variant's size left
+                                   and estimates what will stack in it. What
+                                   a section states here every variant takes
+                                   unless it overrides it
+      "sleeve": [W, L],            optional; the card the cavity is checked
+                                   against -- and what the escape check
+                                   measures the side opening against. Omit
+                                   it and neither check runs
+      "clearance": float,          optional, default 0; how much bigger than
                                    the sleeve the cavity has to come out
+      "card_thickness": float      optional; omit it and the report skips
+                                   the card count, giving mm of stack only
+    },
     "emboss": {                    optional; what every label in this section
       "size": float,               starts from, holders and separators alike.
       "stroke": float,             Any key an emboss takes beyond its text,
@@ -62,9 +70,11 @@ Schema, version 6
                                    the same shape as elsewhere
           }
         },
-        "sleeve": [W, L],          optional; the sleeve this variant is
-                                   checked against, in place of the
-                                   section's
+        "validation": {            optional; the same three keys, each one
+          "sleeve": [W, L],        standing in for the section's for this
+          "clearance": float,      variant alone -- a holder taking a
+          "card_thickness": float  different card states only what differs
+        },
         "emboss": {...}            optional raised label on the cavity
                                    floor, under where the cards sit; the
                                    same shape as a tray compartment's,
@@ -157,7 +167,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 

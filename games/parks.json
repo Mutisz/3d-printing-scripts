@@ -1,46 +1,48 @@
 {
-  "schema_version": 6,
+  "schema_version": 7,
   "game": {
     "id": "parks",
     "name": "PARKS"
   },
   "card_holders": {
-    "clearance": 1.0,
     "wall": 1.0,
     "floor": 1.0,
-    "card_thickness": 0.6,
     "separator": {
       "thickness": 1.0,
       "fit": 0.2,
       "tab_out": null
     },
+    "validation": {
+      "clearance": 1.0,
+      "card_thickness": 0.6
+    },
     "variants": {
       "large_parks": {
         "size": [75.0, 126.0, 50.0],
-        "sleeve": [72.0, 123.0],
+        "validation": { "sleeve": [72.0, 123.0] },
         "corner": 0.24,
         "contains": "Park cards"
       },
 
       "small_equipment": {
         "size": [55.0, 80.0, 30.0],
-        "sleeve": [52.0, 77.0],
+        "validation": { "sleeve": [52.0, 77.0] },
         "contains": "Equipment cards"
       },
       "small_canteens": {
         "size": [55.0, 80.0, 20.0],
-        "sleeve": [52.0, 77.0],
+        "validation": { "sleeve": [52.0, 77.0] },
         "contains": "Canteen cards"
       },
 
       "small_ranger": {
         "size": [55.0, 80.0, 10.0],
-        "sleeve": [52.0, 77.0],
+        "validation": { "sleeve": [52.0, 77.0] },
         "contains": "Ranger cards"
       },
       "small_season_year": {
         "size": [55.0, 80.0, 15.0],
-        "sleeve": [52.0, 77.0],
+        "validation": { "sleeve": [52.0, 77.0] },
         "contains": "Season and year cards",
         "print": 2
       }

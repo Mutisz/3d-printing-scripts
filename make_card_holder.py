@@ -27,10 +27,11 @@ or nothing at all.
 
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
-inside the walls. The sleeve size sets nothing. State one -- once for the
-section, or per variant for a holder taking a different card -- and it is
-checked against the cavity that came out; leave it out and nothing is
-checked.
+inside the walls. Nothing under validation sizes any of that: the sleeve,
+the clearance it wants and the card thickness only ever check the cavity
+the size already decided, or estimate what will stack in it. State them
+once for the section, override any of them on a variant taking a different
+card, or leave them out and the same holder is built unchecked.
 
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 make_card_holder.py <game_id>
@@ -58,15 +59,45 @@ if not HOLDERS:  # an ordinary state, not an error: exit clean so runners can te
 
 T = need(HOLDERS, "wall", WHERE)
 F = need(HOLDERS, "floor", WHERE)
-CARD_THICK = need(HOLDERS, "card_thickness", WHERE)
 VARIANTS = need(HOLDERS, "variants", WHERE)
 EMB = emboss_defaults(HOLDERS, f"{WHERE} card_holders")  # for holders and sheets
 
-# Both only ever check a cavity, never size one. The sleeve is the section's
-# default, used by every variant that does not state its own; clearance is
-# how much bigger than the sleeve the cavity has to come out.
-SLEEVE = HOLDERS.get("sleeve")
-CLEAR = HOLDERS.get("clearance", 0.0)
+# Nothing here builds anything. A sleeve is what the cavity is checked
+# against, clearance how much bigger than it the cavity has to come out, and
+# card_thickness what the capacity estimate counts in -- so a section states
+# them for every variant, a variant overrides the ones it disagrees with,
+# and a holder with none stated comes out exactly the same, just unchecked.
+VAL_KEYS = ("sleeve", "clearance", "card_thickness")
+
+
+def validation(spec, at):
+    """The validation block a section or a variant states.
+
+    Closed to those three keys: this block is inherited silently, so a typo
+    in it would otherwise turn a check off without ever saying so.
+    """
+    block = spec.get("validation") or {}
+    if not isinstance(block, dict):
+        raise ValueError(f"{at} validation: must be an object, got {block!r}")
+    unknown = [key for key in block if key not in VAL_KEYS]
+    if unknown:
+        named = ", ".join(repr(key) for key in unknown)
+        raise ValueError(
+            f"{at} validation: {named} is not something a holder is checked "
+            f"against -- it takes {', '.join(VAL_KEYS)}"
+        )
+    stray = [key for key in VAL_KEYS if key in spec]
+    if stray:
+        named = ", ".join(repr(key) for key in stray)
+        raise ValueError(
+            f"{at}: {named} goes inside validation, not beside it -- left out "
+            f"here it would be read as nothing at all, quietly dropping the "
+            f"check it was written for"
+        )
+    return block
+
+
+VALID = validation(HOLDERS, f"{WHERE} card_holders")
 
 # Separators: a flat sheet the full size of the cavity, so it stands proud
 # of the cards and is easy to catch. A tab each side reaches out through the
@@ -99,14 +130,40 @@ def dims(value, count, at, what):
     return out
 
 
-def sleeve_of(spec, at):
-    """The sleeve to check against: the variant's, else the section's.
+def checks_of(spec, at):
+    """What a variant is checked against: its own words over the section's.
 
-    None when neither states one, which is not an error -- it only means
-    there is nothing to check the cavity against.
+    Every key is optional at either level, and a missing one is not an error
+    -- it only means there is nothing to check that against. Returns the
+    sleeve, the clearance, the card thickness, and the block the variant
+    stated itself, which is what the report marks as its own.
     """
-    size = spec.get("sleeve", SLEEVE)
-    return None if size is None else dims(size, 2, at, "sleeve")
+    own = validation(spec, at)
+    checks = {**VALID, **own}
+
+    sleeve = checks.get("sleeve")
+    if sleeve is not None:
+        sleeve = dims(sleeve, 2, at, "sleeve")
+
+    clear = checks.get("clearance", 0.0)
+    if clear < 0:
+        raise ValueError(
+            f"{at} validation: clearance is room demanded over the sleeve, so "
+            f"it cannot be negative, got {clear}"
+        )
+
+    thick = checks.get("card_thickness")
+    if thick is not None and thick <= 0:
+        raise ValueError(
+            f"{at} validation: card_thickness must be positive to estimate a "
+            f"stack from, got {thick}"
+        )
+    return sleeve, clear, thick, own
+
+
+def own_note(own, *keys):
+    """Flag a report line whose numbers the variant overrode itself."""
+    return "   (this variant only)" if any(key in own for key in keys) else ""
 
 
 def separator(sheet_w, sheet_l, tab_len, thick, tab_out):
@@ -131,11 +188,20 @@ print(f"Card Holder Generator -- {CFG['game']['name']}")
 print("=" * 60)
 print("Build")
 print(f"  thickness   {T} mm walls, {F} mm floor")
-if SLEEVE:
-    print(f"  sleeve      {SLEEVE[0]} x {SLEEVE[1]} mm unless a variant states its own")
+print("Validation")
+if VALID.get("sleeve"):
+    said = VALID["sleeve"]
+    print(f"  sleeve      {said[0]} x {said[1]} mm unless a variant states its own")
 else:
     print("  sleeve      whatever each variant states, if any")
-print(f"  clearance   {CLEAR} mm the cavity must have over the sleeve")
+print(
+    f"  clearance   {VALID.get('clearance', 0.0)} mm the cavity must have over "
+    f"the sleeve"
+)
+if VALID.get("card_thickness"):
+    print(f"  cards       {VALID['card_thickness']} mm each, for the capacity")
+else:
+    print("  cards       whatever each variant states, if any")
 print("Separator")
 print(f"  sheet       {SEP_T} mm thick, cavity less {SEP_FIT} mm for the fit")
 print(f"  tabs        {SEP_TAB_OUT} mm out each side, filling the variant's")
@@ -183,14 +249,14 @@ for name, spec in VARIANTS.items():
             f"least {math.ceil(T / L * 1000) / 1000}"
         )
 
-    sleeve = sleeve_of(spec, at)
+    sleeve, clear, card_thick, own_checks = checks_of(spec, at)
     if sleeve and (
-        INNER_W + 1e-9 < sleeve[0] + CLEAR or INNER_L + 1e-9 < sleeve[1] + CLEAR
+        INNER_W + 1e-9 < sleeve[0] + clear or INNER_L + 1e-9 < sleeve[1] + clear
     ):
         raise ValueError(
             f"[{name}] the {INNER_W} x {INNER_L} mm cavity is too small for a "
-            f"{sleeve[0]} x {sleeve[1]} mm sleeve with {CLEAR} mm clearance, "
-            f"which needs {sleeve[0] + CLEAR} x {sleeve[1] + CLEAR} mm -- grow "
+            f"{sleeve[0]} x {sleeve[1]} mm sleeve with {clear} mm clearance, "
+            f"which needs {sleeve[0] + clear} x {sleeve[1] + clear} mm -- grow "
             f"the outside size or thin the walls"
         )
 
@@ -309,9 +375,9 @@ for name, spec in VARIANTS.items():
     print(f"    inside    {INNER_W} x {INNER_L} mm, {depth} mm deep")
     if sleeve:
         print(
-            f"    sleeve    {sleeve[0]} x {sleeve[1]} mm + {CLEAR} mm clearance -> "
-            f"{INNER_W - sleeve[0] - CLEAR:.1f} / {INNER_L - sleeve[1] - CLEAR:.1f} "
-            f"mm to spare{'' if 'sleeve' not in spec else '   (this variant only)'}"
+            f"    sleeve    {sleeve[0]} x {sleeve[1]} mm + {clear} mm clearance -> "
+            f"{INNER_W - sleeve[0] - clear:.1f} / {INNER_L - sleeve[1] - clear:.1f} "
+            f"mm to spare{own_note(own_checks, 'sleeve', 'clearance')}"
         )
     print("  Long sides")
     print(
@@ -378,10 +444,17 @@ for name, spec in VARIANTS.items():
         f"    stack     {depth} mm less {sep_stack:.1f} mm of separators -> "
         f"{card_stack:.1f} mm of cards"
     )
-    print(
-        f"    ~{card_stack / CARD_THICK:.0f} sleeved cards + "
-        f"{len(sheets)} separators"
-    )
+    if card_thick:
+        print(
+            f"    ~{card_stack / card_thick:.0f} sleeved cards + "
+            f"{len(sheets)} separators"
+            f"{own_note(own_checks, 'card_thickness')}"
+        )
+    else:
+        print(
+            f"    {len(sheets)} separators, and no card thickness to estimate "
+            f"a card count from"
+        )
     print(f"  -> {path}")
     for sep_path in sep_paths:
         print(f"  -> {sep_path}")

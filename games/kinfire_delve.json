@@ -1,5 +1,5 @@
 {
-  "schema_version": 6,
+  "schema_version": 7,
   "game": {
     "id": "kinfire_delve",
     "name": "Kinfire Delve"
@@ -14,9 +14,11 @@
     "emboss": {
       "depth": 0.4
     },
-    "clearance": 1.0,
-    "card_thickness": 0.6,
-    "sleeve": [65.0, 90.0],
+    "validation": {
+      "sleeve": [65.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.6
+    },
     "variants": {
       "well": {
         "size": [68, 93.0, 34.0],

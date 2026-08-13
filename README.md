@@ -74,11 +74,11 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 6,
+  "schema_version": 7,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
   "card_holders": {
-    "wall": 1.0, "floor": 1.0, "card_thickness": 0.6,
-    "sleeve": [67.0, 91.0], "clearance": 1.0,
+    "wall": 1.0, "floor": 1.0,
+    "validation": { "sleeve": [67.0, 91.0], "clearance": 1.0, "card_thickness": 0.6 },
     "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
     "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 0.11,
                                  "separators": { "age-i": {}, "age-ii": {} } } }
@@ -95,30 +95,43 @@ Either top-level section may be omitted. Both generators validate what they read
 and fail with a message naming the conflict — and the offending key's path in
 the file — rather than exporting a bad mesh.
 
-### Outside dimensions, checked sleeves
+### Outside dimensions, and the `validation` block
 
 Card holders are stated the way trays are: `size` is the outside `[W, L, H]`,
 because that is the hard constraint when the thing has to drop into a box. The
 cavity is whatever is left inside the walls and over the floor.
 
-The sleeve sets no dimension. State one and the cavity that came out is checked
-against it — the report says how much room is left over, and a cavity too small
-for the sleeve plus `clearance` stops the build. `clearance` is that demanded
-margin, in total across each axis, and defaults to 0.
+Nothing under `validation` takes part in that. Those three keys only check what
+the size already decided, or estimate what will stack in it, so a holder built
+with the block deleted comes out byte for byte the same — just unchecked.
 
 ```jsonc
 "card_holders": {
-  "sleeve": [67.0, 91.0], "clearance": 1.0,  // checked unless overridden
+  "validation": {                              // every variant starts here
+    "sleeve": [67.0, 91.0],                    // the card the cavity is checked against
+    "clearance": 1.0,                          // room it must have over that sleeve
+    "card_thickness": 0.6                      // what the capacity estimate counts in
+  },
   "variants": {
     "main_deck":  { "size": [70.0, 94.0, 31.0], /* ... */ },
-    "mini_cards": { "size": [48.0, 71.0, 21.0], "sleeve": [45.0, 68.0], /* ... */ }
+    "mini_cards": { "size": [48.0, 71.0, 21.0],
+                    "validation": { "sleeve": [45.0, 68.0] }, /* ... */ }
   }
 }
 ```
 
-Both keys are optional. Drop them and nothing is checked; state a `sleeve` on
-one variant only and that variant alone is. The escape check — is the side
-opening shorter than a card? — needs a sleeve too, and says so when it has none.
+A variant's `validation` is merged over the section's key by key, so a holder
+taking a different card states only what differs — `mini_cards` above keeps the
+section's clearance and card thickness and swaps the sleeve alone. Report lines
+built from a variant's own numbers are marked `(this variant only)`.
+
+Every key is optional at both levels. State a `sleeve` and the cavity is checked
+against it, the report saying how much room is left over, and a cavity too small
+for the sleeve plus `clearance` stops the build; `clearance` is that demanded
+margin, in total across each axis, and defaults to 0. The escape check — is the
+side opening shorter than a card? — needs a sleeve too, and says so when it has
+none. `card_thickness` only feeds the "~N sleeved cards" estimate; without it the
+report gives the stack in mm and leaves the count out.
 
 ### Separators
 

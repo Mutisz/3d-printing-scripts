@@ -1,22 +1,24 @@
 {
-  "schema_version": 6,
+  "schema_version": 7,
   "game": {
     "id": "everdell_duo",
     "name": "Everdell Duo"
   },
   "card_holders": {
-    "clearance": 1.0,
     "wall": 1.0,
     "floor": 1.0,
-    "card_thickness": 0.6,
     "separator": {
       "thickness": 1.0,
       "fit": 0.2
     },
+    "validation": {
+      "clearance": 1.0,
+      "card_thickness": 0.6
+    },
     "variants": {
       "main_deck": {
         "size": [50.0, 69.0, 40.0],
-        "sleeve": [46.0, 65.0],
+        "validation": { "sleeve": [46.0, 65.0] },
         "separators": {
           "1": {}
         }
