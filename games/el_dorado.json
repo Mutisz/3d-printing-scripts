@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "el_dorado",
     "name": "El Dorado"
@@ -181,7 +181,7 @@
                 "openings": [
                   {
                     "side": "W+",
-                    "corner": 40
+                    "corner": 0.28
                   }
                 ]
               },
@@ -189,7 +189,7 @@
                 "openings": [
                   {
                     "side": "W+",
-                    "corner": 40
+                    "corner": 0.28
                   }
                 ]
               }

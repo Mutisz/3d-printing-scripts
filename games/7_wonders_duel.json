@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "7_wonders_duel",
     "name": "7 Wonders Duel"
@@ -17,7 +17,7 @@
       "main_deck": {
         "size": [49.0, 74.0, 38.0],
         "sleeve": [46.0, 71.0],
-        "corner": 10.0,
+        "corner": 0.14,
         "separators": {
           "1": {},
           "2": {}
@@ -26,13 +26,13 @@
       "pantheon_deck": {
         "size": [74.0, 116.0, 12.0],
         "sleeve": [63.0, 113.0],
-        "corner": 20.0,
+        "corner": 0.17,
         "separators": {}
       },
       "wonders_deck": {
         "size": [74.0, 116.0, 26.0],
         "sleeve": [68.0, 102.0],
-        "corner": 20.0,
+        "corner": 0.17,
         "separators": {
           "1": {},
           "2": {}

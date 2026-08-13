@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "duel_for_middle_earth",
     "name": "Duel for Middle Earth"
@@ -36,7 +36,7 @@
       "allies": {
         "size": [80.0, 112.0, 20.0],
         "sleeve": [67.0, 101.0],
-        "corner": 30.0,
+        "corner": 0.3,
         "emboss": { "text": "SOJUSZNICY" }
       }
     }

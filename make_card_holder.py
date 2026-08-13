@@ -5,8 +5,10 @@ Cards lie flat and stack upward, dropped in through the open top. The floor
 and the two short end walls are solid and full height. The two long walls
 are gone but for a short fragment at each corner -- four posts that leave
 the long sides open to reach in from. How much wall each post keeps is
-corner, and unless the variant states one it is 20% of the length at each
-end, leaving the middle 60% of each long side open.
+corner, a fraction of that wall rather than a length in mm, so the posts
+hold their proportion whatever size the variant is: unless one is stated
+it is 0.2, a fifth of the length at each end, leaving the middle 60% of
+each long side open.
 
 Those openings are shorter than a card's 91 mm length, so the corner posts
 block a card from sliding straight out sideways; it would have to rotate
@@ -33,6 +35,8 @@ checked.
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 make_card_holder.py <game_id>
 """
+
+import math
 
 import trimesh
 
@@ -147,7 +151,7 @@ for name, spec in VARIANTS.items():
     W, L, H = dims(need(spec, "size", at), 3, at, "size")
     corner = spec.get("corner")
     if corner is None:
-        corner = 0.2 * L  # posts down 20% of each long wall, the middle 60% open
+        corner = 0.2  # posts down a fifth of each long wall, the middle 60% open
     seps = spec.get("separators") or {}
     if not isinstance(seps, dict):
         raise ValueError(
@@ -165,10 +169,18 @@ for name, spec in VARIANTS.items():
             f"[{name}] outside {W} x {L} x {H} mm leaves nothing inside "
             f"{T} mm walls and a {F} mm floor"
         )
-    if not T <= corner < L / 2:
+    if not 0 < corner < 0.5:
         raise ValueError(
-            f"[{name}] corner must be in [{T}, {L / 2}) to leave posts and an "
-            f"opening between them, got {corner:.1f}"
+            f"[{name}] corner is the fraction of the long wall each post keeps, "
+            f"so it must be in (0, 0.5) to leave posts and an opening between "
+            f"them, got {corner}"
+        )
+    post = corner * L  # what that fraction comes to on this variant
+    if post < T:
+        raise ValueError(
+            f"[{name}] corner {corner} of a {L} mm wall leaves a {post:.1f} mm "
+            f"post, narrower than the {T} mm wall it stands in -- state at "
+            f"least {math.ceil(T / L * 1000) / 1000}"
         )
 
     sleeve = sleeve_of(spec, at)
@@ -185,7 +197,7 @@ for name, spec in VARIANTS.items():
     # The tab fills the side opening bar the fit, so it is as long as the
     # posts allow and always clears them: nothing to configure, nothing to
     # keep in step when the corner changes.
-    OPENING = L - 2 * corner
+    OPENING = L - 2 * post
 
     sheets = []
     for sid, sheet_spec in seps.items():
@@ -271,7 +283,7 @@ for name, spec in VARIANTS.items():
             box((T, W - T), (T, L - T), (F, H + over)),  # card cavity
             # Take out both long walls between the corner posts. The span
             # between them is already cavity, so one cut does both sides.
-            box((-over, W + over), (corner, L - corner), (F, H + over)),
+            box((-over, W + over), (post, L - post), (F, H + over)),
         ]
     )
     label = spec.get("emboss")
@@ -302,7 +314,10 @@ for name, spec in VARIANTS.items():
             f"mm to spare{'' if 'sleeve' not in spec else '   (this variant only)'}"
         )
     print("  Long sides")
-    print(f"    posts     {corner:.1f} mm at each corner, full height, {T} mm thick")
+    print(
+        f"    posts     {post:.1f} mm at each corner, {corner * 100:g}% of the "
+        f"{L} mm wall, full height, {T} mm thick"
+    )
     print(f"    opening   {OPENING:.1f} mm long, floor to rim ({depth} mm tall)")
     if sleeve:
         trapped = OPENING < sleeve[1]

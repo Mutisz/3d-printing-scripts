@@ -10,10 +10,10 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 5
+Schema, version 6
 -----------------
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
@@ -45,9 +45,11 @@ Schema, version 5
       "<name>": {
         "size": [W, L, H],         outside dimensions; the cavity is what is
                                    left inside the walls and over the floor
-        "corner": float,           optional, default 20% of L at each end,
-                                   leaving the middle 60% of each long wall
-                                   open; the fragment kept at each corner
+        "corner": float,           optional, default 0.2; the fraction of L
+                                   each corner post keeps, so 0.2 leaves the
+                                   middle 60% of each long wall open. Under
+                                   0.5, and not so small that a post comes
+                                   out thinner than a wall
         "separators": {            optional; one entry per sheet, keyed by
                                    an id that also names its STL. Every key
                                    inside is optional, so {} is a sheet on
@@ -108,8 +110,9 @@ Schema, version 5
                                    card holder opens
               {
                 "side": str,       which wall, as for a notch
-                "corner": float,   optional, default 20% of that wall each
-                                   end, leaving the middle 60%; 0 takes the
+                "corner": float,   optional, default 0.2; the fraction of
+                                   that wall kept at each end, leaving the
+                                   middle 60%. Under 0.5, and 0 takes the
                                    whole wall out
                 "depth": float     optional, default the compartment's own
                                    depth, i.e. rim all the way to the floor
@@ -154,7 +157,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 

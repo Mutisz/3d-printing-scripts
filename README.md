@@ -74,13 +74,13 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
   "card_holders": {
     "wall": 1.0, "floor": 1.0, "card_thickness": 0.6,
     "sleeve": [67.0, 91.0], "clearance": 1.0,
     "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
-    "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 10.0,
+    "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 0.11,
                                  "separators": { "age-i": {}, "age-ii": {} } } }
   },
   "trays": {
@@ -145,7 +145,7 @@ and holders take. The id names the file, so `age-i` above comes out as
 `<game>_card_separator_main_deck_age-i.stl`.
 
 A sheet's tabs are not configured. Each one fills the side opening its holder
-actually has — `L` less the two `corner` posts — minus the same `fit` that
+actually has — `L` less the two corner posts — minus the same `fit` that
 shrinks the sheet, so the tab is as long as it can be, reaches through the
 opening whatever the corner posts are set to, and cannot fall out of step with
 them. `tab_out` still sets how far it stands proud; `null` means flush with the
@@ -222,8 +222,8 @@ a stack straight out, while the posts keep it from sliding out on its own.
 ```jsonc
 "compartments": {
   "event_tiles": { "size": 46.0, "openings": [
-      { "side": "L-", "corner": 12.0 },      // 12 mm post at each end
-      { "side": "L+", "corner": 12.0 }
+      { "side": "L-", "corner": 0.25 },      // post a quarter of the wall each end
+      { "side": "L+", "corner": 0.25 }
   ]},
   "pawns": { "openings": [
       { "side": "L+" }                       // corner defaulted
@@ -232,13 +232,17 @@ a stack straight out, while the posts keep it from sliding out on its own.
 ```
 
 `side` names the wall exactly as a notch does, dividers included. `corner` is
-how much wall is kept at each end, and defaults to 20% of that wall — leaving
-the middle 60% open, the same span a notch defaults to. Set it to `0` to take
-the wall out entirely.
+the fraction of that wall kept at each end — not a length in mm, so a post keeps
+its proportion however wide the compartment comes out — and defaults to `0.2`,
+leaving the middle 60% open, the same span a notch defaults to. It has to be
+under `0.5`, or there is nothing left between the posts; set it to `0` to take
+the wall out entirely. The report gives what the fraction came to in mm, under
+`post`.
 
 The card holder's `corner` is the same setting under another roof, and takes the
-same default: state it, or get 20% of `L` at each end and the middle 60% of each
-long side open.
+same default: state it as a fraction of `L`, or get `0.2` at each end and the
+middle 60% of each long side open. There it also has to leave a post at least
+one wall thick, since a post thinner than the wall it stands in is no post.
 
 `depth` defaults to the compartment's own depth, so the opening runs all the way
 down to the floor; give it a smaller number to leave a lip standing. Either way

@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "trakty_kontrakty",
     "name": "Trakty i Kontrakty"
@@ -23,7 +23,7 @@
       "players": {
         "size": [83.0, 138.0, 20.0],
         "sleeve": [80.0, 118.0],
-        "corner": 40.0,
+        "corner": 0.29,
         "separators": {}
       }
     }

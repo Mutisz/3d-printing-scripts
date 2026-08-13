@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "terraforming_mars",
     "name": "Terraforming Mars"
@@ -18,12 +18,12 @@
     "variants": {
       "main_deck": {
         "size": [70.0, 94.0, 49.0],
-        "corner": 20.0,
+        "corner": 0.21,
         "separators": {}
       },
       "prelude_and_corps": {
         "size": [70.0, 94.0, 23.0],
-        "corner": 10.0,
+        "corner": 0.11,
         "separators": {}
       }
     }

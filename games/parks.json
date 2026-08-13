@@ -1,5 +1,5 @@
 {
-  "schema_version": 5,
+  "schema_version": 6,
   "game": {
     "id": "parks",
     "name": "PARKS"
@@ -18,7 +18,7 @@
       "large_parks": {
         "size": [75.0, 126.0, 50.0],
         "sleeve": [72.0, 123.0],
-        "corner": 30.0,
+        "corner": 0.24,
         "contains": "Park cards"
       },
 

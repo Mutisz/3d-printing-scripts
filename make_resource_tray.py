@@ -31,8 +31,9 @@ Where a notch is not enough, an opening takes the whole wall out instead:
 floor to rim, over the wall's whole length bar a post left standing at
 each corner -- the open side of a card holder, in a tray. Those posts are
 what keeps the contents from following your fingers out, so how long they
-are is the one thing an opening is really configured by: corner, 20% of
-the wall at each end unless stated, the same default a card holder takes.
+are is the one thing an opening is really configured by: corner, the
+fraction of the wall kept at each end -- 0.2 unless stated, the same
+default a card holder takes.
 
 A compartment can also be labelled: emboss puts its name, or whatever text
 you give it, on its own floor in a single-stroke font -- raised off it, or
@@ -185,13 +186,13 @@ def notch_cut(side, xr, yr, H, width, depth):
     return trimesh.boolean.union(parts)
 
 
-def opening_cut(side, xr, yr, H, corner, depth):
+def opening_cut(side, xr, yr, H, post, depth):
     """One whole wall of a rect taken out, bar a post left at each corner.
 
     The card holder's open side, in a tray: rim to floor over the length of
-    the wall, less `corner` mm at each end. Square-ended, because the posts
-    are the whole point -- they are what the contents cannot get past, and
-    rounding them would only make the gap between them longer.
+    the wall, less the `post` mm kept at each end. Square-ended, because the
+    posts are the whole point -- they are what the contents cannot get past,
+    and rounding them would only make the gap between them longer.
 
     Like a notch it removes material downward from the rim and nothing under
     it, so what is left is a pair of short posts and the floor they stand
@@ -201,7 +202,7 @@ def opening_cut(side, xr, yr, H, corner, depth):
     on_w = side in ("W-", "W+")
     band = wall_band(side, xr, yr)
     lo, hi = yr if on_w else xr
-    along = (lo + corner, hi - corner)
+    along = (lo + post, hi - post)
     zr = (H - depth, H + over)
     return box(band, along, zr) if on_w else box(along, band, zr)
 
@@ -271,32 +272,36 @@ def plan(comps, split, W, L, H, where):
             # The wall runs along the axis the side does not name.
             run = (yr[1] - yr[0]) if side.startswith("W") else (xr[1] - xr[0])
 
+            # A fraction of the wall, not a length, so a compartment keeps
+            # the same proportion of post however wide it comes out.
             corner = spec.get("corner")
             if corner is None:
-                corner = 0.2 * run  # leaves the middle 60%, as a notch does
+                corner = 0.2  # leaves the middle 60%, as a notch does
             o_depth = spec.get("depth")
             if o_depth is None:
                 o_depth = depth  # rim to floor, the way a card holder opens
 
-            if not 0 <= corner < run / 2:
+            if not 0 <= corner < 0.5:
                 raise ValueError(
-                    f"{where}: opening corner {corner} must be in "
-                    f"[0, {run / 2:.1f}) to leave a gap between the posts -- "
-                    f"0 takes the whole {run:.1f} mm wall out"
+                    f"{where}: opening corner {corner} is the fraction of the "
+                    f"wall each post keeps, so it must be in [0, 0.5) to leave "
+                    f"a gap between them -- 0 takes the whole {run:.1f} mm "
+                    f"wall out"
                 )
+            post = corner * run  # what that fraction comes to on this wall
             if not 0 < o_depth <= depth:
                 raise ValueError(
                     f"{where}: opening depth {o_depth} must be in (0, {depth}], "
                     f"no deeper than the compartment it opens"
                 )
 
-            cuts.append(opening_cut(side, xr, yr, H, corner, o_depth))
+            cuts.append(opening_cut(side, xr, yr, H, post, o_depth))
             opened.append(
                 (
                     label,
                     side,
-                    corner,
-                    run - 2 * corner,
+                    post,
+                    run - 2 * post,
                     o_depth,
                     wall_is_outer(side, xr, yr, W, L),
                 )
@@ -451,12 +456,12 @@ for name, spec in VARIANTS.items():
     if opened:
         print("  Openings")
         print(
-            f"    {'compartment':<18}{'side':>6}{'corner':>8}{'gap':>8}"
+            f"    {'compartment':<18}{'side':>6}{'post':>8}{'gap':>8}"
             f"{'deep':>7}   wall"
         )
-        for label, side, corner, gap, o_depth, outer in opened:
+        for label, side, post, gap, o_depth, outer in opened:
             print(
-                f"    {label:<18}{side:>6}{corner:>8.1f}{gap:>8.1f}{o_depth:>7.1f}"
+                f"    {label:<18}{side:>6}{post:>8.1f}{gap:>8.1f}{o_depth:>7.1f}"
                 f"   {'outer, opens outside' if outer else 'divider, joins neighbour'}"
             )
     if embossed:
