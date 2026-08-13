@@ -274,7 +274,28 @@ has more room, so a tray full of them needs no numbers typed per compartment.
 | `size` | cap height that fits the compartment, capped at 10 mm |
 | `stroke` | 14% of the cap height, never finer than 0.8 mm |
 | `height` | 0.6 mm standing off the floor |
+| `depth` | — cut into the floor instead of raised off it |
 | `along` | `"W"` or `"L"`, whichever way the compartment is longer |
+| `leading` | line spacing measured from the glyphs used, never under 1.2 |
+
+Those four can be defaulted for a whole section, the way `separator` defaults
+its sheets, so a game can be labelled in one house style without repeating the
+numbers on every compartment:
+
+```jsonc
+"trays": {
+  "wall": 1.0, "floor": 1.0,
+  "emboss": { "size": 5.0, "stroke": 0.9, "along": "L" },   // every label here
+  "variants": { /* ... */ }
+}
+```
+
+A label's own word wins over the section's, and `null` sends a key back to
+being worked out — so `{ "text": "AUTO", "size": null }` sizes itself to its
+compartment even under a section that states a size. `card_holders.emboss`
+works the same and covers both the holder floor and its separators. The block
+takes only those four keys: `text` belongs to the label, and anything else —
+a typo included — is refused rather than silently ignored.
 
 ```jsonc
 "card_holders": {
@@ -283,6 +304,21 @@ has more room, so a tray full of them needs no numbers typed per compartment.
   }
 }
 ```
+
+`text` can be several lines — a list, or one string with newlines in it:
+
+```jsonc
+"victory_points": { "emboss": { "text": ["VICTORY", "POINTS"] } },
+"trade_fleets":   { "emboss": { "text": "TRADE\nFLEETS" } }
+```
+
+Lines are centred on each other, and the block is sized to the compartment as a
+whole, so two lines simply come out smaller than one would. Spacing is measured
+from the glyphs actually used: plain capitals sit tight, a line carrying `Ą` or
+`Ó` is given the room those need, and a blank line in the middle spaces the
+lines around it. `leading` overrides the measurement, in cap heights, down to a
+floor of 1.2 — below that one line's capitals run into the line above whatever
+the glyphs are.
 
 The letters come from [stroke_font.py](stroke_font.py), a single-stroke font
 built into the repo rather than a font file — every line lands exactly one
@@ -303,7 +339,20 @@ with the measurement it came to; leave `size` out and it fits itself instead.
 
 Whatever sits in a labelled compartment rests on the letters, so it sits
 `height` higher — 0.6 mm by default. That is nothing under a stack of cards, but
-it is worth dropping for anything that has to sit flat.
+for anything that has to sit flat, cut the label in instead of raising it:
+
+```jsonc
+"coins": { "emboss": { "text": "COINS", "depth": 0.4 } }
+```
+
+`depth` is what asks for engraving, and sets how deep it goes — so the two
+cannot disagree. State `height` or `depth`, never both, and a label that states
+one overrides a section defaulting the other way. An engraved label has to leave
+at least 0.4 mm of floor under it, about two layers, or the build stops rather
+than printing a window.
+
+Both directions print without supports: one adds to a floor that is already
+there, the other takes from it, and neither overhangs.
 
 ## Requirements
 

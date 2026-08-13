@@ -12,14 +12,17 @@
       "fit": 0.2,
       "tab_out": null
     },
+    "emboss": {
+      "depth": 0.4
+    },
     "clearance": 1.0,
     "card_thickness": 0.6,
     "sleeve": [60.0, 90.0],
     "variants": {
-      "main": {
+      "journey": {
         "size": [63.0, 93.0, 60.0],
         "emboss": {
-          "text": "WYPRAWY"
+          "text": "WYPRAWA"
         },
         "separators": {
           "dragons": {
@@ -34,16 +37,11 @@
           }
         }
       },
+
       "demons": {
         "size": [63.0, 93.0, 15.0],
         "emboss": {
           "text": "DEMONY"
-        }
-      },
-      "companions": {
-        "size": [63.0, 93.0, 10.0],
-        "emboss": {
-          "text": "TOWARZYSZE"
         }
       },
       "heroes": {
@@ -53,11 +51,16 @@
         }
       },
       "starting": {
-        "size": [63.0, 93.0, 25.0],
+        "size": [63.0, 93.0, 35.0],
         "emboss": {
           "text": "STARTOWE"
         },
         "separators": {
+          "companions": {
+            "emboss": {
+              "text": "TOWARZYSZE"
+            }
+          },
           "bonus": {
             "emboss": {
               "text": "BONUS"
@@ -65,6 +68,7 @@
           }
         }
       },
+
       "muisca": {
         "size": [63.0, 93.0, 10.0],
         "emboss": {
@@ -100,6 +104,20 @@
         }
       },
 
+      "hat_token": {
+        "size": [63.0, 14.0, 60.0],
+        "split": "L",
+        "compartments": {
+          "hat_token": {
+            "notches": [
+              {
+                "side": "L-"
+              }
+            ]
+          }
+        }
+      },
+
       "addons": {
         "size": [192.0, 81.0, 30.0],
         "split": "W",
@@ -117,11 +135,6 @@
           "treasures": {
             "emboss": {
               "text": "SKARBY"
-            }
-          },
-          "dragons_2": {
-            "emboss": {
-              "text": "SMOKI"
             }
           }
         }
@@ -162,6 +175,7 @@
             "size": 20.0
           },
           "borders": {
+            "depth": 20.0,
             "compartments": {
               "half_1": {
                 "openings": [

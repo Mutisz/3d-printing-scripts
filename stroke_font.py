@@ -12,6 +12,11 @@ capitals, and one set of glyphs is one set to keep legible. Polish letters
 are carried too, built from the same bases with a mark added, so a label
 reads the way the game box spells it.
 
+Text may be several lines, given as a list or as one string with newlines
+in it. Lines are centred on each other and spaced by whatever it takes to
+keep them clear: plain capitals sit tight, and a line carrying an accent or
+an ogonek is measured and given the room it needs.
+
 outline() hands back shapely geometry in mm, centred on the origin, for the
 caller to extrude however it likes.
 """
@@ -20,6 +25,8 @@ from shapely.geometry import LineString
 from shapely.ops import unary_union
 
 CELL_H = 7.0  # cap height, in grid units
+MIN_LEADING = 1.2  # baselines closer than this, in cap heights, and one
+# line's caps run into the line above it whatever the glyphs are
 ADVANCE = 5.6  # pen step from one glyph to the next: 4 wide, the rest
 # side bearing -- enough that a fat stroke does not weld neighbours together
 
@@ -173,54 +180,105 @@ GLYPHS.update(
 SUPPORTED = "".join(sorted(GLYPHS))
 
 
-def unsupported(text):
-    """The characters of `text` this font has no glyph for, in order, once each."""
+def lines_of(text):
+    """The lines of a label: a list as given, or a string cut on newlines.
+
+    None when it is neither, which is the caller's to report -- it knows
+    which key in which file said it.
+    """
+    if isinstance(text, str):
+        return text.split("\n")
+    if isinstance(text, (list, tuple)) and all(isinstance(x, str) for x in text):
+        return list(text)
+    return None
+
+
+def unsupported(lines):
+    """The characters these lines have no glyph for, in order, once each."""
     seen, out = set(), []
-    for ch in text.upper():
-        if ch not in GLYPHS and ch not in seen:
-            seen.add(ch)
-            out.append(ch)
+    for line in lines:
+        for ch in line.upper():
+            if ch not in GLYPHS and ch not in seen:
+                seen.add(ch)
+                out.append(ch)
     return out
 
 
-def extents(text):
-    """Width and height of `text` per 1 mm of cap height, before any stroke.
+def line_gap(lines):
+    """Baseline-to-baseline spacing, in cap heights, that keeps lines clear.
+
+    Measured from the glyphs actually used rather than assumed, so a block
+    of plain capitals stays tight and one carrying ACCENTS or an ogonek is
+    opened up by exactly what those need.
+    """
+    tops, bottoms = [CELL_H], [0.0]  # the cap box, at the least
+    for line in lines:
+        for ch in line.upper():
+            for poly in GLYPHS[ch]:
+                for _, y in poly:
+                    tops.append(y)
+                    bottoms.append(y)
+    room = max(tops) - min(bottoms) + 1.6  # 1.6 units of daylight between
+    return max(MIN_LEADING, room / CELL_H)
+
+
+def extents(lines, leading):
+    """Width and height of the block per 1 mm of cap height, before any stroke.
 
     Enough to size the text against the room available without drawing it,
     which is what letting a label fit itself needs.
     """
-    geom = _strokes(text.upper(), 1.0 / CELL_H)
-    if not geom:
+    strokes = _block(lines, leading, 1.0 / CELL_H)
+    if not strokes:
         return 0.0, 0.0
-    xs = [p for line in geom for p, _ in line]
-    ys = [q for line in geom for _, q in line]
+    xs = [p for poly in strokes for p, _ in poly]
+    ys = [q for poly in strokes for _, q in poly]
     return max(xs) - min(xs), max(ys) - min(ys)
 
 
-def _strokes(text, scale):
-    """Every polyline in `text`, laid out left to right and scaled."""
-    lines, pen = [], 0.0
-    for ch in text:
+def _line_strokes(line):
+    """Every polyline in one line, in grid units, pen starting at x = 0."""
+    out, pen = [], 0.0
+    for ch in line.upper():
         for poly in GLYPHS[ch]:
-            lines.append(tuple(((pen + x) * scale, y * scale) for x, y in poly))
+            out.append(tuple((pen + x, y) for x, y in poly))
         pen += ADVANCE
-    return lines
+    return out
 
 
-def outline(text, size, stroke):
-    """Shapely geometry for `text`, `size` mm from baseline to cap.
+def _block(lines, leading, scale):
+    """Every polyline in the block, lines centred on each other and scaled.
+
+    A blank line draws nothing but still takes its turn, so it spaces the
+    lines around it the way an empty line is meant to.
+    """
+    out = []
+    for row, line in enumerate(lines):
+        strokes = _line_strokes(line)
+        xs = [x for poly in strokes for x, _ in poly]
+        dx = -(min(xs) + max(xs)) / 2 if xs else 0.0
+        dy = -row * leading * CELL_H
+        out.extend(
+            tuple(((x + dx) * scale, (y + dy) * scale) for x, y in poly)
+            for poly in strokes
+        )
+    return out
+
+
+def outline(lines, size, stroke, leading):
+    """Shapely geometry for these lines, `size` mm from baseline to cap.
 
     Every polyline is thickened to `stroke` mm with round ends, so strokes
     meet cleanly at a corner and no join comes to a point that a nozzle
     could not lay down. The result is centred on the origin.
     """
-    lines = _strokes(text.upper(), size / CELL_H)
-    if not lines:
+    strokes = _block(lines, leading, size / CELL_H)
+    if not strokes:
         return None
     geom = unary_union(
         [
-            LineString(line).buffer(stroke / 2, cap_style=1, join_style=1)
-            for line in lines
+            LineString(poly).buffer(stroke / 2, cap_style=1, join_style=1)
+            for poly in strokes
         ]
     )
     x0, y0, x1, y1 = geom.bounds

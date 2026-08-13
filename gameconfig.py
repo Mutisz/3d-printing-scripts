@@ -26,6 +26,14 @@ Schema, version 5
                                    variants stating their own are checked
     "clearance": float,            optional, default 0; how much bigger than
                                    the sleeve the cavity has to come out
+    "emboss": {                    optional; what every label in this section
+      "size": float,               starts from, holders and separators alike.
+      "stroke": float,             Any key an emboss takes beyond its text,
+      "height": float,             and a label saying null to one of them has
+      "depth": float,              it worked out as if unset. height and depth
+      "along": "W" | "L",          are the two ways a label can go, so state
+      "leading": float             one or the other, never both
+    },
     "separator": {                 what every separator takes unless it
       "thickness": float,          states its own
       "fit": float,                shrinks the sheet, and the tab, for a
@@ -66,6 +74,8 @@ Schema, version 5
   "trays": {                       omit the whole section if none
     "wall": float,
     "floor": float,
+    "emboss": {...},               optional; what every label in this section
+                                   starts from, same four keys as above
     "variants": {
       "<name>": {
         "size": [W, L, H],         outside dimensions
@@ -108,16 +118,25 @@ Schema, version 5
             "emboss": {            optional raised label on this compartment's
                                    own floor; leaf compartments only, since a
                                    split one has no floor of its own
-              "text": str,         what to raise; upper-cased, and every
-                                   character must be one the stroke font has
+              "text": str | [str], what to put there: one string, a string
+                                   with newlines in it, or a list of lines.
+                                   Upper-cased, and every character must be
+                                   one the stroke font has
               "size": float,       optional cap height; the default fits the
                                    compartment, up to 10 mm
               "stroke": float,     optional line width, default 14% of the cap
                                    and never under 0.8 mm
               "height": float,     optional stand-off from the floor, default
-                                   0.6 mm
-              "along": "W" | "L"   optional axis the text runs along, default
+                                   0.6 mm; the label is raised
+              "depth": float,      optional cut into the floor instead, this
+                                   deep. Give height or depth, not both, and
+                                   a cut leaves at least 0.4 mm under it
+              "along": "W" | "L",  optional axis the text runs along, default
                                    whichever of the two is longer
+              "leading": float     optional baseline-to-baseline spacing of
+                                   several lines, in cap heights; the default
+                                   is measured from the glyphs used, and 1.2
+                                   is as tight as it goes
             }
           }
         }

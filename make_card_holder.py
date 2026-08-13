@@ -12,8 +12,9 @@ Those openings are shorter than a card's 91 mm length, so the corner posts
 block a card from sliding straight out sideways; it would have to rotate
 first. Access without escape.
 
-A holder can be labelled: emboss raises text off the cavity floor, under
-where the cards sit, so a holder still says what deck it is for once it is
+A holder can be labelled: emboss puts text on the cavity floor, under
+where the cards sit -- raised off it, or cut into it if the label states a
+depth, so a holder still says what deck it is for once it is
 out of the box and empty. It is the same option a tray compartment takes,
 and every separator takes it too -- which is the point of naming them, as
 a sheet reading AGE II is worth more than a sheet.
@@ -36,7 +37,7 @@ schema. Run as: python3 make_card_holder.py <game_id>
 import trimesh
 
 from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
-from label import emboss_solid
+from label import emboss_defaults, emboss_solid
 
 GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
 CFG = load_game(GAME_ID)
@@ -55,6 +56,7 @@ T = need(HOLDERS, "wall", WHERE)
 F = need(HOLDERS, "floor", WHERE)
 CARD_THICK = need(HOLDERS, "card_thickness", WHERE)
 VARIANTS = need(HOLDERS, "variants", WHERE)
+EMB = emboss_defaults(HOLDERS, f"{WHERE} card_holders")  # for holders and sheets
 
 # Both only ever check a cavity, never size one. The sleeve is the section's
 # default, used by every variant that does not state its own; clearance is
@@ -134,6 +136,10 @@ print("Separator")
 print(f"  sheet       {SEP_T} mm thick, cavity less {SEP_FIT} mm for the fit")
 print(f"  tabs        {SEP_TAB_OUT} mm out each side, filling the variant's")
 print(f"              side opening less the same {SEP_FIT} mm")
+if EMB:
+    print("Label")
+    stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
+    print(f"  defaults    {stated}, unless a label says otherwise")
 print()
 
 for name, spec in VARIANTS.items():
@@ -230,8 +236,12 @@ for name, spec in VARIANTS.items():
                 (0, sheet_l),
                 thick,
                 f"{seat} emboss",
+                EMB,
             )
-            mesh_sep = trimesh.boolean.union([mesh_sep, solid])
+            if sheet_label["cut"]:
+                mesh_sep = trimesh.boolean.difference([mesh_sep, solid])
+            else:
+                mesh_sep = trimesh.boolean.union([mesh_sep, solid])
 
         sheets.append(
             {
@@ -267,9 +277,12 @@ for name, spec in VARIANTS.items():
     label = spec.get("emboss")
     if label:  # onto the cavity floor, after it has been milled out
         solid, label_info = emboss_solid(
-            label, (T, W - T), (T, L - T), F, f"{at} emboss"
+            label, (T, W - T), (T, L - T), F, f"{at} emboss", EMB
         )
-        mesh = trimesh.boolean.union([mesh, solid])
+        if label_info["cut"]:
+            mesh = trimesh.boolean.difference([mesh, solid])
+        else:
+            mesh = trimesh.boolean.union([mesh, solid])
     mesh.merge_vertices()
     mesh.update_faces(mesh.nondegenerate_faces())
     path = f"{OUTDIR}/{GAME_ID}_card_holder_{name}.stl"
@@ -300,15 +313,17 @@ for name, spec in VARIANTS.items():
     else:
         print("    check     no sleeve stated, so nothing to check the opening against")
     if label:
-        text, size, stroke, height, along, drawn_w, drawn_h = label_info
+        way = "into the floor" if label_info["cut"] else "proud of the floor"
         print("  Label")
-        print(f"    text      {text}")
+        print(f"    text      {label_info['text']}")
         print(
-            f"    letters   {size:.1f} mm cap, {stroke:.2f} mm stroke, "
-            f"{height:.2f} mm proud of the floor"
+            f"    letters   {label_info['size']:.1f} mm cap, "
+            f"{label_info['stroke']:.2f} mm stroke, "
+            f"{label_info['amount']:.2f} mm {way}"
         )
         print(
-            f"    drawn     {drawn_w:.1f} x {drawn_h:.1f} mm, running along {along}"
+            f"    drawn     {label_info['w']:.1f} x {label_info['h']:.1f} mm, "
+            f"running along {label_info['along']}"
         )
     print("  Mesh checks")
     report_mesh(mesh)
@@ -326,16 +341,18 @@ for name, spec in VARIANTS.items():
                 sits = "proud" if over > W else "recessed"
             footprint = f"{sheet['w']:.1f} x {sheet['l']:.1f}"
             fits = f"{over:.1f} {sits}"
-            text = sheet["label"][0] if sheet["label"] else "--"
+            text = sheet["label"]["text"] if sheet["label"] else "--"
             print(
                 f"    {sheet['id']:<14}{sheet['thick']:>6.1f}{footprint:>16}"
                 f"{sheet['tab']:>7.1f}{fits:>17}  {text}"
             )
             if sheet["label"]:
-                text, size, stroke, height, along, _, _ = sheet["label"]
+                info = sheet["label"]
+                way = "deep" if info["cut"] else "proud"
                 print(
-                    f"    {'':<14}{size:.1f} mm cap, {stroke:.2f} mm stroke, "
-                    f"{height:.2f} mm proud, along {along}"
+                    f"    {'':<14}{info['size']:.1f} mm cap, "
+                    f"{info['stroke']:.2f} mm stroke, {info['amount']:.2f} mm "
+                    f"{way}, along {info['along']}"
                 )
             sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}_{sheet['id']}.stl"
             sheet["mesh"].export(sep_path)

@@ -1,0 +1,91 @@
+{
+  "schema_version": 5,
+  "game": {
+    "id": "kinfire_delve",
+    "name": "Kinfire Delve"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "clearance": 1.0,
+    "card_thickness": 0.6,
+    "sleeve": [65.0, 90.0],
+    "variants": {
+      "well": {
+        "size": [68, 93.0, 34.0],
+        "emboss": {
+          "text": "STUDNIA"
+        }
+      },
+      "seeker": {
+        "size": [68, 93.0, 12.0],
+        "emboss": {
+          "text": "POSZUKIWACZ"
+        },
+        "print": 2
+      },
+      "other": {
+        "size": [68, 93.0, 10.0],
+        "emboss": {
+          "text": ["MISTRZ", "OCHRONA", "WYCZERPANIE"]
+        },
+        "separators": {
+          "protection": {
+            "emboss": {
+              "text": "OCHRONA"
+            }
+          },
+          "exhaustion": {
+            "emboss": {
+              "text": "WYCZERPANIE"
+            }
+          }
+        }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "dice": {
+        "size": [130.0, 29.0, 34.0],
+        "split": "L",
+        "compartments": {
+          "dice": {
+            "emboss": {
+              "text": "KOŚCI"
+            }
+          }
+        }
+      },
+      "progress_markers": {
+        "size": [37.0, 136.0, 34.0],
+        "split": "L",
+        "compartments": {
+          "1": {
+            "emboss": {
+              "text": "1"
+            }
+          },
+          "3": {
+            "emboss": {
+              "text": "3"
+            }
+          }
+        }
+      }
+    }
+  },
+  "notes": "BOX 130x165x35, DICE 16x16x16"
+}

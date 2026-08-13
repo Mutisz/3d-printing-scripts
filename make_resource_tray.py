@@ -34,10 +34,11 @@ what keeps the contents from following your fingers out, so how long they
 are is the one thing an opening is really configured by: corner, 20% of
 the wall at each end unless stated, the same default a card holder takes.
 
-A compartment can also be labelled: emboss raises its name, or whatever
-text you give it, off its own floor in a single-stroke font. The label
-sizes itself to the compartment and turns to run along whichever axis has
-the room, so in the ordinary case there is nothing to state but the words.
+A compartment can also be labelled: emboss puts its name, or whatever text
+you give it, on its own floor in a single-stroke font -- raised off it, or
+cut into it if the label states a depth. The label sizes itself to the
+compartment and turns to run along whichever axis has the room, so in the
+ordinary case there is nothing to state but the words.
 
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 make_resource_tray.py <game_id>
@@ -48,7 +49,7 @@ import math
 import trimesh
 
 from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
-from label import emboss_solid
+from label import emboss_defaults, emboss_solid
 
 SIDES = ("W-", "W+", "L-", "L+")  # low/high side on each axis
 
@@ -69,6 +70,7 @@ if not TRAYS:  # an ordinary state, not an error: exit clean so runners can tell
 T = need(TRAYS, "wall", WHERE)  # wall and divider thickness
 F = need(TRAYS, "floor", WHERE)
 VARIANTS = need(TRAYS, "variants", WHERE)
+EMB = emboss_defaults(TRAYS, f"{WHERE} trays")  # what every label starts from
 
 
 def as_compartments(value, where):
@@ -368,9 +370,13 @@ def plan(comps, split, W, L, H, where):
             add_notches(comp, cxr, cyr, depth, here, label)
             add_openings(comp, cxr, cyr, depth, here, label)
             if "emboss" in comp:
-                solid, row = emboss_solid(comp["emboss"], cxr, cyr, z0, here)
-                adds.append(solid)
-                embossed.append((label,) + row)
+                solid, info = emboss_solid(
+                    comp["emboss"], cxr, cyr, z0, here, EMB
+                )
+                # A cut label is just another cavity, so it can go in with
+                # the rest and be milled out in the same pass.
+                (cuts if info["cut"] else adds).append(solid)
+                embossed.append((label, info))
 
     carve(comps, split, (T, W - T), (T, L - T), H - F, where, 0)
     return cuts, adds, placed, notched, opened, embossed
@@ -380,6 +386,9 @@ print("=" * 66)
 print(f"Resource Tray Generator -- {CFG['game']['name']}")
 print("=" * 66)
 print(f"Build   {T} mm walls and dividers, {F} mm floor")
+if EMB:
+    stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
+    print(f"Labels  {stated}, unless a label says otherwise")
 print()
 
 for name, spec in VARIANTS.items():
@@ -453,13 +462,19 @@ for name, spec in VARIANTS.items():
     if embossed:
         print("  Embossing")
         print(
-            f"    {'compartment':<18}{'text':<14}{'cap':>6}{'stroke':>8}"
-            f"{'raise':>7}{'drawn':>14}  runs"
+            f"    {'compartment':<18}{'text':<18}{'cap':>6}{'stroke':>8}"
+            f"{'relief':>13}{'drawn':>13}  runs"
         )
-        for label, text, size, stroke, height, along, drawn_w, drawn_h in embossed:
+        for label, info in embossed:
+            relief = f"{info['amount']:.2f} {'deep' if info['cut'] else 'proud'}"
+            drawn = f"{info['w']:.1f} x {info['h']:.1f}"
+            text = info["text"]
+            if len(text) > 18:  # several lines joined can outrun the column
+                text = text[:17] + "…"
             print(
-                f"    {label:<18}{text:<14}{size:>6.1f}{stroke:>8.2f}{height:>7.2f}"
-                f"{f'{drawn_w:.1f} x {drawn_h:.1f}':>14}  along {along}"
+                f"    {label:<18}{text:<18}{info['size']:>6.1f}"
+                f"{info['stroke']:>8.2f}{relief:>13}{drawn:>13}"
+                f"  along {info['along']}"
             )
     print("  Mesh checks")
     report_mesh(mesh)

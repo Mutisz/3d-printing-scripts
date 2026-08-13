@@ -1,0 +1,175 @@
+{
+  "schema_version": 5,
+  "game": {
+    "id": "duel_for_middle_earth",
+    "name": "Duel for Middle Earth"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "clearance": 1.0,
+    "card_thickness": 0.6,
+    "variants": {
+      "chapter_1": {
+        "size": [59.0, 85.0, 20.0],
+        "sleeve": [56.0, 82.0],
+        "emboss": { "text": "ROZDZIAŁ 1" }
+      },
+      "chapter_2": {
+        "size": [59.0, 85.0, 20.0],
+        "sleeve": [56.0, 82.0],
+        "emboss": { "text": "ROZDZIAŁ 2" }
+      },
+      "chapter_3": {
+        "size": [59.0, 85.0, 20.0],
+        "sleeve": [56.0, 82.0],
+        "emboss": { "text": "ROZDZIAŁ 3" }
+      },
+
+      "allies": {
+        "size": [80.0, 112.0, 20.0],
+        "sleeve": [67.0, 101.0],
+        "corner": 30.0,
+        "emboss": { "text": "SOJUSZNICY" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "races": {
+        "size": [197.0, 32.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "1": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "2": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "3": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "4": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "5": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "6": {
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "track": {
+        "size": [112.0, 230.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "frame": {},
+          "insert": {}
+        }
+      },
+      "influence_tokens": {
+        "size": [85.0, 53.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "influence_tokens": { "emboss": { "text": ["ŻETONY", "WPŁYWU"] } }
+        }
+      },
+
+      "locations": {
+        "size": [85.0, 80.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "locations": {
+            "emboss": { "text": "MIEJSCA" },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "coins": {
+        "size": [85.0, 97.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "coins": {
+            "emboss": { "text": "MONETY" }
+          }
+        }
+      },
+      "meeples": {
+        "size": [112.0, 48.5, 20.0],
+        "split": "W",
+        "compartments": {
+          "units": {
+            "emboss": { "text": "JEDNOSTKI" }
+          },
+          "fortresses": {
+            "emboss": { "text": "FORTECE" }
+          }
+        },
+        "print": 2
+      }
+    }
+  },
+  "notes": "BOX 197x262x48, BOARD+MANUAL 4, LOCATION 78x78"
+}
