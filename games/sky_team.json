@@ -1,0 +1,123 @@
+{
+  "schema_version": 7,
+  "game": {
+    "id": "sky_team",
+    "name": "Sky Team"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4,
+      "size": 6.0
+    },
+    "validation": {
+      "sleeve": [60.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
+    "variants": {
+      "skills": {
+        "size": [83.0, 93.0, 18.0],
+        "emboss": { "text": "ZDOLNOŚCI" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4,
+      "size": 6.0
+    },
+    "variants": {
+      "fuel_trainee": {
+        "size": [42.0, 246.0, 18.0],
+        "split": "L",
+        "compartments": {
+          "modules": {
+            "size": 184.0,
+            "emboss": { "text": ["MODUŁY", "PALIWA I PRAKTYKANTA"] },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "trainee_tokens": {
+            "emboss": { "text": ["ŻETONY", "PRAKTYKANTA"] }
+          }
+        }
+      },
+      "ice_wind": {
+        "size": [83.0, 115.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "ice_wind": {
+            "emboss": { "text": ["MODUŁY", "WIATRU I LODU"] },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+      "reroll_tokens": {
+        "size": [83.0, 38.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "reroll_tokens": {
+            "emboss": { "text": ["ŻETONY", "PRZERZUTU"] }
+          }
+        }
+      },
+      "approaches": {
+        "size": [52.0, 246.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "approaches": {
+            "emboss": { "text": "PODEJŚCIA" },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+
+      "other_tokens": {
+        "size": [177.0, 67.5, 18.0],
+        "split": "W",
+        "compartments": {
+          "aircraft": { "emboss": { "text": "SAMOLOTY" } },
+          "coffee": { "emboss": { "text": "KAWA" } },
+          "toggles": { "emboss": { "text": "PRZEŁĄCZNIKI" } }
+        }
+      },
+      "dice_horizon": {
+        "size": [177.0, 67.5, 18.0],
+        "split": "W",
+        "compartments": {
+          "dice": { "emboss": { "text": "KOŚCI" } },
+          "horizon": { "emboss": { "text": "SZTUCZNY HORYZONT" } }
+        }
+      }
+    }
+  },
+  "notes": "BOX 177x246x48, BOARD+MANUAL 12"
+}

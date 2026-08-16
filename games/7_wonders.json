@@ -1,0 +1,228 @@
+{
+  "schema_version": 7,
+  "game": {
+    "id": "7_wonders",
+    "name": "7 Wonders"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "validation": {
+      "sleeve": [67.0, 101.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "variants": {
+      "epoka_1": {
+        "size": [72.25, 104.0, 40.0],
+        "emboss": { "text": "EPOKA 1" },
+        "separators": {
+          "cities": { "emboss": { "text": "MIASTA" } },
+          "armada": { "emboss": { "text": "ARMADA" } }
+        }
+      },
+      "epoka_2": {
+        "size": [72.25, 104.0, 40.0],
+        "emboss": { "text": "EPOKA 2" },
+        "separators": {
+          "cities": { "emboss": { "text": "MIASTA" } },
+          "armada": { "emboss": { "text": "ARMADA" } }
+        }
+      },
+      "epoka_3": {
+        "size": [72.25, 104.0, 40.0],
+        "emboss": { "text": "EPOKA 3" },
+        "separators": {
+          "cities": { "emboss": { "text": "MIASTA" } },
+          "armada": { "emboss": { "text": "ARMADA" } }
+        }
+      },
+      "leaders": {
+        "size": [72.25, 104.0, 26.0],
+        "emboss": { "text": "LIDERZY" }
+      },
+      "islands": {
+        "size": [72.25, 104.0, 14.0],
+        "emboss": { "text": "WYSPY" }
+      },
+
+      "edifice": {
+        "validation": {
+          "sleeve": [103.0, 154.0]
+        },
+        "size": [106.0, 157.0, 24.0],
+        "emboss": { "text": "BUDOWLE" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "victory_loss": {
+        "size": [120, 47.0, 30.0],
+        "split": "W",
+        "compartments": {
+          "loss": {
+            "size": 40,
+            "depth": 20.0,
+            "emboss": { "along": "W", "text": "-1" }
+          },
+          "victory_1": {
+            "size": 20.0,
+            "depth": 20.0,
+            "emboss": { "along": "W", "text": "1" }
+          },
+          "victory_3": {
+            "size": 25.0,
+            "depth": 27.0,
+            "emboss": { "along": "W", "text": "3" }
+          },
+          "victory_5": {
+            "size": 30.0,
+            "emboss": { "along": "W", "text": "5" }
+          }
+        }
+      },
+      "victory_loss_armada": {
+        "size": [169, 47.0, 30.0],
+        "split": "W",
+        "compartments": {
+          "loss_armada_3": {
+            "size": 27,
+            "depth": 27.0,
+            "emboss": { "along": "W", "text": "-3" }
+          },
+          "loss_armada_2": {
+            "size": 23,
+            "depth": 23.0,
+            "emboss": { "along": "W", "text": "-2" }
+          },
+          "loss_armada_1": {
+            "size": 20,
+            "depth": 20.0,
+            "emboss": { "along": "W", "text": "-1" }
+          },
+          "victory_armada_1": {
+            "size": 20.0,
+            "depth": 20.0,
+            "emboss": { "along": "W", "text": "1" }
+          },
+          "victory_armada_3": {
+            "size": 25.0,
+            "depth": 27.0,
+            "emboss": { "along": "W", "text": "3" }
+          },
+          "victory_armada_5": {
+            "size": 30.0,
+            "emboss": { "along": "W", "text": "5" }
+          },
+          "victory_armada_7": {
+            "emboss": { "along": "W", "text": "7" }
+          }
+        }
+      },
+
+      "diplomacy": {
+        "size": [144.5, 47.0, 10.0],
+        "split": "L",
+        "compartments": {
+          "diplomacy": {
+            "emboss": { "text": "ŻETONY DYPLOMACJI" }
+          }
+        }
+      },
+      "raid": {
+        "size": [144.5, 47.0, 10.0],
+        "split": "L",
+        "compartments": {
+          "diplomacy": {
+            "emboss": { "text": "ŻETONY NAJAZDU" }
+          }
+        }
+      },
+
+      "fleet": {
+        "size": [216.75, 47.0, 24.0],
+        "split": "W",
+        "compartments": {
+          "red": {
+            "emboss": { "size": 6.0, "text": ["FLOTA", "CZERWONA"] }
+          },
+          "yellow": {
+            "emboss": { "size": 6.0, "text": ["FLOTA", "ŻÓŁTA"] }
+          },
+          "niebieska": {
+            "emboss": { "size": 6.0, "text": ["FLOTA", "NIEBIESKA"] }
+          },
+          "green": {
+            "emboss": { "size": 6.0, "text": ["FLOTA", "ZIELONA"] }
+          }
+        }
+      },
+      "coins": {
+        "size": [216.75, 104.0, 24.0],
+        "split": "W",
+        "compartments": {
+          "1": {
+            "emboss": { "along": "W", "text": ["MONETY", "1"] }
+          },
+          "3": {
+            "emboss": { "along": "W", "text": ["MONETY", "3"] }
+          },
+          "6": {
+            "emboss": { "along": "W", "text": ["MONETY", "6"] }
+          }
+        }
+      },
+
+      "edifice": {
+        "size": [132.0, 138.0, 24.0],
+        "split": "L",
+        "compartments": {
+          "shares_1": {
+            "emboss": { "text": ["UDZIAŁY", "EPOKA 1"] }
+          },
+          "shares_2": {
+            "emboss": { "text": ["UDZIAŁY", "EPOKA 2"] }
+          },
+          "shares_3": {
+            "emboss": { "text": ["UDZIAŁY", "EPOKA 3"] }
+          }
+        }
+      },
+      "debt": {
+        "size": [157.0, 32.0, 24.0],
+        "split": "W",
+        "compartments": {
+          "debt_1": {
+            "size": 50.0,
+            "emboss": { "along": "W", "text": "-1" }
+          },
+          "debt_2": {
+            "size": 25.0,
+            "emboss": { "along": "W", "text": "-2" }
+          },
+          "debt_3": {
+            "size": 25.0,
+            "emboss": { "along": "W", "text": "-3" }
+          },
+          "debt_5": {
+            "emboss": { "along": "W", "text": "-5" }
+          }
+        }
+      }
+    }
+  },
+  "notes": "BOX 289x289x75, DEBT -1 45, -2 15 -3 15 -5 25 26x26"
+}
