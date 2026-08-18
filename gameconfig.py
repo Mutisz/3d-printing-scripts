@@ -49,6 +49,36 @@ Schema, version 7
       "tab_out": float | null      reach past the sheet; null means wall
     },                             tab length is not set here: it fills the
                                    variant's side opening, less the fit
+    "lid": {                       optional, and stating it at all is what
+                                   gives every variant a lid: the notch a
+                                   lid seats in is cut into the holder, so
+                                   it is the section's call, not one
+                                   variant's. A lid closes the top of a
+                                   holder off so the next one up has
+                                   nothing to fall into
+      "thickness": float,          required; the sheet, which spans the
+                                   cavity supported only at its two ends,
+                                   so 1.5 mm and up on a long cavity
+      "fit": float,                optional, default the separator's;
+                                   shrinks the sheet and the side tabs
+      "notch": float,              optional, default 0.3; the fraction of
+                                   each end wall the notch takes, as corner
+                                   is a fraction of L. Under 1, and no
+                                   wider than the cavity, or it would cut
+                                   into the corner posts
+      "notch_fit": float,          optional, default 0.6; how much wider
+                                   than its tab the notch is cut, in all.
+                                   Slop here is invisible, while a pinched
+                                   tab holds the lid proud of the rim
+      "seat": float,               optional, default 0.2; how far under the
+                                   rim the lid lands. The notch is cut
+                                   thickness + seat deep, and that much
+                                   comes off the top of the card stack
+      "emboss": {...}              optional label cut into the lid, the
+                                   same shape as elsewhere but depth only.
+                                   Left out, the lid takes the holder's own
+                                   label, so a stack reads from outside
+    },
     "variants": {
       "<name>": {
         "size": [W, L, H],         outside dimensions; the cavity is what is
@@ -75,6 +105,12 @@ Schema, version 7
           "clearance": float,      variant alone -- a holder taking a
           "card_thickness": float  different card states only what differs
         },
+        "lid": bool | {...},       optional; only meaningful where the
+                                   section states a lid, and then only to
+                                   disagree with it. false for a holder
+                                   that goes without one, true for one on
+                                   the section's numbers, or the same keys
+                                   again for what differs
         "emboss": {...}            optional raised label on the cavity
                                    floor, under where the cards sit; the
                                    same shape as a tray compartment's,

@@ -1,0 +1,247 @@
+{
+  "schema_version": 7,
+  "game": {
+    "id": "fateforge",
+    "name": "Fateforge"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "lid": {
+      "thickness": 1.0
+    },
+    "emboss": {
+      "depth": 0.4,
+      "size": 7.0
+    },
+    "validation": {
+      "sleeve": [53.0, 79.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "variants": {
+      "small_skills": {
+        "size": [56.0, 82.0, 40.0],
+        "emboss": { "text": "UMIEJĘTNOŚCI" }
+      },
+      "small_1-48": {
+        "size": [56.0, 82.0, 34.0],
+        "emboss": { "text": ["OPOWIEŚCI", "1-48"] }
+      },
+      "small_500_515": {
+        "size": [56.0, 82.0, 14.0],
+        "emboss": { "text": ["OPOWIEŚCI", "500-515"] }
+      },
+      "small_600_612": {
+        "size": [56.0, 82.0, 14.0],
+        "emboss": { "text": ["OPOWIEŚCI", "600-612"] }
+      },
+
+      "small_100_149": {
+        "size": [56.0, 82.0, 34.0],
+        "emboss": { "text": "100-149" }
+      },
+      "small_150_199": {
+        "size": [56.0, 82.0, 42.0],
+        "emboss": { "text": "150-199" }
+      },
+      "small_200_230": {
+        "size": [56.0, 82.0, 26.0],
+        "emboss": { "text": "200-230" }
+      },
+
+      "small_corruption": {
+        "size": [56.0, 82.0, 24.0],
+        "emboss": { "text": "ZEPSUCIE" }
+      },
+      "small_fear": {
+        "size": [56.0, 82.0, 16.0],
+        "emboss": { "text": "STRACH" }
+      },
+      "small_traps": {
+        "size": [56.0, 82.0, 16.0],
+        "emboss": { "text": "PUŁAPKI" }
+      },
+      "small_leader_spells": {
+        "size": [56.0, 82.0, 12.0],
+        "emboss": { "text": ["ZAKLĘCIA", "DOWÓDCÓW"] }
+      },
+      "small_party_manouvers": {
+        "size": [56.0, 82.0, 12.0],
+        "emboss": { "text": ["MANEWRY", "DRUŻYNOWE"] }
+      },
+      "small_516_540": {
+        "size": [56.0, 82.0, 22.0],
+        "emboss": { "size": 7.0, "text": "516-540" }
+      },
+
+      "small_613_636": {
+        "size": [56.0, 82.0, 22.0],
+        "emboss": { "size": 7.0, "text": "613-636" }
+      },
+
+      "standard_300_349": {
+        "validation": {
+          "sleeve": [65.0, 90.0]
+        },
+        "size": [68.0, 95.0, 34.0],
+        "emboss": { "text": "300-354" }
+      },
+      "standard_350_407": {
+        "validation": {
+          "sleeve": [65.0, 90.0]
+        },
+        "size": [68.0, 95.0, 34.0],
+        "emboss": { "text": "355-407" }
+      },
+      "standard_541_571": {
+        "validation": {
+          "sleeve": [65.0, 90.0]
+        },
+        "size": [68.0, 95.0, 20.0],
+        "emboss": { "text": "541-571" }
+      },
+      "standard_638_669": {
+        "validation": {
+          "sleeve": [65.0, 90.0]
+        },
+        "size": [68.0, 95.0, 20.0],
+        "emboss": { "text": "638-669" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "monsters": {
+        "size": [82, 55.0, 34.0],
+        "split": "W",
+        "compartments": {
+          "1_2": {
+            "compartments": {
+              "1": {
+                "openings": [
+                  {
+                    "side": "L-"
+                  }
+                ]
+              },
+              "2": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          },
+          "3_4": {
+            "compartments": {
+              "3": {
+                "openings": [
+                  {
+                    "side": "L-"
+                  }
+                ]
+              },
+              "4": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          },
+          "5_6": {
+            "compartments": {
+              "5": {
+                "openings": [
+                  {
+                    "side": "L-"
+                  }
+                ]
+              },
+              "6": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "monsters_bosses": {
+        "size": [82, 55.0, 34.0],
+        "split": "W",
+        "compartments": {
+          "1_2": {
+            "size": 26.0,
+            "compartments": {
+              "1": {
+                "openings": [
+                  {
+                    "side": "L-"
+                  }
+                ]
+              },
+              "2": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          },
+          "bosses": {
+            "emboss": { "size": 7.0, "text": ["ŻETONY", "BOSSÓW"] }
+          }
+        }
+      },
+      "figures": {
+        "size": [105, 150.0, 64.0],
+        "split": "W",
+        "compartments": {
+          "animals": {
+            "emboss": { "size": 8.0, "text": "ZWIERZAKI" }
+          },
+          "party": {
+            "emboss": { "size": 8.0, "text": "BOHATEROWIE" }
+          }
+        }
+      },
+      "dice": {
+        "size": [203.0, 65.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "battle": {
+            "emboss": { "along": "L", "size": 6.0, "text": ["KOŚCI", "WALKI"] }
+          },
+          "weapon": {
+            "emboss": { "along": "L", "size": 6.0, "text": ["KOŚCI", "BRONI"] }
+          },
+          "animal": {
+            "size": 34,
+            "emboss": {
+              "along": "L",
+              "size": 6.0,
+              "text": ["KOŚCI", "ZWIERZAKÓW"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "notes": "BOX 299x299x112,  MONSTER (25, STACK 8 - 31), CARDS LARGE BASE-60 A1-21 A2-21, EVENT CARDS BASE-30 A1-15 A2-15"
+}

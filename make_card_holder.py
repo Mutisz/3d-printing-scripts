@@ -25,6 +25,22 @@ Separators are named, not counted. Each id is one sheet and one STL, and
 each says only what it wants of its own: thickness, fit, tab_out, a label,
 or nothing at all.
 
+Holders stack badly left open: the top of one is nearly all cavity mouth,
+so the one set on it drops a corner in. A lid closes that. It is the
+separator sheet again, carrying a tab at each end that drops into a notch
+cut down from the rim of the end walls, which holds it there rather than
+loose on the cards. Its side tabs -- the pair a separator wears to be
+caught by -- land in the side openings and fill the last of the rim, so a
+lidded holder tops out as a solid rectangle with nothing left to fall
+into. State the lid block and every variant gets one, since the notch is
+cut into the holder and a game that stacks one holder stacks them all; a
+variant says false to go without.
+
+A lid takes the holder's own label unless it states another, which puts
+the deck's name where a stack shows it instead of on the cavity floor,
+which only an empty holder shows. Cut in, not raised: letters standing
+proud of a lid are what the holder above would rock on.
+
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
 inside the walls. Nothing under validation sizes any of that: the sleeve,
@@ -114,7 +130,113 @@ SEP_TAB_OUT = SEP.get("tab_out")
 if SEP_TAB_OUT is None:  # null means "land flush with the outer wall"
     SEP_TAB_OUT = T
 
-SEP_CACHE = {}  # variants sharing a cavity share one sheet, so build it once
+SHEET_CACHE = {}  # variants sharing a cavity share one sheet, so build it once
+
+# The lid, which is that sheet once more with an end tab each side. Stating
+# this block is what turns lids on, and it turns them on for the whole
+# section: the notch an end tab sits in is cut into the holder, so it is not
+# something one variant decides for itself without saying so.
+#
+# Its two fits pull opposite ways. Side to side the notch only has to locate
+# the tab, and slop there is invisible; but a tab pinched in a tight notch
+# stops short of its seat and leaves the lid standing proud, which is the one
+# thing a stacking lid must not do. So the notch is cut wide and seated close.
+LID = HOLDERS.get("lid")
+LID_KEYS = ("thickness", "fit", "notch", "notch_fit", "seat", "emboss")
+LID_NOTCH = 0.3  # of the end wall each end tab takes, as corner is of L
+LID_NOTCH_FIT = 0.6  # how much wider than its tab the notch is cut, in all
+LID_SEAT = 0.2  # how far under the rim the lid comes to rest
+
+
+def lid_keys(block, at):
+    """A lid block, closed to the keys a lid takes.
+
+    Closed for the reason the validation block is: a section stating this
+    hands every variant a lid without the variant saying a word, so a typo
+    in it would come out as a lid quietly built on the defaults.
+    """
+    if not isinstance(block, dict):
+        raise ValueError(f"{at} lid: must be an object, got {block!r}")
+    unknown = [key for key in block if key not in LID_KEYS]
+    if unknown:
+        named = ", ".join(repr(key) for key in unknown)
+        raise ValueError(
+            f"{at} lid: {named} is not something a lid takes -- it takes "
+            f"{', '.join(LID_KEYS)}"
+        )
+    return block
+
+
+if LID is not None:
+    lid_keys(LID, f"{WHERE} card_holders")
+    need(LID, "thickness", f"{WHERE} card_holders.lid")
+
+
+def lid_of(spec, at):
+    """The lid a variant gets, or None if it goes without one.
+
+    The section's numbers under the variant's own word, and the holder's
+    own label unless the lid states another -- naming the lid is the point
+    of a lid you can read in a stack, and typing that name twice is not.
+    """
+    own = spec.get("lid", {} if LID else False)
+    if own is True:  # sugar for "one of those, on the section's numbers"
+        own = {}
+    if own is False:
+        return None
+    if not isinstance(own, dict):
+        raise ValueError(
+            f"{at} lid: true for one on the section's numbers, false for none "
+            f"at all, or an object stating what differs -- got {own!r}"
+        )
+    if LID is None:
+        raise ValueError(
+            f"{at} lid: nothing to build one from -- what a lid is made of is "
+            f"stated once for the whole section, in card_holders.lid"
+        )
+    lid_keys(own, at)
+    said = {**LID, **own}
+
+    thick = said["thickness"]
+    fit = said.get("fit", SEP_FIT)
+    notch = said.get("notch", LID_NOTCH)
+    notch_fit = said.get("notch_fit", LID_NOTCH_FIT)
+    seat = said.get("seat", LID_SEAT)
+    if thick <= 0 or fit < 0 or notch_fit < 0 or seat < 0:
+        raise ValueError(
+            f"{at} lid: thickness must be positive, and fit, notch_fit and "
+            f"seat cannot be negative, got {thick}, {fit}, {notch_fit} and {seat}"
+        )
+    if not 0 < notch < 1:
+        raise ValueError(
+            f"{at} lid: notch is the fraction of the end wall each tab takes, "
+            f"so it must be in (0, 1), got {notch}"
+        )
+
+    # The holder's words, and the lid's over them. Saying which way the
+    # letters go overrides the other kind rather than colliding with it, the
+    # way a label already overrides its section's default.
+    label = dict(spec.get("emboss") or {})
+    mine = said.get("emboss")
+    if mine is not None:
+        if not isinstance(mine, dict):
+            raise ValueError(f"{at} lid emboss: must be an object, got {mine!r}")
+        if "depth" in mine:
+            label.pop("height", None)
+        elif "height" in mine:
+            label.pop("depth", None)
+        label.update(mine)
+    return {
+        "thickness": thick,
+        "fit": fit,
+        "notch": notch,
+        "notch_fit": notch_fit,
+        "seat": seat,
+        "label": label or None,
+        # Whose words they are, which is not the same as who stated a block:
+        # a lid may say only how deep to cut the holder's own name.
+        "own_label": "text" in (mine or {}),
+    }
 
 
 def dims(value, count, at, what):
@@ -166,21 +288,35 @@ def own_note(own, *keys):
     return "   (this variant only)" if any(key in own for key in keys) else ""
 
 
-def separator(sheet_w, sheet_l, tab_len, thick, tab_out):
-    """Flat sheet with a tab each side, laid out print-ready on the bed."""
-    key = (sheet_w, sheet_l, tab_len, thick, tab_out)
-    if key not in SEP_CACHE:
-        tab_y0 = (sheet_l - tab_len) / 2
+def tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out, end_tab=0.0):
+    """Flat sheet with a tab each long side, laid out print-ready on the bed.
+
+    A separator and a lid are the one part twice over: `end_tab` is how wide
+    a tab it also carries at each end, to seat in the holder's notches, and
+    no end tab at all is a separator.
+    """
+    key = (sheet_w, sheet_l, tab_len, thick, tab_out, end_tab)
+    if key not in SHEET_CACHE:
+        y0 = tab_out if end_tab else 0.0  # room at each end for those tabs
+        top = y0 + sheet_l  # far edge of the sheet
+        tab_y0 = y0 + (sheet_l - tab_len) / 2
         tab_y = (tab_y0, tab_y0 + tab_len)
         far = tab_out + sheet_w  # inner edge of the far tab
-        parts = [box((tab_out, far), (0, sheet_l), (0, thick))]
+        parts = [box((tab_out, far), (y0, top), (0, thick))]
         if tab_out > 0:  # a sheet asked to sit flush has no tabs to build
             parts += [
                 box((0, tab_out), tab_y, (0, thick)),
                 box((far, far + tab_out), tab_y, (0, thick)),
             ]
-        SEP_CACHE[key] = trimesh.boolean.union(parts) if len(parts) > 1 else parts[0]
-    return SEP_CACHE[key]
+        if end_tab:
+            end_x0 = tab_out + (sheet_w - end_tab) / 2
+            end_x = (end_x0, end_x0 + end_tab)
+            parts += [
+                box(end_x, (0, y0), (0, thick)),
+                box(end_x, (top, top + tab_out), (0, thick)),
+            ]
+        SHEET_CACHE[key] = trimesh.boolean.union(parts) if len(parts) > 1 else parts[0]
+    return SHEET_CACHE[key]
 
 
 print("=" * 60)
@@ -206,6 +342,18 @@ print("Separator")
 print(f"  sheet       {SEP_T} mm thick, cavity less {SEP_FIT} mm for the fit")
 print(f"  tabs        {SEP_TAB_OUT} mm out each side, filling the variant's")
 print(f"              side opening less the same {SEP_FIT} mm")
+if LID:
+    print("Lid")
+    print(
+        f"  sheet       {LID['thickness']} mm thick, seating "
+        f"{LID.get('seat', LID_SEAT)} mm under the rim"
+    )
+    print(
+        f"  notches     {LID.get('notch', LID_NOTCH) * 100:g}% of each end wall, "
+        f"cut {LID.get('notch_fit', LID_NOTCH_FIT)} mm wider than the tab in it"
+    )
+    print("  label       the holder's own, cut in, unless the lid states another")
+    print("  every variant gets one unless it says lid false")
 if EMB:
     print("Label")
     stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
@@ -265,6 +413,45 @@ for name, spec in VARIANTS.items():
     # keep in step when the corner changes.
     OPENING = L - 2 * post
 
+    # The lid's own numbers on this variant. The notch has to stay inside
+    # the cavity: run it out to the corners and it would cut the tops off
+    # the posts, which are the very bits holding the long sides up.
+    lid = lid_of(spec, at)
+    lid_down = 0.0  # how much off the top of the stack a seated lid takes
+    if lid:
+        lid_down = lid["thickness"] + lid["seat"]
+        notch_w = lid["notch"] * W
+        lid_w = INNER_W - lid["fit"]
+        lid_l = INNER_L - lid["fit"]
+        lid_tab_len = OPENING - lid["fit"]
+        lid_tab_w = notch_w - lid["notch_fit"]
+        if notch_w > INNER_W + 1e-9:
+            raise ValueError(
+                f"[{name}] a lid notch of {lid['notch']} comes to {notch_w:.1f} mm "
+                f"on a {W} mm wall, wider than the {INNER_W} mm cavity it has to "
+                f"stay inside -- state at most "
+                f"{math.floor(INNER_W / W * 1000) / 1000}, or the notch eats into "
+                f"the corner posts"
+            )
+        if lid_w <= 0 or lid_l <= 0 or lid_tab_len <= 0:
+            raise ValueError(
+                f"[{name}] a {lid['fit']} mm lid fit leaves no sheet in the "
+                f"{INNER_W} x {INNER_L} mm cavity, or no tab in its "
+                f"{OPENING:.1f} mm side opening"
+            )
+        if lid_tab_w > lid_w:
+            raise ValueError(
+                f"[{name}] a {lid_tab_w:.1f} mm end tab is wider than the "
+                f"{lid_w:.1f} mm sheet it hangs off"
+            )
+        if lid_tab_w < T:
+            raise ValueError(
+                f"[{name}] a lid notch of {lid['notch']} on a {W} mm wall, less "
+                f"{lid['notch_fit']} mm of notch_fit, leaves a {lid_tab_w:.1f} mm "
+                f"end tab, thinner than the {T} mm wall it seats in -- state at "
+                f"least {math.ceil((T + lid['notch_fit']) / W * 1000) / 1000}"
+            )
+
     sheets = []
     for sid, sheet_spec in seps.items():
         seat = f"{at} separators.{sid}"
@@ -303,7 +490,7 @@ for name, spec in VARIANTS.items():
                 f"{fit} mm fit, leaving no tab -- shorten the corner posts"
             )
 
-        mesh_sep = separator(sheet_w, sheet_l, tab_len, thick, tab_out)
+        mesh_sep = tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out)
         sheet_label = None
         if sheet_spec.get("emboss"):
             # Onto the face of the sheet, which is the only surface a
@@ -335,23 +522,33 @@ for name, spec in VARIANTS.items():
         )
 
     sep_stack = sum(sheet["thick"] for sheet in sheets)
-    if sep_stack >= depth:
+    if sep_stack + lid_down >= depth:
+        taken = [f"{len(sheets)} separators are {sep_stack:.1f} mm"]
+        if lid:
+            taken.append(f"the lid seats {lid_down:.1f} mm down")
         raise ValueError(
-            f"[{name}] {len(sheets)} separators are {sep_stack:.1f} mm of a "
-            f"{depth} mm stack, leaving no room for cards"
+            f"[{name}] {' and '.join(taken)} of a {depth} mm stack, leaving no "
+            f"room for cards"
         )
 
     over = 2.0  # overshoot so cuts clear the outer faces
 
-    mesh = trimesh.boolean.difference(
-        [
-            box((0, W), (0, L), (0, H)),  # solid blank
-            box((T, W - T), (T, L - T), (F, H + over)),  # card cavity
-            # Take out both long walls between the corner posts. The span
-            # between them is already cavity, so one cut does both sides.
-            box((-over, W + over), (post, L - post), (F, H + over)),
+    cuts = [
+        box((0, W), (0, L), (0, H)),  # solid blank
+        box((T, W - T), (T, L - T), (F, H + over)),  # card cavity
+        # Take out both long walls between the corner posts. The span
+        # between them is already cavity, so one cut does both sides.
+        box((-over, W + over), (post, L - post), (F, H + over)),
+    ]
+    if lid:
+        # Down from the rim, so nothing here is printed over air: what is
+        # left under the cut is the shoulder the lid comes to rest on.
+        nx0, nx1 = (W - notch_w) / 2, (W + notch_w) / 2
+        cuts += [
+            box((nx0, nx1), (-over, T + over), (H - lid_down, H + over)),
+            box((nx0, nx1), (L - T - over, L + over), (H - lid_down, H + over)),
         ]
-    )
+    mesh = trimesh.boolean.difference(cuts)
     label = spec.get("emboss")
     if label:  # onto the cavity floor, after it has been milled out
         solid, label_info = emboss_solid(
@@ -366,7 +563,38 @@ for name, spec in VARIANTS.items():
     path = f"{OUTDIR}/{GAME_ID}_card_holder_{name}.stl"
     mesh.export(path)
 
-    card_stack = depth - sep_stack
+    lid_label = None
+    if lid:
+        # The side tabs are not the lid's to shorten: they are what fills
+        # the rim over the side openings, and a rim with a gap in it is the
+        # hole this whole part exists to close. So they reach a wall out,
+        # as a separator's do by default.
+        mesh_lid = tabbed_sheet(
+            lid_w, lid_l, lid_tab_len, lid["thickness"], T, lid_tab_w
+        )
+        if lid["label"]:
+            solid, lid_label = emboss_solid(
+                lid["label"],
+                (T, T + lid_w),
+                (T, T + lid_l),
+                lid["thickness"],
+                f"{at} lid emboss",
+                EMB,
+            )
+            if not lid_label["cut"]:
+                raise ValueError(
+                    f"{at} lid emboss: letters standing {lid_label['amount']} mm "
+                    f"proud of a lid are what the next holder up would rock on "
+                    f"-- state depth, on the lid or on the section, so the name "
+                    f"is cut into it instead"
+                )
+            # Cleaned here rather than after, since an unlabelled lid is the
+            # cached sheet itself and tidying that would tidy it for everyone.
+            mesh_lid = trimesh.boolean.difference([mesh_lid, solid])
+            mesh_lid.merge_vertices()
+            mesh_lid.update_faces(mesh_lid.nondegenerate_faces())
+
+    card_stack = depth - sep_stack - lid_down
 
     print("-" * 60)
     print(f"[{name}]")
@@ -408,6 +636,36 @@ for name, spec in VARIANTS.items():
         )
     print("  Mesh checks")
     report_mesh(mesh)
+    lid_path = None
+    if lid:
+        print("  Lid")
+        print(
+            f"    sheet     {lid_w:.1f} x {lid_l:.1f} mm, "
+            f"{lid['thickness']} mm thick"
+        )
+        print(
+            f"    notches   {notch_w:.1f} mm wide, {lid_down:.1f} mm down from the "
+            f"rim, one in each end wall"
+        )
+        print(
+            f"    tabs      {lid_tab_w:.1f} mm into those, and {lid_tab_len:.1f} mm "
+            f"out each side filling the openings"
+        )
+        print(
+            f"    seats     {lid['seat']} mm under the rim, closing the top to a "
+            f"solid {W} x {L} mm to stack on"
+        )
+        if lid_label:
+            whose = " (its own)" if lid["own_label"] else " (the holder's)"
+            print(f"    text      {lid_label['text']}{whose}")
+            print(
+                f"    letters   {lid_label['size']:.1f} mm cap, "
+                f"{lid_label['stroke']:.2f} mm stroke, "
+                f"{lid_label['amount']:.2f} mm into the lid, along "
+                f"{lid_label['along']}"
+            )
+        lid_path = f"{OUTDIR}/{GAME_ID}_card_lid_{name}.stl"
+        mesh_lid.export(lid_path)
     sep_paths = []
     if sheets:
         print("  Separators")
@@ -440,10 +698,10 @@ for name, spec in VARIANTS.items():
             sep_paths.append(sep_path)
 
     print("  Capacity")
-    print(
-        f"    stack     {depth} mm less {sep_stack:.1f} mm of separators -> "
-        f"{card_stack:.1f} mm of cards"
-    )
+    less = f"{sep_stack:.1f} mm of separators"
+    if lid:
+        less += f" and {lid_down:.1f} mm under the lid"
+    print(f"    stack     {depth} mm less {less} -> {card_stack:.1f} mm of cards")
     if card_thick:
         print(
             f"    ~{card_stack / card_thick:.0f} sleeved cards + "
@@ -456,6 +714,8 @@ for name, spec in VARIANTS.items():
             f"a card count from"
         )
     print(f"  -> {path}")
+    if lid_path:
+        print(f"  -> {lid_path}")
     for sep_path in sep_paths:
         print(f"  -> {sep_path}")
     print()
