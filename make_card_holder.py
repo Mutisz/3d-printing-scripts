@@ -57,7 +57,18 @@ import math
 
 import trimesh
 
-from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
+from gameconfig import (
+    box,
+    checks_of,
+    dims,
+    load_game,
+    need,
+    outdir,
+    own_note,
+    parse_game_id,
+    report_mesh,
+    validation,
+)
 from label import emboss_defaults, emboss_solid
 
 GAME_ID = parse_game_id(__doc__.strip().splitlines()[0])
@@ -77,41 +88,6 @@ T = need(HOLDERS, "wall", WHERE)
 F = need(HOLDERS, "floor", WHERE)
 VARIANTS = need(HOLDERS, "variants", WHERE)
 EMB = emboss_defaults(HOLDERS, f"{WHERE} card_holders")  # for holders and sheets
-
-# Nothing here builds anything. A sleeve is what the cavity is checked
-# against, clearance how much bigger than it the cavity has to come out, and
-# card_thickness what the capacity estimate counts in -- so a section states
-# them for every variant, a variant overrides the ones it disagrees with,
-# and a holder with none stated comes out exactly the same, just unchecked.
-VAL_KEYS = ("sleeve", "clearance", "card_thickness")
-
-
-def validation(spec, at):
-    """The validation block a section or a variant states.
-
-    Closed to those three keys: this block is inherited silently, so a typo
-    in it would otherwise turn a check off without ever saying so.
-    """
-    block = spec.get("validation") or {}
-    if not isinstance(block, dict):
-        raise ValueError(f"{at} validation: must be an object, got {block!r}")
-    unknown = [key for key in block if key not in VAL_KEYS]
-    if unknown:
-        named = ", ".join(repr(key) for key in unknown)
-        raise ValueError(
-            f"{at} validation: {named} is not something a holder is checked "
-            f"against -- it takes {', '.join(VAL_KEYS)}"
-        )
-    stray = [key for key in VAL_KEYS if key in spec]
-    if stray:
-        named = ", ".join(repr(key) for key in stray)
-        raise ValueError(
-            f"{at}: {named} goes inside validation, not beside it -- left out "
-            f"here it would be read as nothing at all, quietly dropping the "
-            f"check it was written for"
-        )
-    return block
-
 
 VALID = validation(HOLDERS, f"{WHERE} card_holders")
 
@@ -239,55 +215,6 @@ def lid_of(spec, at):
     }
 
 
-def dims(value, count, at, what):
-    """A list of `count` positive numbers, or a message naming the key."""
-    try:
-        out = [float(v) for v in value]
-    except (TypeError, ValueError):
-        out = None
-    if out is None or len(out) != count:
-        raise SystemExit(f"{at}: {what} must be {count} numbers in mm, got {value!r}")
-    if any(v <= 0 for v in out):
-        raise SystemExit(f"{at}: {what} must be positive, got {value!r}")
-    return out
-
-
-def checks_of(spec, at):
-    """What a variant is checked against: its own words over the section's.
-
-    Every key is optional at either level, and a missing one is not an error
-    -- it only means there is nothing to check that against. Returns the
-    sleeve, the clearance, the card thickness, and the block the variant
-    stated itself, which is what the report marks as its own.
-    """
-    own = validation(spec, at)
-    checks = {**VALID, **own}
-
-    sleeve = checks.get("sleeve")
-    if sleeve is not None:
-        sleeve = dims(sleeve, 2, at, "sleeve")
-
-    clear = checks.get("clearance", 0.0)
-    if clear < 0:
-        raise ValueError(
-            f"{at} validation: clearance is room demanded over the sleeve, so "
-            f"it cannot be negative, got {clear}"
-        )
-
-    thick = checks.get("card_thickness")
-    if thick is not None and thick <= 0:
-        raise ValueError(
-            f"{at} validation: card_thickness must be positive to estimate a "
-            f"stack from, got {thick}"
-        )
-    return sleeve, clear, thick, own
-
-
-def own_note(own, *keys):
-    """Flag a report line whose numbers the variant overrode itself."""
-    return "   (this variant only)" if any(key in own for key in keys) else ""
-
-
 def tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out, end_tab=0.0):
     """Flat sheet with a tab each long side, laid out print-ready on the bed.
 
@@ -397,7 +324,7 @@ for name, spec in VARIANTS.items():
             f"least {math.ceil(T / L * 1000) / 1000}"
         )
 
-    sleeve, clear, card_thick, own_checks = checks_of(spec, at)
+    sleeve, clear, card_thick, own_checks = checks_of(spec, at, VALID)
     if sleeve and (
         INNER_W + 1e-9 < sleeve[0] + clear or INNER_L + 1e-9 < sleeve[1] + clear
     ):

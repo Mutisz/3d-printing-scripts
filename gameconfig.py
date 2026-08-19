@@ -1,10 +1,14 @@
 """
-Per-game parameter files, shared by both generators.
+Per-game parameter files, shared by every generator.
 
 Every game keeps one file at games/<game_id>.json carrying the parameters
-for everything printed for that game -- card holders and resource trays
-alike. Both scripts take the game id as their only argument and read that
-one file, so a dimension is stated once and only once.
+for everything printed for that game -- card holders, card boxes and
+resource trays alike. Each script takes the game id as its only argument
+and reads that one file, so a dimension is stated once and only once.
+
+What the sections have in common lives here too, not in any one of them:
+the validation block a card holder and a card box are both checked
+against, and the dimension parsing under it.
 
 Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
@@ -115,6 +119,50 @@ Schema, version 7
                                    floor, under where the cards sit; the
                                    same shape as a tray compartment's,
                                    spelt out under trays below
+      }
+    }
+  },
+
+  "card_boxes": {                  omit the whole section if none
+                                   A closed sleeve rather than a well: solid
+                                   floor, ceiling, both long walls and one
+                                   short wall, with the other short wall
+                                   missing altogether. Stated lying down, as
+                                   it sits in an insert, and written out
+                                   standing on its closed end, as it prints
+                                   -- so the STL measures W x H x L
+    "wall": float,                 the two long walls and the closed end
+    "floor": float,                the face the cards rest on
+    "ceiling": float,              optional, default the floor; the face the
+                                   slot and the label are in
+    "validation": {...},           optional; the same three keys a card
+                                   holder is checked against, inherited the
+                                   same way. There is no escape check here:
+                                   the mouth is open on purpose
+    "emboss": {...},               optional; what every label in this section
+                                   starts from, the same keys as elsewhere
+    "notch": {                     optional; the thumb slots, one in the
+                                   ceiling and the same one in the floor, so
+                                   the stack can be pinched from both sides.
+                                   In mm rather than a fraction, because a
+                                   thumb is one size whatever the card is
+      "width": float,              optional, default 25.0; across W, centred,
+                                   and no wider than the cavity
+      "reach": float               optional, default 25.0; back from the
+                                   mouth, and short of the closed end. The
+                                   end is rounded, semicircular once the
+                                   reach is half the width or more
+    },
+    "variants": {
+      "<name>": {
+        "size": [W, L, H],         outside, lying down: W across, L from the
+                                   closed end to the mouth, H the stack
+        "notch": {...},            optional, standing in for the section's
+        "validation": {...},       optional, standing in for the section's
+        "emboss": {...}            optional label on the ceiling, clear of
+                                   its slot; the same shape as elsewhere.
+                                   The floor is slotted alike but never
+                                   labelled
       }
     }
   },
@@ -269,6 +317,92 @@ def need(mapping, key, where):
     if key not in mapping:
         raise SystemExit(f"{where}: missing required key {key!r}")
     return mapping[key]
+
+
+def dims(value, count, at, what):
+    """A list of `count` positive numbers, or a message naming the key."""
+    try:
+        out = [float(v) for v in value]
+    except (TypeError, ValueError):
+        out = None
+    if out is None or len(out) != count:
+        raise SystemExit(f"{at}: {what} must be {count} numbers in mm, got {value!r}")
+    if any(v <= 0 for v in out):
+        raise SystemExit(f"{at}: {what} must be positive, got {value!r}")
+    return out
+
+
+# Nothing under validation builds anything. A sleeve is what the cavity is
+# checked against, clearance how much bigger than it the cavity has to come
+# out, and card_thickness what the capacity estimate counts in -- so a
+# section states them for every variant, a variant overrides the ones it
+# disagrees with, and a part with none stated comes out exactly the same,
+# just unchecked. A card holder and a card box are checked the same way,
+# which is why this lives here rather than in either of them.
+VAL_KEYS = ("sleeve", "clearance", "card_thickness")
+
+
+def validation(spec, at):
+    """The validation block a section or a variant states.
+
+    Closed to those three keys: this block is inherited silently, so a typo
+    in it would otherwise turn a check off without ever saying so.
+    """
+    block = spec.get("validation") or {}
+    if not isinstance(block, dict):
+        raise ValueError(f"{at} validation: must be an object, got {block!r}")
+    unknown = [key for key in block if key not in VAL_KEYS]
+    if unknown:
+        named = ", ".join(repr(key) for key in unknown)
+        raise ValueError(
+            f"{at} validation: {named} is not something a part is checked "
+            f"against -- it takes {', '.join(VAL_KEYS)}"
+        )
+    stray = [key for key in VAL_KEYS if key in spec]
+    if stray:
+        named = ", ".join(repr(key) for key in stray)
+        raise ValueError(
+            f"{at}: {named} goes inside validation, not beside it -- left out "
+            f"here it would be read as nothing at all, quietly dropping the "
+            f"check it was written for"
+        )
+    return block
+
+
+def checks_of(spec, at, section):
+    """What a variant is checked against: its own words over the section's.
+
+    Every key is optional at either level, and a missing one is not an error
+    -- it only means there is nothing to check that against. Returns the
+    sleeve, the clearance, the card thickness, and the block the variant
+    stated itself, which is what the report marks as its own.
+    """
+    own = validation(spec, at)
+    checks = {**section, **own}
+
+    sleeve = checks.get("sleeve")
+    if sleeve is not None:
+        sleeve = dims(sleeve, 2, at, "sleeve")
+
+    clear = checks.get("clearance", 0.0)
+    if clear < 0:
+        raise ValueError(
+            f"{at} validation: clearance is room demanded over the sleeve, so "
+            f"it cannot be negative, got {clear}"
+        )
+
+    thick = checks.get("card_thickness")
+    if thick is not None and thick <= 0:
+        raise ValueError(
+            f"{at} validation: card_thickness must be positive to estimate a "
+            f"stack from, got {thick}"
+        )
+    return sleeve, clear, thick, own
+
+
+def own_note(own, *keys):
+    """Flag a report line whose numbers the variant overrode itself."""
+    return "   (this variant only)" if any(key in own for key in keys) else ""
 
 
 def outdir(game_id, kind):

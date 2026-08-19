@@ -1,5 +1,5 @@
 """
-Build every part for one game: card holders, then resource trays.
+Build every part for one game: card holders, card boxes, then resource trays.
 
 Each generator runs in turn against games/<game_id>.json and streams its own
 report. A generator whose section is missing from the file exits clean with a
@@ -17,7 +17,7 @@ import sys
 from gameconfig import MODELS_DIR, load_game, parse_game_id
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-GENERATORS = ("make_card_holder.py", "make_resource_tray.py")
+GENERATORS = ("make_card_holder.py", "make_card_box.py", "make_resource_tray.py")
 
 # games/ and models/ are resolved relative to the working directory, so sit in
 # the repo root and this runner works no matter where it was invoked from.

@@ -4,29 +4,28 @@
     "id": "fateforge",
     "name": "Fateforge"
   },
-  "card_holders": {
+  "card_boxes": {
     "wall": 1.0,
     "floor": 1.0,
-    "separator": {
-      "thickness": 1.0,
-      "fit": 0.2
-    },
-    "lid": {
-      "thickness": 1.0
-    },
-    "emboss": {
-      "depth": 0.4,
-      "size": 7.0
-    },
+    "ceiling": 1.0,
     "validation": {
       "sleeve": [53.0, 79.0],
       "clearance": 1.0,
       "card_thickness": 0.7
     },
+    "emboss": {
+      "along": "W",
+      "size": 7.0,
+      "depth": 0.5
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
     "variants": {
       "small_skills": {
         "size": [56.0, 82.0, 40.0],
-        "emboss": { "text": "UMIEJĘTNOŚCI" }
+        "emboss": { "text": ["UMIEJĘ-", "TNOŚCI"] }
       },
       "small_1-48": {
         "size": [56.0, 82.0, 34.0],
@@ -76,41 +75,58 @@
       },
       "small_516_540": {
         "size": [56.0, 82.0, 22.0],
-        "emboss": { "size": 7.0, "text": "516-540" }
+        "emboss": { "text": "516-540" }
       },
 
       "small_613_636": {
         "size": [56.0, 82.0, 22.0],
-        "emboss": { "size": 7.0, "text": "613-636" }
+        "emboss": { "text": "613-636" }
       },
 
       "standard_300_349": {
         "validation": {
-          "sleeve": [65.0, 90.0]
+          "sleeve": [65.0, 90.0],
+          "card_thickness": 0.5
         },
         "size": [68.0, 95.0, 34.0],
-        "emboss": { "text": "300-354" }
+        "emboss": { "along": "L", "size": 10.0, "text": "300-354" }
       },
       "standard_350_407": {
         "validation": {
-          "sleeve": [65.0, 90.0]
+          "sleeve": [65.0, 90.0],
+          "card_thickness": 0.5
         },
         "size": [68.0, 95.0, 34.0],
-        "emboss": { "text": "355-407" }
+        "emboss": { "along": "L", "size": 10.0, "text": "355-407" }
       },
       "standard_541_571": {
         "validation": {
-          "sleeve": [65.0, 90.0]
+          "sleeve": [65.0, 90.0],
+          "card_thickness": 0.5
         },
         "size": [68.0, 95.0, 20.0],
-        "emboss": { "text": "541-571" }
+        "emboss": { "along": "L", "size": 10.0, "text": "541-571" }
       },
       "standard_638_669": {
         "validation": {
-          "sleeve": [65.0, 90.0]
+          "sleeve": [65.0, 90.0],
+          "card_thickness": 0.5
         },
         "size": [68.0, 95.0, 20.0],
-        "emboss": { "text": "638-669" }
+        "emboss": { "along": "L", "size": 10.0, "text": "638-669" }
+      },
+
+      "standard_cementary": {
+        "validation": {
+          "sleeve": [65.0, 90.0],
+          "card_thickness": 0.5
+        },
+        "size": [82.0, 102.0, 20.0],
+        "emboss": {
+          "along": "L",
+          "size": 10.0,
+          "text": ["NAPOTKANE", "CMENTARZ"]
+        }
       }
     }
   },
@@ -210,7 +226,7 @@
         }
       },
       "figures": {
-        "size": [105, 150.0, 64.0],
+        "size": [105.0, 150.0, 64.0],
         "split": "W",
         "compartments": {
           "animals": {
@@ -222,17 +238,31 @@
         }
       },
       "dice": {
-        "size": [203.0, 65.0, 20.0],
+        "size": [141.0, 68.0, 20.0],
         "split": "W",
         "compartments": {
           "battle": {
-            "emboss": { "along": "L", "size": 6.0, "text": ["KOŚCI", "WALKI"] }
+            "emboss": {
+              "along": "L",
+              "size": 6.0,
+              "text": ["KOŚCI", "WALKI"]
+            }
           },
           "weapon": {
-            "emboss": { "along": "L", "size": 6.0, "text": ["KOŚCI", "BRONI"] }
+            "emboss": {
+              "along": "L",
+              "size": 6.0,
+              "text": ["KOŚCI", "BRONI"]
+            }
+          },
+          "tests": {
+            "emboss": {
+              "along": "L",
+              "size": 6.0,
+              "text": ["KOŚCI", "TESTÓW"]
+            }
           },
           "animal": {
-            "size": 34,
             "emboss": {
               "along": "L",
               "size": 6.0,
@@ -240,8 +270,351 @@
             }
           }
         }
+      },
+      "jewels": {
+        "size": [62.0, 68.0, 20.0],
+        "split": "L",
+        "compartments": {
+          "1": {
+            "emboss": { "text": "1" }
+          },
+          "3": {
+            "emboss": { "text": "3" }
+          },
+          "5": {
+            "emboss": { "text": "5" }
+          }
+        }
+      },
+
+      "party_stash": {
+        "size": [137.0, 17.0, 83.0],
+        "split": "W",
+        "compartments": {
+          "party_stash": {
+            "notches": [
+              {
+                "side": "L-"
+              }
+            ]
+          }
+        }
+      },
+
+      "morale": {
+        "size": [56.0, 68.0, 22.0],
+        "split": "W",
+        "compartments": {
+          "morale": {
+            "emboss": {
+              "along": "L",
+              "size": 6.0,
+              "text": ["ZNACZNIKI", "MORALE"]
+            }
+          }
+        }
+      },
+
+      "food": {
+        "size": [56.0, 49.0, 26.0],
+        "split": "W",
+        "compartments": {
+          "food": {
+            "emboss": {
+              "text": "ŻYWNOŚĆ"
+            }
+          }
+        }
+      },
+      "tokens_long": {
+        "size": [56.0, 48.0, 26.0],
+        "split": "W",
+        "compartments": {
+          "chests": {
+            "emboss": {
+              "size": 6.0,
+              "text": "SKRZYNIE"
+            },
+            "notches": [
+              {
+                "side": "W-"
+              }
+            ]
+          },
+          "barricades": {
+            "emboss": {
+              "size": 6.0,
+              "text": "BARYKADY"
+            },
+            "notches": [
+              {
+                "side": "W-"
+              }
+            ]
+          },
+          "entanglements": {
+            "emboss": {
+              "size": 6.0,
+              "text": "ZASIEKI"
+            },
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+      "tokens_square": {
+        "size": [56.0, 53.0, 26.0],
+        "split": "L",
+        "compartments": {
+          "block_strike": {
+            "compartments": {
+              "block": {
+                "size": 28.0,
+                "emboss": {
+                  "size": 4.0,
+                  "text": "BLOK"
+                },
+                "notches": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "strike": {
+                "emboss": {
+                  "size": 4.0,
+                  "text": "CIOS"
+                },
+                "notches": [
+                  {
+                    "side": "W-"
+                  },
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          },
+          "focus_step": {
+            "compartments": {
+              "focus": {
+                "size": 28.0,
+                "emboss": {
+                  "size": 4.0,
+                  "text": ["SKUPIE-", "NIE"]
+                },
+                "notches": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "step": {
+                "emboss": {
+                  "size": 4.0,
+                  "text": "KROK"
+                },
+                "notches": [
+                  {
+                    "side": "W-"
+                  },
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+
+      "time": {
+        "size": [56.0, 41.0, 26.0],
+        "split": "W",
+        "compartments": {
+          "food": {
+            "emboss": {
+              "text": "CZAS"
+            }
+          }
+        }
+      },
+      "tokens_round": {
+        "size": [56.0, 109.0, 26.0],
+        "split": "L",
+        "compartments": {
+          "1_2": {
+            "compartments": {
+              "1": {
+                "openings": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "2": {
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          },
+          "3_4": {
+            "compartments": {
+              "3": {
+                "openings": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "4": {
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          },
+          "5_6": {
+            "compartments": {
+              "5": {
+                "openings": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "6": {
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          },
+          "7_8": {
+            "compartments": {
+              "7": {
+                "openings": [
+                  {
+                    "side": "W-"
+                  }
+                ]
+              },
+              "8": {
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+
+      "health_energy": {
+        "size": [56.0, 20.0, 28.0],
+        "split": "W",
+        "compartments": {
+          "health": {
+            "emboss": {
+              "text": ["ŻYCIE", "ENERGIA"]
+            }
+          }
+        }
+      },
+      "tokens_notched": {
+        "size": [56.0, 130.0, 28.0],
+        "split": "L",
+        "compartments": {
+          "goals": {
+            "emboss": {
+              "size": 7.0,
+              "text": "CELE"
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "doors": {
+            "emboss": {
+              "size": 7.0,
+              "text": "DRZWI"
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "portals_guard": {
+            "emboss": {
+              "size": 7.0,
+              "text": ["PORTALE", "STRZEŻONE"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "animals": {
+            "size": 34.0,
+            "emboss": {
+              "size": 7.0,
+              "text": "ZWIERZAKI"
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+
+      "markers": {
+        "size": [32.0, 150.0, 19.0],
+        "split": "L",
+        "compartments": {
+          "generic": {
+            "size": 80.0,
+            "emboss": {
+              "text": "ZNACZNIKI"
+            }
+          },
+          "damage": {},
+          "stun": {}
+        }
       }
     }
   },
-  "notes": "BOX 299x299x112,  MONSTER (25, STACK 8 - 31), CARDS LARGE BASE-60 A1-21 A2-21, EVENT CARDS BASE-30 A1-15 A2-15"
+  "notes": "NOTCHED TOKENS 34x31 SQUARE TOKENS 22x22 56x68x22  || BOX 299x299x112,  MONSTER (25, STACK 8 - 31), CARDS LARGE BASE-60 A1-21 A2-21, EVENT CARDS BASE-30 A1-15 A2-15"
 }
