@@ -34,9 +34,9 @@ python make_card_holder.py cafe_baras   # or just one generator
 python make_resource_tray.py cafe_baras
 ```
 
-Each generator prints its dimensions, mesh checks (watertight, body count, Euler
-number) and an estimated filament weight, then writes STLs to its own folder
-under `./models/<game_id>/`:
+Each generator prints what it built — outside and inside dimensions, then the
+compartments or the card capacity — and writes STLs to its own folder under
+`./models/<game_id>/`:
 
 ```
 models/cafe_baras/
@@ -54,10 +54,11 @@ mistake. Nothing else should be kept in those folders. The wipe happens even
 when there is nothing to build, so removing a whole section from the parameter
 file clears the parts it used to make.
 
-`make_all.py` runs both generators and ends with a pass/fail summary and a
-listing of everything under the game's output folder. A game that defines no
-trays (or no card holders) is not an error: the generator with nothing to do
-says so and exits clean.
+`make_all.py` runs both generators in turn and prints nothing of its own — the
+report you see is theirs. A game that defines no trays (or no card holders) is
+not an error: the generator with nothing to do says so and exits clean. Any
+other failure stops the run where it happened — the generators that would have
+followed are not started — and `make_all.py` exits with the failing one's code.
 
 ## Configuring
 
@@ -129,8 +130,9 @@ Every key is optional at both levels. State a `sleeve` and the cavity is checked
 against it, the report saying how much room is left over, and a cavity too small
 for the sleeve plus `clearance` stops the build; `clearance` is that demanded
 margin, in total across each axis, and defaults to 0. The escape check — is the
-side opening shorter than a card? — needs a sleeve too, and says so when it has
-none. `card_thickness` only feeds the "~N sleeved cards" estimate; without it the
+side opening shorter than a card? — needs a sleeve too, and stops the build the
+same way, naming the smallest `corner` that would keep the card in.
+`card_thickness` only feeds the "~N sleeved cards" estimate; without it the
 report gives the stack in mm and leaves the count out.
 
 ### Separators
@@ -164,9 +166,8 @@ opening whatever the corner posts are set to, and cannot fall out of step with
 them. `tab_out` still sets how far it stands proud; `null` means flush with the
 outer wall.
 
-The report lists every sheet with its thickness, footprint, tab length and
-width over the tabs — flagged `proud`, `flush` or `recessed` against the holder
-— and the combined stack is checked against the depth available for cards.
+Every sheet is written as its own STL, and their combined thickness comes off
+the depth available for cards, which the capacity lines report.
 
 ### Compartments
 
@@ -220,7 +221,7 @@ internal dividers included.
 compartment's, measured down from the rim and capped at the compartment's own
 depth. A notch on an outer wall opens to the outside; one on a divider opens a
 channel to the neighbour, so it stops short of the floor unless you push
-`depth` all the way. The report says which kind each notch turned out to be.
+`depth` all the way.
 
 Nothing overhangs — a notch only removes material from the rim down, leaving a
 shorter wall — so trays still print without supports.
@@ -249,13 +250,14 @@ the fraction of that wall kept at each end — not a length in mm, so a post kee
 its proportion however wide the compartment comes out — and defaults to `0.2`,
 leaving the middle 60% open, the same span a notch defaults to. It has to be
 under `0.5`, or there is nothing left between the posts; set it to `0` to take
-the wall out entirely. The report gives what the fraction came to in mm, under
-`post`.
+the wall out entirely.
 
 The card holder's `corner` is the same setting under another roof, and takes the
 same default: state it as a fraction of `L`, or get `0.2` at each end and the
 middle 60% of each long side open. There it also has to leave a post at least
-one wall thick, since a post thinner than the wall it stands in is no post.
+one wall thick, since a post thinner than the wall it stands in is no post, and
+— where a `sleeve` is stated — an opening shorter than the card, or the holder
+would not hold it.
 
 `depth` defaults to the compartment's own depth, so the opening runs all the way
 down to the floor; give it a smaller number to leave a lip standing. Either way
@@ -264,8 +266,7 @@ supports too.
 
 Size the posts against what is inside: an opening shorter than the piece it
 holds cannot let that piece out sideways. On a divider, a full-depth opening
-merges the two compartments into one — the report says which walls turned out to
-be dividers and which face outside.
+merges the two compartments into one.
 
 ### Embossed labels
 

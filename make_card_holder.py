@@ -66,7 +66,6 @@ from gameconfig import (
     outdir,
     own_note,
     parse_game_id,
-    report_mesh,
     validation,
 )
 from label import emboss_defaults, emboss_solid
@@ -249,42 +248,6 @@ def tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out, end_tab=0.0):
 print("=" * 60)
 print(f"Card Holder Generator -- {CFG['game']['name']}")
 print("=" * 60)
-print("Build")
-print(f"  thickness   {T} mm walls, {F} mm floor")
-print("Validation")
-if VALID.get("sleeve"):
-    said = VALID["sleeve"]
-    print(f"  sleeve      {said[0]} x {said[1]} mm unless a variant states its own")
-else:
-    print("  sleeve      whatever each variant states, if any")
-print(
-    f"  clearance   {VALID.get('clearance', 0.0)} mm the cavity must have over "
-    f"the sleeve"
-)
-if VALID.get("card_thickness"):
-    print(f"  cards       {VALID['card_thickness']} mm each, for the capacity")
-else:
-    print("  cards       whatever each variant states, if any")
-print("Separator")
-print(f"  sheet       {SEP_T} mm thick, cavity less {SEP_FIT} mm for the fit")
-print(f"  tabs        {SEP_TAB_OUT} mm out each side, filling the variant's")
-print(f"              side opening less the same {SEP_FIT} mm")
-if LID:
-    print("Lid")
-    print(
-        f"  sheet       {LID['thickness']} mm thick, seating "
-        f"{LID.get('seat', LID_SEAT)} mm under the rim"
-    )
-    print(
-        f"  notches     {LID.get('notch', LID_NOTCH) * 100:g}% of each end wall, "
-        f"cut {LID.get('notch_fit', LID_NOTCH_FIT)} mm wider than the tab in it"
-    )
-    print("  label       the holder's own, cut in, unless the lid states another")
-    print("  every variant gets one unless it says lid false")
-if EMB:
-    print("Label")
-    stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
-    print(f"  defaults    {stated}, unless a label says otherwise")
 print()
 
 for name, spec in VARIANTS.items():
@@ -339,6 +302,17 @@ for name, spec in VARIANTS.items():
     # posts allow and always clears them: nothing to configure, nothing to
     # keep in step when the corner changes.
     OPENING = L - 2 * post
+
+    # An opening no shorter than the card is a holder that cannot hold it:
+    # the card slides straight out the side it was meant to be reached in.
+    if sleeve and OPENING + 1e-9 >= sleeve[1]:
+        keep = math.floor((L - sleeve[1]) / (2 * L) * 1000) / 1000 + 0.001
+        raise ValueError(
+            f"[{name}] corner {corner} leaves a {OPENING:.1f} mm side opening, "
+            f"no shorter than the {sleeve[1]} mm card it has to keep in, so the "
+            f"card can slide out -- state a corner of at least {keep:g}, or "
+            f"shorten L"
+        )
 
     # The lid's own numbers on this variant. The notch has to stay inside
     # the cavity: run it out to the corners and it would cut the tops off
@@ -534,95 +508,16 @@ for name, spec in VARIANTS.items():
             f"{INNER_W - sleeve[0] - clear:.1f} / {INNER_L - sleeve[1] - clear:.1f} "
             f"mm to spare{own_note(own_checks, 'sleeve', 'clearance')}"
         )
-    print("  Long sides")
-    print(
-        f"    posts     {post:.1f} mm at each corner, {corner * 100:g}% of the "
-        f"{L} mm wall, full height, {T} mm thick"
-    )
-    print(f"    opening   {OPENING:.1f} mm long, floor to rim ({depth} mm tall)")
-    if sleeve:
-        trapped = OPENING < sleeve[1]
-        print(
-            f"    check     {OPENING:.1f} mm opening vs {sleeve[1]} mm card -> "
-            f"{'OK, card cannot slide out' if trapped else 'CARD CAN ESCAPE'}"
-        )
-    else:
-        print("    check     no sleeve stated, so nothing to check the opening against")
-    if label:
-        way = "into the floor" if label_info["cut"] else "proud of the floor"
-        print("  Label")
-        print(f"    text      {label_info['text']}")
-        print(
-            f"    letters   {label_info['size']:.1f} mm cap, "
-            f"{label_info['stroke']:.2f} mm stroke, "
-            f"{label_info['amount']:.2f} mm {way}"
-        )
-        print(
-            f"    drawn     {label_info['w']:.1f} x {label_info['h']:.1f} mm, "
-            f"running along {label_info['along']}"
-        )
-    print("  Mesh checks")
-    report_mesh(mesh)
+
     lid_path = None
     if lid:
-        print("  Lid")
-        print(
-            f"    sheet     {lid_w:.1f} x {lid_l:.1f} mm, "
-            f"{lid['thickness']} mm thick"
-        )
-        print(
-            f"    notches   {notch_w:.1f} mm wide, {lid_down:.1f} mm down from the "
-            f"rim, one in each end wall"
-        )
-        print(
-            f"    tabs      {lid_tab_w:.1f} mm into those, and {lid_tab_len:.1f} mm "
-            f"out each side filling the openings"
-        )
-        print(
-            f"    seats     {lid['seat']} mm under the rim, closing the top to a "
-            f"solid {W} x {L} mm to stack on"
-        )
-        if lid_label:
-            whose = " (its own)" if lid["own_label"] else " (the holder's)"
-            print(f"    text      {lid_label['text']}{whose}")
-            print(
-                f"    letters   {lid_label['size']:.1f} mm cap, "
-                f"{lid_label['stroke']:.2f} mm stroke, "
-                f"{lid_label['amount']:.2f} mm into the lid, along "
-                f"{lid_label['along']}"
-            )
         lid_path = f"{OUTDIR}/{GAME_ID}_card_lid_{name}.stl"
         mesh_lid.export(lid_path)
     sep_paths = []
-    if sheets:
-        print("  Separators")
-        print(
-            f"    {'id':<14}{'thick':>6}{'sheet':>16}{'tab':>7}{'over tabs':>17}"
-            f"  label"
-        )
-        for sheet in sheets:
-            over = sheet["over"]
-            sits = "flush"
-            if abs(over - W) > 1e-6:
-                sits = "proud" if over > W else "recessed"
-            footprint = f"{sheet['w']:.1f} x {sheet['l']:.1f}"
-            fits = f"{over:.1f} {sits}"
-            text = sheet["label"]["text"] if sheet["label"] else "--"
-            print(
-                f"    {sheet['id']:<14}{sheet['thick']:>6.1f}{footprint:>16}"
-                f"{sheet['tab']:>7.1f}{fits:>17}  {text}"
-            )
-            if sheet["label"]:
-                info = sheet["label"]
-                way = "deep" if info["cut"] else "proud"
-                print(
-                    f"    {'':<14}{info['size']:.1f} mm cap, "
-                    f"{info['stroke']:.2f} mm stroke, {info['amount']:.2f} mm "
-                    f"{way}, along {info['along']}"
-                )
-            sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}_{sheet['id']}.stl"
-            sheet["mesh"].export(sep_path)
-            sep_paths.append(sep_path)
+    for sheet in sheets:
+        sep_path = f"{OUTDIR}/{GAME_ID}_card_separator_{name}_{sheet['id']}.stl"
+        sheet["mesh"].export(sep_path)
+        sep_paths.append(sep_path)
 
     print("  Capacity")
     less = f"{sep_stack:.1f} mm of separators"

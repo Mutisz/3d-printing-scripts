@@ -88,9 +88,9 @@ def emboss_solid(spec, xr, yr, z0, where, defaults=None):
     and only then to the sizing here -- so a label may still say null to a
     defaulted size and have it worked out from the room it has.
 
-    Returns the solid, and what the report wants to say about it. Whether
-    that solid is added to the part or taken out of it is in the report as
-    `cut`, because a label that states depth is engraved rather than raised.
+    Returns the solid, and the label as it worked out. Whether that solid
+    is added to the part or taken out of it comes back as `cut`, because a
+    label that states depth is engraved rather than raised.
     """
     own = spec
     if "height" in own and "depth" in own:

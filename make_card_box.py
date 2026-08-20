@@ -22,8 +22,8 @@ standing on that closed end with the mouth pointing up, which is the only
 orientation worth printing it in: every wall is vertical, the whole part
 is one constant cross-section over a solid cap, and there is not an
 overhang in it anywhere. So the STL measures W x H x L rather than
-W x L x H, and the report says so rather than leaving it to be found out
-in the slicer.
+W x L x H, which is why the report marks its sizes `lying down` rather
+than leaving the difference to be found out in the slicer.
 
 That orientation is also why both slots run out to the mouth rather than
 sitting as holes in the middle of their faces. Standing up, the mouth is
@@ -53,7 +53,6 @@ from gameconfig import (
     outdir,
     own_note,
     parse_game_id,
-    report_mesh,
     validation,
 )
 from label import EMB_MARGIN, emboss_defaults, emboss_solid
@@ -89,7 +88,6 @@ if T <= 0 or F <= 0 or C <= 0:
 NOTCH_KEYS = ("width", "reach")
 NOTCH_WIDTH = 25.0  # across W, centred
 NOTCH_REACH = 25.0  # back from the mouth
-TIPPY = 4.0  # bed aspect over which a standing box wants a brim
 
 
 def notch_block(block, at):
@@ -119,7 +117,7 @@ def notch_of(spec, at):
         raise ValueError(
             f"{at} notch: width and reach must be positive, got {width} and {reach}"
         )
-    return width, reach, own
+    return width, reach
 
 
 def notch_cut(W, L, H, width, reach):
@@ -156,33 +154,6 @@ def notch_cut(W, L, H, width, reach):
 print("=" * 60)
 print(f"Card Box Generator -- {CFG['game']['name']}")
 print("=" * 60)
-print("Build")
-print(f"  thickness   {T} mm long walls and closed end")
-print(f"              {F} mm floor, {C} mm ceiling")
-print("Validation")
-if VALID.get("sleeve"):
-    said = VALID["sleeve"]
-    print(f"  sleeve      {said[0]} x {said[1]} mm unless a variant states its own")
-else:
-    print("  sleeve      whatever each variant states, if any")
-print(
-    f"  clearance   {VALID.get('clearance', 0.0)} mm the cavity must have over "
-    f"the sleeve"
-)
-if VALID.get("card_thickness"):
-    print(f"  cards       {VALID['card_thickness']} mm each, for the capacity")
-else:
-    print("  cards       whatever each variant states, if any")
-print("Notch")
-print(
-    f"  slots       {NOTCH.get('width', NOTCH_WIDTH)} mm wide, "
-    f"{NOTCH.get('reach', NOTCH_REACH)} mm back from the mouth, one in the"
-)
-print("              floor and one in the ceiling, unless a variant says otherwise")
-if EMB:
-    print("Label")
-    stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
-    print(f"  defaults    {stated}, unless a label says otherwise")
 print()
 
 for name, spec in VARIANTS.items():
@@ -210,7 +181,7 @@ for name, spec in VARIANTS.items():
             f"the outside size or thin the walls"
         )
 
-    width, reach, own_notch = notch_of(spec, at)
+    width, reach = notch_of(spec, at)
     if width > INNER_W + 1e-9:
         raise ValueError(
             f"[{name}] a {width} mm slot is wider than the {INNER_W} mm cavity "
@@ -271,7 +242,6 @@ for name, spec in VARIANTS.items():
     path = f"{OUTDIR}/{GAME_ID}_card_box_{name}.stl"
     mesh.export(path)
 
-    bed = min(W, H)  # the narrow way across the footprint, which is what tips
     print("-" * 60)
     print(f"[{name}]")
     print("  Dimensions")
@@ -283,42 +253,6 @@ for name, spec in VARIANTS.items():
             f"{INNER_W - sleeve[0] - clear:.1f} / {INNER_L - sleeve[1] - clear:.1f} "
             f"mm to spare{own_note(own_checks, 'sleeve', 'clearance')}"
         )
-    print(f"    mouth     {INNER_W} x {INNER_H} mm, the whole cavity, open")
-    print("  Walls")
-    print(f"    closed    {T} mm each long side, {T} mm at the far end")
-    print(f"    faces     {F} mm floor, {C} mm ceiling")
-    print("  Notch")
-    round_end = "semicircular" if width / 2 <= reach else "flattened by the reach"
-    print(
-        f"    slots     {width} mm wide, {reach} mm back from the mouth, in the "
-        f"floor and the ceiling{own_note(own_notch, 'width', 'reach')}"
-    )
-    print(f"    end       {min(width / 2, reach):.1f} mm radius, {round_end}")
-    print(
-        f"    left      {L - reach:.1f} mm of each face back to the closed end, "
-        f"and {(INNER_W - width) / 2:.1f} mm either side of the slots"
-    )
-    if label:
-        way = "into the ceiling" if label_info["cut"] else "proud of the ceiling"
-        print("  Label")
-        print(f"    text      {label_info['text']}")
-        print(
-            f"    letters   {label_info['size']:.1f} mm cap, "
-            f"{label_info['stroke']:.2f} mm stroke, "
-            f"{label_info['amount']:.2f} mm {way}"
-        )
-        print(
-            f"    drawn     {label_info['w']:.1f} x {label_info['h']:.1f} mm, "
-            f"running along {label_info['along']}"
-        )
-    print("  Print")
-    print("    stands    on its closed end, mouth up")
-    print(f"    bed       {W} x {H} mm, {L} mm tall ({L / bed:.1f} : 1)")
-    if L / bed > TIPPY:
-        print("              tall and narrow on the bed: worth a brim")
-    print("    supports  none, every wall is vertical stood this way up")
-    print("  Mesh checks")
-    report_mesh(mesh)
     print("  Capacity")
     if card_thick:
         print(

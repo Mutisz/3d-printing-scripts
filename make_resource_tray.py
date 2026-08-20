@@ -49,7 +49,7 @@ import math
 
 import trimesh
 
-from gameconfig import box, load_game, need, outdir, parse_game_id, report_mesh
+from gameconfig import box, load_game, need, outdir, parse_game_id
 from label import emboss_defaults, emboss_solid
 
 SIDES = ("W-", "W+", "L-", "L+")  # low/high side on each axis
@@ -138,14 +138,6 @@ def wall_band(side, xr, yr):
     return (edge - over, edge + T + over)
 
 
-def wall_is_outer(side, xr, yr, W, L):
-    """True when the named wall of a rect lands on the tray's own face."""
-    low = side.endswith("-")
-    pos = (xr if side.startswith("W") else yr)[0 if low else 1]
-    limit = T if low else (W - T if side.startswith("W") else L - T)
-    return abs(pos - limit) < 1e-6
-
-
 def notch_cut(side, xr, yr, H, width, depth):
     """Rounded-bottom slot dropped from the rim through one wall of a rect.
 
@@ -211,14 +203,13 @@ def plan(comps, split, W, L, H, where):
     """Divide the cavity into compartments, recursing into nested ones.
 
     Returns the cavity boxes to subtract from the blank, the label solids to
-    add back to it, a flat record of what went where for the report --
-    (name, level, is_leaf, xr, yr, depth, z0) -- and one row per notch, per
-    opening and per label.
+    add back to it, and a flat record of what went where for the report --
+    (name, level, is_leaf, xr, yr, depth).
     """
     over = 2.0  # overshoot so each cavity breaks through the top face
-    cuts, adds, placed, notched, opened, embossed = [], [], [], [], [], []
+    cuts, adds, placed = [], [], []
 
-    def add_notches(comp, xr, yr, depth, where, label):
+    def add_notches(comp, xr, yr, depth, where):
         """Cut each requested slot through the named wall of this rectangle."""
         for spec in comp.get("notches", []):
             side = need(spec, "side", where)
@@ -249,18 +240,8 @@ def plan(comps, split, W, L, H, where):
                 )
 
             cuts.append(notch_cut(side, xr, yr, H, width, n_depth))
-            notched.append(
-                (
-                    label,
-                    side,
-                    width,
-                    n_depth,
-                    min(width / 2, n_depth),
-                    wall_is_outer(side, xr, yr, W, L),
-                )
-            )
 
-    def add_openings(comp, xr, yr, depth, where, label):
+    def add_openings(comp, xr, yr, depth, where):
         """Take out each requested wall of this rectangle bar its corners."""
         for spec in comp.get("openings", []):
             side = need(spec, "side", where)
@@ -296,16 +277,6 @@ def plan(comps, split, W, L, H, where):
                 )
 
             cuts.append(opening_cut(side, xr, yr, H, post, o_depth))
-            opened.append(
-                (
-                    label,
-                    side,
-                    post,
-                    run - 2 * post,
-                    o_depth,
-                    wall_is_outer(side, xr, yr, W, L),
-                )
-            )
 
     def carve(comps, axis, xr, yr, default_depth, where, level):
         """Split one rectangle into a row along `axis`.
@@ -339,7 +310,6 @@ def plan(comps, split, W, L, H, where):
             if depth is None:
                 depth = default_depth  # inherited from the enclosing compartment
 
-            label = "  " * level + cname
             kids = comp.get("compartments")
             if kids:
                 kids = as_compartments(kids, here)
@@ -349,10 +319,10 @@ def plan(comps, split, W, L, H, where):
                         f"compartment is split into {len(kids)} of its own -- "
                         f"label those instead"
                     )
-                placed.append((cname, level, False, cxr, cyr, depth, None))
+                placed.append((cname, level, False, cxr, cyr, depth))
                 # A container's walls are real walls, so they can be cut too.
-                add_notches(comp, cxr, cyr, depth, here, label)
-                add_openings(comp, cxr, cyr, depth, here, label)
+                add_notches(comp, cxr, cyr, depth, here)
+                add_openings(comp, cxr, cyr, depth, here)
                 carve(
                     kids,
                     "W" if axis == "L" else "L",
@@ -371,9 +341,9 @@ def plan(comps, split, W, L, H, where):
                 )
             z0 = H - depth  # raised floor when the compartment is shallow
             cuts.append(box(cxr, cyr, (z0, H + over)))
-            placed.append((cname, level, True, cxr, cyr, depth, z0))
-            add_notches(comp, cxr, cyr, depth, here, label)
-            add_openings(comp, cxr, cyr, depth, here, label)
+            placed.append((cname, level, True, cxr, cyr, depth))
+            add_notches(comp, cxr, cyr, depth, here)
+            add_openings(comp, cxr, cyr, depth, here)
             if "emboss" in comp:
                 solid, info = emboss_solid(
                     comp["emboss"], cxr, cyr, z0, here, EMB
@@ -381,19 +351,14 @@ def plan(comps, split, W, L, H, where):
                 # A cut label is just another cavity, so it can go in with
                 # the rest and be milled out in the same pass.
                 (cuts if info["cut"] else adds).append(solid)
-                embossed.append((label, info))
 
     carve(comps, split, (T, W - T), (T, L - T), H - F, where, 0)
-    return cuts, adds, placed, notched, opened, embossed
+    return cuts, adds, placed
 
 
 print("=" * 66)
 print(f"Resource Tray Generator -- {CFG['game']['name']}")
 print("=" * 66)
-print(f"Build   {T} mm walls and dividers, {F} mm floor")
-if EMB:
-    stated = ", ".join(f"{key} {value}" for key, value in EMB.items())
-    print(f"Labels  {stated}, unless a label says otherwise")
 print()
 
 for name, spec in VARIANTS.items():
@@ -412,7 +377,7 @@ for name, spec in VARIANTS.items():
             f"{T} mm walls and a {F} mm floor"
         )
 
-    cuts, adds, placed, notched, opened, embossed = plan(comps, split, W, L, H, at)
+    cuts, adds, placed = plan(comps, split, W, L, H, at)
 
     mesh = trimesh.boolean.difference([box((0, W), (0, L), (0, H))] + cuts)
     if adds:  # labels go on after the cavities, or the cavities would eat them
@@ -427,61 +392,13 @@ for name, spec in VARIANTS.items():
     print("  Dimensions")
     print(f"    outside   {W} x {L} x {H} mm")
     print(f"    cavity    {W - 2 * T:.1f} x {L - 2 * T:.1f} x {H - F:.1f} mm")
-    leaves = sum(1 for p in placed if p[2])
-    print(f"    layout    {leaves} compartments, top row along {split}")
     print("  Compartments")
-    print(f"    {'name':<18}{'w x l':>16}{'depth':>8}{'floor z':>9}{'holds':>11}")
-    for cname, level, leaf, cxr, cyr, depth, z0 in placed:
+    print(f"    {'name':<18}{'w x l':>16}{'depth':>8}")
+    for cname, level, leaf, cxr, cyr, depth in placed:
         cw, cl = cxr[1] - cxr[0], cyr[1] - cyr[0]
         label = "  " * level + cname
         footprint = f"{cw:.1f} x {cl:.1f}"
-        if leaf:
-            print(
-                f"    {label:<18}{footprint:>16}{depth:>8.1f}{z0:>9.1f}"
-                f"{cw * cl * depth / 1000:>8.1f} ml"
-            )
-        else:
-            print(f"    {label:<18}{footprint:>16}{'(split)':>8}")
-    if notched:
-        print("  Notches")
-        print(
-            f"    {'compartment':<18}{'side':>6}{'width':>8}{'deep':>7}"
-            f"{'radius':>8}   wall"
-        )
-        for label, side, width, n_depth, radius, outer in notched:
-            print(
-                f"    {label:<18}{side:>6}{width:>8.1f}{n_depth:>7.1f}{radius:>8.1f}"
-                f"   {'outer, opens outside' if outer else 'divider, joins neighbour'}"
-            )
-    if opened:
-        print("  Openings")
-        print(
-            f"    {'compartment':<18}{'side':>6}{'post':>8}{'gap':>8}"
-            f"{'deep':>7}   wall"
-        )
-        for label, side, post, gap, o_depth, outer in opened:
-            print(
-                f"    {label:<18}{side:>6}{post:>8.1f}{gap:>8.1f}{o_depth:>7.1f}"
-                f"   {'outer, opens outside' if outer else 'divider, joins neighbour'}"
-            )
-    if embossed:
-        print("  Embossing")
-        print(
-            f"    {'compartment':<18}{'text':<18}{'cap':>6}{'stroke':>8}"
-            f"{'relief':>13}{'drawn':>13}  runs"
-        )
-        for label, info in embossed:
-            relief = f"{info['amount']:.2f} {'deep' if info['cut'] else 'proud'}"
-            drawn = f"{info['w']:.1f} x {info['h']:.1f}"
-            text = info["text"]
-            if len(text) > 18:  # several lines joined can outrun the column
-                text = text[:17] + "…"
-            print(
-                f"    {label:<18}{text:<18}{info['size']:>6.1f}"
-                f"{info['stroke']:>8.2f}{relief:>13}{drawn:>13}"
-                f"  along {info['along']}"
-            )
-    print("  Mesh checks")
-    report_mesh(mesh)
+        deep = f"{depth:.1f}" if leaf else "(split)"
+        print(f"    {label:<18}{footprint:>16}{deep:>8}")
     print(f"  -> {path}")
     print()

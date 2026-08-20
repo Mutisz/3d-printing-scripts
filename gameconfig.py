@@ -428,14 +428,3 @@ def box(xr, yr, zr):
     return trimesh.creation.box(
         extents=ext, transform=trimesh.transformations.translation_matrix(ctr)
     )
-
-
-def report_mesh(mesh, indent="    "):
-    """The watertight / bodies / euler / volume block both scripts print."""
-    print(f"{indent}watertight  {mesh.is_watertight}")
-    print(f"{indent}bodies      {mesh.body_count}")
-    print(f"{indent}euler       {mesh.euler_number}")
-    print(
-        f"{indent}volume      {mesh.volume / 1000:.1f} cm^3 "
-        f"(~{mesh.volume * 1.24 / 1000:.0f} g)"
-    )
