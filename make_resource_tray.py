@@ -12,7 +12,8 @@ are written. Give one an absolute size along the split axis, or leave size
 out and it shares whatever the fixed ones leave over -- so {} is a whole
 compartment, and a row of them divides the tray evenly. A compartment may
 also be shallower than the tray, which raises its floor and makes small
-pieces easier to pinch out.
+pieces easier to pinch out, or a depth of 0 leaves it filled solid to the
+rim -- a spacer holding its neighbours apart rather than a compartment.
 
 A compartment that carries compartments of its own is subdivided in turn,
 across the perpendicular axis -- so a row along L becomes columns along W,
@@ -212,6 +213,11 @@ def plan(comps, split, W, L, H, where):
     def add_notches(comp, xr, yr, depth, where):
         """Cut each requested slot through the named wall of this rectangle."""
         for spec in comp.get("notches", []):
+            if not depth:  # solid to the rim, so there is no wall to slot
+                raise ValueError(
+                    f"{where}: a notch reaches into a cavity, and at depth 0 "
+                    f"this compartment is filled solid to the rim"
+                )
             side = need(spec, "side", where)
             if side not in SIDES:
                 raise ValueError(
@@ -244,6 +250,11 @@ def plan(comps, split, W, L, H, where):
     def add_openings(comp, xr, yr, depth, where):
         """Take out each requested wall of this rectangle bar its corners."""
         for spec in comp.get("openings", []):
+            if not depth:  # nothing to open: the compartment is solid
+                raise ValueError(
+                    f"{where}: an opening opens a cavity, and at depth 0 this "
+                    f"compartment is filled solid to the rim"
+                )
             side = need(spec, "side", where)
             if side not in SIDES:
                 raise ValueError(
@@ -334,13 +345,14 @@ def plan(comps, split, W, L, H, where):
                 )
                 continue
 
-            if not 0 < depth <= H - F:
+            if not 0 <= depth <= H - F:
                 raise ValueError(
-                    f"{here}: depth {depth} must be in (0, {H - F}] to leave a "
-                    f"floor under it"
+                    f"{here}: depth {depth} must be in [0, {H - F}] to leave a "
+                    f"floor under it -- 0 fills it solid to the rim"
                 )
             z0 = H - depth  # raised floor when the compartment is shallow
-            cuts.append(box(cxr, cyr, (z0, H + over)))
+            if depth:  # at 0 nothing is milled out and the blank stays whole
+                cuts.append(box(cxr, cyr, (z0, H + over)))
             placed.append((cname, level, True, cxr, cyr, depth))
             add_notches(comp, cxr, cyr, depth, here)
             add_openings(comp, cxr, cyr, depth, here)
@@ -398,7 +410,10 @@ for name, spec in VARIANTS.items():
         cw, cl = cxr[1] - cxr[0], cyr[1] - cyr[0]
         label = "  " * level + cname
         footprint = f"{cw:.1f} x {cl:.1f}"
-        deep = f"{depth:.1f}" if leaf else "(split)"
+        if not leaf:
+            deep = "(split)"
+        else:
+            deep = f"{depth:.1f}" if depth else "(solid)"
         print(f"    {label:<18}{footprint:>16}{deep:>8}")
     print(f"  -> {path}")
     print()

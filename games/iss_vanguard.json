@@ -1,0 +1,1092 @@
+{
+  "schema_version": 7,
+  "game": {
+    "id": "iss_vanguard",
+    "name": "ISS Vanguard"
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "base_a_standard": {
+        "size": [227.0, 97.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "points_0_199": {
+            "size": 42.0,
+            "emboss": {
+              "text": ["WAŻNE PUNKTY", "0-199"],
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "points_200_299": {
+            "emboss": {
+              "text": ["WAŻNE PUNKTY", "200-299"],
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "points_300_399": {
+            "emboss": {
+              "text": ["WAŻNE PUNKTY", "300-399"],
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "points_400_199": {
+            "emboss": {
+              "text": ["WAŻNE PUNKTY", "400-533"],
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "mission": {
+            "size": 36.0,
+            "emboss": {
+              "text": "MISJE",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "conditions": {
+            "size": 30.0,
+            "emboss": {
+              "text": ["WARUNKI", "GLOBALNE"],
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "base_a_small": {
+        "size": [84.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "injuries_promotions_events": {
+            "compartments": {
+              "promotions": {
+                "size": 16.0,
+                "emboss": {
+                  "text": "AWANSE",
+                  "size": 5.0
+                },
+                "notches": [
+                  {
+                    "side": "W-",
+                    "width": 30.0
+                  }
+                ]
+              },
+              "injuries": {
+                "size": 34.0,
+                "emboss": {
+                  "text": "URAZY",
+                  "size": 5.0
+                },
+                "notches": [
+                  {
+                    "side": "W-",
+                    "width": 30.0
+                  }
+                ]
+              },
+              "events": {
+                "size": 30.0,
+                "emboss": {
+                  "text": "WYDARZENIA",
+                  "size": 5.0
+                },
+                "notches": [
+                  {
+                    "side": "W-",
+                    "width": 30.0
+                  },
+                  {
+                    "side": "W+",
+                    "width": 30.0
+                  }
+                ]
+              }
+            }
+          },
+          "discoveries": {
+            "emboss": {
+              "text": "ODKRYCIA",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          }
+        }
+      },
+
+      "personal_files": {
+        "size": [56.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "personal_files": {
+            "emboss": {
+              "text": "AKTA OSOBISTE",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "recruits": {
+        "size": [60.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "recruits": {
+            "emboss": {
+              "text": "REKRUCI",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "base_b_standard": {
+        "size": [159.0, 97.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "armory": {
+            "size": 68.0,
+            "emboss": {
+              "text": "ZBROJOWNIA",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "landings": {
+            "size": 16.0,
+            "emboss": {
+              "text": "LĄDOWANIA",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "room_upgrades": {
+            "size": 10.0,
+            "emboss": {
+              "text": "POMIESZCZENIA",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "ship_events": {
+            "size": 18.0,
+            "emboss": {
+              "text": "ZDARZENIA POKŁADOWE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "production_projects": {
+            "size": 20.0,
+            "emboss": {
+              "text": "PROJEKTY PRODUKCYJNE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "research_projects": {
+            "size": 20.0,
+            "emboss": {
+              "text": "PROJEKTY BADAWCZE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "base_b_small": {
+        "size": [36.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "bridge": {
+            "emboss": {
+              "text": ["KARTY", "MOSTKA"],
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          },
+          "lander": {
+            "emboss": {
+              "text": ["MODYFIKACJE", "LĄDOWNIKA"],
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          }
+        }
+      },
+
+      "tutorial": {
+        "size": [33.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "discarded": {
+            "emboss": {
+              "text": "SAMOUCZEK",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "lf_a_standard": {
+        "size": [102.0, 97.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "points": {
+            "size": 62.0,
+            "emboss": {
+              "text": "WAŻNE PUNKTY",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "mission": {
+            "size": 20.0,
+            "emboss": {
+              "text": "MISJE",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "conditions": {
+            "size": 16.0,
+            "emboss": {
+              "text": "WARUNKI GLOBALNE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "lf_a_small": {
+        "size": [53.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "injuries_promotions_events": {
+            "compartments": {
+              "promotions": {
+                "size": 16.0,
+                "emboss": {
+                  "text": "AWANSE",
+                  "size": 5.0
+                },
+                "notches": [
+                  {
+                    "side": "W-",
+                    "width": 30.0
+                  }
+                ]
+              },
+              "injuries": {
+                "size": 34.0,
+                "emboss": {
+                  "text": "URAZY",
+                  "size": 5.0
+                },
+                "notches": [
+                  {
+                    "side": "W-",
+                    "width": 30.0
+                  },
+                  {
+                    "side": "W+",
+                    "width": 30.0
+                  }
+                ]
+              }
+            }
+          },
+          "discoveries": {
+            "emboss": {
+              "text": "ODKRYCIA",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          }
+        }
+      },
+      "lf_b_standard": {
+        "size": [150.0, 97.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "armory": {
+            "size": 68.0,
+            "emboss": {
+              "text": "ZBROJOWNIA",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "landings": {
+            "size": 10.0,
+            "emboss": {
+              "text": "LĄDOWANIA",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "room_upgrades": {
+            "size": 12.0,
+            "emboss": {
+              "text": "ULEPSZENIA POMIESZCEŃ",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "ship_events": {
+            "size": 16.0,
+            "emboss": {
+              "text": "ZDARZENIA POKŁADOWE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "production_projects": {
+            "size": 16.0,
+            "emboss": {
+              "text": "PROJEKTY PRODUKCYJNE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "research_projects": {
+            "size": 10.0,
+            "emboss": {
+              "text": "PROJEKTY BADAWCZE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "rescued": {
+            "size": 10.0,
+            "emboss": {
+              "text": "OCALALI",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              },
+              {
+                "side": "W+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "lf_b_small": {
+        "size": [26.0, 97.0, 78.0],
+        "split": "L",
+        "compartments": {
+          "bridge": {
+            "emboss": {
+              "text": ["KARTY", "MOSTKA"],
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          },
+          "lander": {
+            "emboss": {
+              "text": ["MODYFIKACJE", "LĄDOWNIKA"],
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "W-",
+                "width": 30.0
+              },
+              {
+                "side": "W+",
+                "width": 30.0
+              }
+            ]
+          }
+        }
+      },
+
+      "discarded_small": {
+        "size": [49.0, 26.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "discarded_small": {
+            "emboss": {
+              "text": "ODRZUCONE",
+              "size": 5.0
+            },
+            "notches": [
+              {
+                "side": "L-",
+                "width": 30.0
+              },
+              {
+                "side": "L+",
+                "width": 30.0
+              }
+            ]
+          }
+        }
+      },
+      "discarded_standard": {
+        "size": [185.0, 26.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "discarded_standard_1": {
+            "size": 91.0,
+            "emboss": {
+              "text": "ODRZUCONE",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "L-",
+                "width": 50.0
+              },
+              {
+                "side": "L+",
+                "width": 50.0
+              }
+            ]
+          },
+          "discarded_standard_2": {
+            "size": 91.0,
+            "emboss": {
+              "text": "ODRZUCONE",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "L-",
+                "width": 50.0
+              },
+              {
+                "side": "L+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+      "lf_section_cards": {
+        "size": [93.0, 26.0, 78.0],
+        "split": "W",
+        "compartments": {
+          "lf_section_cards": {
+            "emboss": {
+              "text": "KARTY SEKCJI",
+              "size": 8.0
+            },
+            "notches": [
+              {
+                "side": "L-",
+                "width": 50.0
+              },
+              {
+                "side": "L+",
+                "width": 50.0
+              }
+            ]
+          }
+        }
+      },
+
+      "section": {
+        "size": [53.0, 97.0, 73.0],
+        "split": "W",
+        "compartments": {
+          "sleeves": {
+            "size": 4.0,
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "cards": {
+            "size": 28.0,
+            "notches": [
+              {
+                "side": "W-",
+                "width": 50.0
+              }
+            ]
+          },
+          "dice": {
+            "size": 17.0,
+            "compartments": {
+              "1": {
+                "size": 17.0,
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              },
+              "2": {
+                "size": 17.0,
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              },
+              "separator": {
+                "depth": 0
+              },
+              "3": {
+                "size": 17.0,
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              },
+              "4": {
+                "size": 17.0,
+                "openings": [
+                  {
+                    "side": "W+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+
+      "figures": {
+        "size": [80.0, 122.0, 68.0],
+        "split": "W",
+        "compartments": {
+          "figures": {
+            "emboss": {
+              "text": "FIGURKI",
+              "size": 8.0
+            }
+          }
+        }
+      },
+      "lf_danger_tokens": {
+        "size": [64.0, 95.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "medium": {
+            "emboss": {
+              "text": "ZAGROŻENIA",
+              "along": "W",
+              "size": 5.0
+            }
+          }
+        }
+      },
+      "base_danger_tokens": {
+        "size": [148.0, 95.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "large": {
+            "size": 86.0,
+            "emboss": {
+              "text": "ZAGROŻENIA L",
+              "along": "W",
+              "size": 5.0
+            }
+          },
+          "small_medium": {
+            "compartments": {
+              "small": {
+                "size": 30.0,
+                "emboss": {
+                  "text": "ZAGROŻENIA S",
+                  "along": "W",
+                  "size": 5.0
+                }
+              },
+              "medium": {
+                "emboss": {
+                  "text": "ZAGROŻENIA M",
+                  "along": "W",
+                  "size": 5.0
+                }
+              }
+            }
+          }
+        }
+      },
+      "landers_equipment_tokens": {
+        "size": [72.0, 193.0, 18.0],
+        "split": "L",
+        "compartments": {
+          "landers": {
+            "emboss": {
+              "text": "LĄDOWNIKI",
+              "size": 8.0
+            }
+          },
+          "equipment_l": {
+            "size": 41.0,
+            "emboss": {
+              "text": ["WYPOSAŻENIE", "L"],
+              "size": 5.0
+            }
+          },
+          "equipment_s_1": {
+            "size": 34.5,
+            "compartments": {
+              "equipment_s_1_1": {
+                "size": 34.5,
+                "emboss": {
+                  "text": ["WYP.", "S"],
+                  "size": 5.0
+                }
+              },
+              "equipment_s_1_2": {
+                "size": 34.5,
+                "emboss": {
+                  "text": ["WYP.", "S"],
+                  "size": 5.0
+                }
+              }
+            }
+          },
+          "equipment_s_2": {
+            "size": 34.5,
+            "compartments": {
+              "equipment_s_1_1": {
+                "size": 34.5,
+                "emboss": {
+                  "text": ["WYP.", "S"],
+                  "size": 5.0
+                }
+              },
+              "equipment_s_1_2": {
+                "size": 34.5,
+                "emboss": {
+                  "text": ["WYP.", "S"],
+                  "size": 5.0
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "section_dice": {
+        "size": [37.0, 98.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "1": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI SEKCJI"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "2": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI SEKCJI"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "injury_dice": {
+        "size": [37.0, 98.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "1": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI URAZÓW"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "2": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI URAZÓW"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "lf_alien_dice": {
+        "size": [37.0, 98.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "1": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI OBCYCH"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "2": {
+            "size": 17.0,
+            "emboss": {
+              "text": "KOŚCI OBCYCH"
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+
+      "success_leadership_energy": {
+        "size": [27.0, 194.0, 17.0],
+        "split": "L",
+        "compartments": {
+          "success": {
+            "size": 80.0,
+            "emboss": {
+              "text": "SUKCES",
+              "size": 5.0
+            }
+          },
+          "leadership": {
+            "emboss": {
+              "text": "DOWODZENIE",
+              "size": 5.0
+            }
+          },
+          "energy": {
+            "emboss": {
+              "text": "ENERGIA",
+              "size": 5.0
+            }
+          }
+        }
+      },
+      "time_round_actions": {
+        "size": [27.0, 194.0, 17.0],
+        "split": "L",
+        "compartments": {
+          "round": {
+            "size": 44.0,
+            "emboss": {
+              "text": "TURY",
+              "size": 5.0
+            },
+            "openings": [
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "actions": {
+            "size": 44.0,
+            "emboss": {
+              "text": "AKCJE",
+              "size": 5.0
+            }
+          },
+          "time": {
+            "size": 34.0,
+            "emboss": {
+              "text": "CZAS",
+              "size": 5.0
+            }
+          },
+          "dice_other": {
+            "emboss": {
+              "text": "KOŚCI",
+              "size": 5.0
+            }
+          }
+        }
+      },
+      "markers": {
+        "size": [27.0, 221.0, 18.0],
+        "split": "L",
+        "compartments": {
+          "markers_1": {
+            "emboss": {
+              "text": "ZNACZNIKI",
+              "size": 5.0
+            }
+          },
+          "markers_2": {
+            "emboss": {
+              "text": "ZNACZNIKI",
+              "size": 5.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "card_boxes": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [82.0, 121.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "emboss": {
+      "along": "W",
+      "size": 6.0,
+      "depth": 0.5
+    },
+    "notch": {
+      "width": 40.0
+    },
+    "variants": {
+      "dangers": {
+        "size": [85.0, 123.0, 18.0],
+        "emboss": { "text": "NIEBEZPIECZEŃSTWA" }
+      },
+      "landers": {
+        "size": [85.0, 123.0, 9.0],
+        "emboss": { "text": "LĄDOWNIKI" }
+      },
+      "rules": {
+        "size": [85.0, 123.0, 9.0],
+        "emboss": { "text": "ZASADY" }
+      }
+    }
+  },
+  "notes": "BOX 365x317x147, SECTION BOARDS 15, MANUAL STACK 60, SLEEVE L 82x121 ,SLEEVE M 65x90, SLEEVE S 46x70, ORGANISER ROW BASE 311"
+}

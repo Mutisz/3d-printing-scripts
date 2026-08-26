@@ -183,8 +183,10 @@ Schema, version 7
             "size": float | null,  extent along this row's axis; leave it
                                    out, or null, to share out whatever the
                                    sized ones leave over
-            "depth": float,        optional, default full inside depth; on a
-                                   parent it becomes its children's default
+            "depth": float,        optional, default full inside depth; 0
+                                   leaves the compartment filled solid to
+                                   the rim, as a spacer; on a parent it
+                                   becomes its children's default
             "compartments": {...}, optional; subdivides this compartment
                                    across the perpendicular axis, same shape
                                    as here, nestable to any depth

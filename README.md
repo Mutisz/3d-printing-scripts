@@ -203,6 +203,11 @@ it.
 }
 ```
 
+A `depth` of 0 is the other end of the same knob: the compartment is filled
+solid to the rim, so it is a spacer holding its neighbours where you want them
+rather than somewhere to put anything. It takes no `notches` or `openings` —
+there is no cavity for either to reach into.
+
 ### Notches
 
 Any compartment, at any nesting level, can have rounded finger slots cut down
