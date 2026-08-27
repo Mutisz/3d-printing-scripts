@@ -8,16 +8,17 @@ and reads that one file, so a dimension is stated once and only once.
 
 What the sections have in common lives here too, not in any one of them:
 the validation block a card holder and a card box are both checked
-against, and the dimension parsing under it.
+against, the dimension parsing under it, and the registry of every object
+by id that the box layout is arranged out of.
 
 Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 7
+Schema, version 8
 -----------------
 {
-  "schema_version": 7,
+  "schema_version": 8,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
@@ -241,8 +242,71 @@ Schema, version 7
         }
       }
     }
+  },
+
+  "box": {                         omit the whole section if the game box
+                                   has not been laid out yet. Nothing here
+                                   builds anything either: it states where
+                                   every part goes once the printing is
+                                   done, so check_box.py can say whether it
+                                   all fits rather than you working it out
+                                   again every time a tray is resized
+    "size": [W, L, H],             inside the game box, in the same frame
+                                   as everything else in this file:
+                                     W  across.  Objects within a section
+                                        line up along W, in written order
+                                     L  along.   Sections divide L, in
+                                        written order
+                                     H  up.      Layers stack in H, in
+                                        written order, bottom first
+    "clearance": float,            optional, default 0; slack taken off
+                                   each axis in total, for a box that is
+                                   never quite its nominal size
+    "extras": {                    optional; what is in the box that no
+                                   script here prints -- boards, rulebooks,
+                                   bagged bits. They are placed by id like
+                                   any part, and checked like one
+      "<id>": {
+        "size": [W, L, H],         outside, as it lies in the box
+        "note": str                optional, printed beside it in the report
+      }
+    },
+    "layers": {                    bottom to top, in written order
+      "<id>": {
+        "size": float,             optional height; the default is a tight
+                                   fit around the layer's own contents.
+                                   State it only to reserve headroom, or to
+                                   make something taller than the layer
+                                   poke up into the one above
+        "sections": {              along L, in written order
+          "<id>": {
+            "size": float,         optional extent along L; the default is
+                                   a tight fit around this section's own
+                                   contents, as a layer's is
+            "place": [             along W, in written order. Each entry is
+                                   an object id -- any card_holders,
+                                   card_boxes or trays variant, or an
+                                   extras entry -- or an object:
+              "<id>",
+              {
+                "id": str,         which object
+                "turn": bool       optional, default false; lay it across,
+                                   swapping its W and its L
+              }
+            ]
+          }
+        }
+      }
+    }
   }
 }
+
+An object longer than its section, or taller than its layer, reaches into
+the next one. Repeat its id in that section's "place" to reserve the band
+it holds there: a repeat is the same object, not a second one, so it moves
+the entries after it along without being counted twice. Its position comes
+from the first place it appears, and every occurrence has to agree about
+its W offset and its turn.
 """
 
 import argparse
@@ -253,7 +317,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 
@@ -405,6 +469,83 @@ def checks_of(spec, at, section):
 def own_note(own, *keys):
     """Flag a report line whose numbers the variant overrode itself."""
     return "   (this variant only)" if any(key in own for key in keys) else ""
+
+
+# Every part a generator writes, plus everything the box holds that none of
+# them do, under one flat set of ids -- which is what a layout arranges. It
+# lives here for the reason validation() does: no one section owns it, and
+# the uniqueness it needs has to hold across all four at once.
+PART_SECTIONS = ("card_holders", "card_boxes", "trays")
+
+
+def tabs_proud(holders, spec):
+    """How far a holder's separator tabs stand past its stated W, each side.
+
+    A separator's tab reaches `tab_out` out from the cavity wall, so it
+    clears the outside of the holder by whatever that is over the wall
+    thickness -- and a holder in a box is as wide as its widest tab, not as
+    wide as its size says. `null`, the usual setting, lands the tab flush
+    and adds nothing. Lids never protrude: their side tabs are built a wall
+    out on purpose, to fill the rim.
+    """
+    wall = holders.get("wall")
+    if wall is None:
+        return 0.0
+    fallback = (holders.get("separator") or {}).get("tab_out")
+    outs = [
+        sheet.get("tab_out", fallback)
+        for sheet in (spec.get("separators") or {}).values()
+        if isinstance(sheet, dict)
+    ]
+    return max([0.0] + [out - wall for out in outs if out is not None])
+
+
+def object_sizes(cfg, where):
+    """Every object a box layout can place, by id: size, source and note.
+
+    Ids are flat across the file, since a layout names an object by id
+    alone. That is only safe if it is checked, so a name used twice is
+    refused here rather than one of the pair quietly winning.
+    """
+    found = {}
+
+    def add(oid, size, at, note=None):
+        if oid in found:
+            raise SystemExit(
+                f"{where}: {oid!r} is defined twice, at {found[oid]['where']} "
+                f"and at {at} -- a box layout names an object by its id alone, "
+                f"so the two cannot be told apart. Rename one of them"
+            )
+        found[oid] = {"size": size, "where": at, "note": note}
+
+    for section in PART_SECTIONS:
+        block = cfg.get(section) or {}
+        for name, spec in (block.get("variants") or {}).items():
+            at = f"{section}.variants.{name}"
+            size = dims(need(spec, "size", f"{where} {at}"), 3, f"{where} {at}", "size")
+            note = None
+            if section == "card_holders":
+                proud = tabs_proud(block, spec)
+                if proud > 0:
+                    size = [size[0] + 2 * proud, size[1], size[2]]
+                    note = f"W includes {2 * proud:.1f} mm of tab standing proud"
+            add(name, size, at, note)
+
+    for name, spec in ((cfg.get("box") or {}).get("extras") or {}).items():
+        at = f"box.extras.{name}"
+        if not isinstance(spec, dict):
+            raise SystemExit(f"{where} {at}: must be an object, got {spec!r}")
+        unknown = [key for key in spec if key not in ("size", "note")]
+        if unknown:
+            named = ", ".join(repr(key) for key in unknown)
+            raise SystemExit(
+                f"{where} {at}: {named} is not something an extra takes -- it "
+                f"is only a size and, if you want one, a note"
+            )
+        size = dims(need(spec, "size", f"{where} {at}"), 3, f"{where} {at}", "size")
+        add(name, size, at, spec.get("note"))
+
+    return found
 
 
 def outdir(game_id, kind):

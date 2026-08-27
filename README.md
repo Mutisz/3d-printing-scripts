@@ -8,9 +8,12 @@ STLs ready to slice.
 
 | Script | Makes |
 | --- | --- |
-| [make_all.py](make_all.py) | Both generators below, in turn, for one game |
+| [make_all.py](make_all.py) | Every generator below, in turn, for one game, then the fit check |
 | [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
+| [make_card_box.py](make_card_box.py) | Closed card sleeves — floor, ceiling, both long walls and one short one, with the far end left open so a deck slides in and out. Thumb slots top and bottom to pinch the stack back out |
 | [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions, optional raised floors for small pieces, and walls that can be notched or opened out entirely |
+| [check_box.py](check_box.py) | Not a generator — works out where every part lands in the game box and says whether it all fits, then draws it |
+| [boxlayout.py](boxlayout.py) | Not a generator — the placement and fit arithmetic that check does |
 | [gameconfig.py](gameconfig.py) | Not a generator — loads the per-game parameter files and documents their schema |
 | [label.py](label.py) | Not a generator — sizes and builds the embossed labels both generators offer |
 | [stroke_font.py](stroke_font.py) | Not a generator — the single-stroke font those labels are drawn with |
@@ -32,6 +35,7 @@ Every script takes one argument, the game to build:
 python make_all.py cafe_baras           # everything for that game
 python make_card_holder.py cafe_baras   # or just one generator
 python make_resource_tray.py cafe_baras
+python check_box.py cafe_baras          # does it all fit in the box?
 ```
 
 Each generator prints what it built — outside and inside dimensions, then the
@@ -41,7 +45,9 @@ compartments or the card capacity — and writes STLs to its own folder under
 ```
 models/cafe_baras/
 ├── card_holders/   written by make_card_holder.py
-└── trays/          written by make_resource_tray.py
+├── card_boxes/     written by make_card_box.py
+├── trays/          written by make_resource_tray.py
+└── box/            written by check_box.py — the packing preview
 ```
 
 `models/` is git-ignored — the parameter files are the source of truth, the
@@ -54,11 +60,13 @@ mistake. Nothing else should be kept in those folders. The wipe happens even
 when there is nothing to build, so removing a whole section from the parameter
 file clears the parts it used to make.
 
-`make_all.py` runs both generators in turn and prints nothing of its own — the
-report you see is theirs. A game that defines no trays (or no card holders) is
-not an error: the generator with nothing to do says so and exits clean. Any
-other failure stops the run where it happened — the generators that would have
-followed are not started — and `make_all.py` exits with the failing one's code.
+`make_all.py` runs each of them in turn and prints nothing of its own — the
+report you see is theirs. A game that defines no trays (or no card holders, or
+no box layout) is not an error: the script with nothing to do says so and exits
+clean. Any other failure stops the run where it happened — the scripts that
+would have followed are not started — and `make_all.py` exits with the failing
+one's code. The fit check goes last, so a layout that does not hold still
+leaves you the STLs it was complaining about.
 
 ## Configuring
 
@@ -75,7 +83,7 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 7,
+  "schema_version": 8,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
   "card_holders": {
     "wall": 1.0, "floor": 1.0,
@@ -88,13 +96,18 @@ Sketch:
     "wall": 1.0, "floor": 1.0,
     "variants": { "coins": { "size": [70.0, 94.0, 21.0], "split": "L",
                              "compartments": { "1": {}, "5": { "size": 30.0 } } } }
+  },
+  "box": {
+    "size": [244.0, 244.0, 50.0],
+    "layers": { "bottom": { "sections": {
+        "row": { "place": ["main_deck", "coins"] } } } }
   }
 }
 ```
 
-Either top-level section may be omitted. Both generators validate what they read
-and fail with a message naming the conflict — and the offending key's path in
-the file — rather than exporting a bad mesh.
+Any top-level section may be omitted. Every script validates what it reads and
+fails with a message naming the conflict — and the offending key's path in the
+file — rather than exporting a bad mesh.
 
 ### Outside dimensions, and the `validation` block
 
@@ -376,6 +389,88 @@ than printing a window.
 
 Both directions print without supports: one adds to a floor that is already
 there, the other takes from it, and neither overhangs.
+
+### Box layout
+
+The parts are only half the problem. The other half is whether they all go back
+in the box, which is arithmetic done on the kitchen table and redone from
+scratch every time a tray is resized. The `box` section states the arrangement
+instead, and [check_box.py](check_box.py) works the rest out.
+
+It is stated the way you would describe it out loud — layers up the box,
+sections along it, objects across it — in the same `[W, L, H]` frame as every
+other size in the file:
+
+| | |
+| --- | --- |
+| **W** | across the box. Objects within a section line up along W, left to right |
+| **L** | along the box. Sections divide L |
+| **H** | up. Layers stack in H, bottom first |
+
+```jsonc
+"box": {
+  "size": [317.0, 365.0, 147.0],   // inside the game box
+  "clearance": 2.0,                // optional slack off each axis, in total
+  "extras": {                      // what is in the box that no script prints
+    "manuals": { "size": [300.0, 300.0, 60.0] }
+  },
+  "layers": {                      // bottom to top
+    "cards": {
+      "sections": {                // along L, in written order
+        "base_a": { "place": ["base_a_standard", "base_a_small"] },
+        "base_b": { "place": ["personal_files", "recruits",
+                              { "id": "markers", "turn": true }] }
+      }
+    },
+    "top": { "sections": { "boxes": { "place": ["manuals"] } } }
+  }
+}
+```
+
+Nothing states a position. A layer starts where the layers below it end, a
+section where the sections before it end, and an object where the object before
+it in the same section ends — so a resized tray moves everything after it, and
+the check cannot fall out of date behind the parts.
+
+An entry in `place` is an object id, and an id is anything the file defines: a
+card holder, a card box, a tray, or an `extras` entry for the things no script
+here prints — boards, rulebooks, bags. Ids are flat across the whole file, and
+a name used twice is refused rather than one of the pair quietly winning.
+`{ "id": ..., "turn": true }` lays an object across, swapping its W and its L,
+which is the only way something like a 27 × 221 mm marker tray fits anywhere.
+
+`size` on a layer or a section is optional, and the default is a tight fit
+around that layer's or section's own contents — which is the arithmetic you
+were doing by hand. State one only to reserve headroom, or to let something
+taller than its layer poke up into the next one.
+
+Which is the other thing to know: an object longer than its section, or taller
+than its layer, **reaches into the next one**. Repeat its id there to reserve
+the band it holds:
+
+```jsonc
+"row_1": { "size": 193.0, "place": ["landers_equipment_tokens", "markers"] },
+"row_2": {                "place": ["landers_equipment_tokens", "markers", "figures"] }
+```
+
+A repeat is the same object, not a second one. It moves the entries after it
+along without being counted twice, and every mention of it has to agree about
+where it starts and which way it lies.
+
+From all that every object gets an exact box, and the checks are statements
+about those boxes. Three of them stop the run: something standing outside the
+game box, two things in the same place, or something off the floor with nothing
+at all under it. The rest are warnings, because they are judgement calls — a
+tray only partly supported, one resting on air below a layer taller than its
+contents, one reaching into a section without saying so, or a part that was
+built and then placed nowhere. It prints what each section has left over and a
+rough plan of each layer, so the leftovers are somewhere you can see them, and
+writes `models/<game_id>/box/<game_id>_box_preview.stl` — one plain block per
+object where the report says it sits, which the dev container opens in the
+editor.
+
+What it will not do is arrange the box for you. It checks the arrangement you
+wrote.
 
 ## Requirements
 
