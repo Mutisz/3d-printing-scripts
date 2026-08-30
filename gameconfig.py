@@ -15,10 +15,10 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 8
+Schema, version 9
 -----------------
 {
-  "schema_version": 8,
+  "schema_version": 9,
   "game": {"id": str, "name": str},
 
   "card_holders": {                omit the whole section if none
@@ -253,12 +253,9 @@ Schema, version 8
                                    again every time a tray is resized
     "size": [W, L, H],             inside the game box, in the same frame
                                    as everything else in this file:
-                                     W  across.  Objects within a section
-                                        line up along W, in written order
-                                     L  along.   Sections divide L, in
-                                        written order
-                                     H  up.      Layers stack in H, in
-                                        written order, bottom first
+                                     W  across the box
+                                     L  along the box
+                                     H  up the box
     "clearance": float,            optional, default 0; slack taken off
                                    each axis in total, for a box that is
                                    never quite its nominal size
@@ -271,42 +268,56 @@ Schema, version 8
         "note": str                optional, printed beside it in the report
       }
     },
-    "layers": {                    bottom to top, in written order
-      "<id>": {
-        "size": float,             optional height; the default is a tight
-                                   fit around the layer's own contents.
-                                   State it only to reserve headroom, or to
-                                   make something taller than the layer
-                                   poke up into the one above
-        "sections": {              along L, in written order
-          "<id>": {
-            "size": float,         optional extent along L; the default is
-                                   a tight fit around this section's own
-                                   contents, as a layer's is
-            "place": [             along W, in written order. Each entry is
-                                   an object id -- any card_holders,
+    "place": [                     the arrangement. These follow each other
+                                   across W, in written order. Each entry
+                                   is an object id -- any card_holders,
                                    card_boxes or trays variant, or an
-                                   extras entry -- or an object:
-              "<id>",
-              {
-                "id": str,         which object
-                "turn": bool       optional, default false; lay it across,
+                                   extras entry -- an object, or a run of
+                                   entries along an axis of its own:
+      "<id>",
+      {
+        "id": str,                 which object
+        "turn": bool               optional, default false; lay it across,
                                    swapping its W and its L
-              }
-            ]
-          }
-        }
+      },
+      {
+        "along": str,              "W", "L" or "H": which way this run
+                                   goes. Its entries follow each other
+                                   along that axis from the corner the run
+                                   was handed, and start together on the
+                                   other two. The run is as long as they
+                                   come to along that axis, and as wide
+                                   and as tall as the widest and tallest
+                                   thing in it
+        "size": float,             optional extent along "along"; the
+                                   default is a tight fit around the run's
+                                   own contents
+        "place": [ ... ]           the same list again -- ids, objects,
+                                   gaps, or further runs
+      },
+      {
+        "gap": float               space left deliberately empty, this
+                                   many mm along whatever run holds it.
+                                   It holds nothing and is checked for
+                                   nothing; it is there so that what
+                                   follows starts clear of a corner that
+                                   has no object in it to push it past
       }
-    }
+    ]
   }
 }
 
-An object longer than its section, or taller than its layer, reaches into
-the next one. Repeat its id in that section's "place" to reserve the band
-it holds there: a repeat is the same object, not a second one, so it moves
-the entries after it along without being counted twice. Its position comes
-from the first place it appears, and every occurrence has to agree about
-its W offset and its turn.
+Nothing states a position. An entry starts where the entry before it in
+the same run ends, so resizing a tray moves what is stacked on it and
+leaves the rest of the box alone. Runs hold runs, so the box is described
+to whatever depth it actually has.
+
+An object is named once. Where it goes is the arrangement's business, and
+the arrangement already says.
+
+Everything takes its position from what is written before it, so something
+standing over an empty corner has nothing to push it clear of that corner.
+A gap is what to write there.
 """
 
 import argparse
@@ -317,7 +328,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 

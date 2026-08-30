@@ -2,29 +2,37 @@
 Where everything goes in the game box, and whether it all fits.
 
 Not a generator: nothing here builds a part. It reads the `box` section of
-games/<game_id>.json -- layers stacked up the box, sections dividing each
-layer along it, and the objects lined up across each section -- and works
-out from that where every part actually sits. check_box.py is the script
-that prints the answer.
+games/<game_id>.json -- the things in the box, and which way each run of
+them goes -- and works out from that where every part actually sits.
+check_box.py is the script that prints the answer.
+
+The arrangement is one list. Its entries follow each other across W, and
+any entry may itself be a run: `along` says which way that run goes, and
+its own entries follow each other along it, from the corner the run was
+handed, left- and floor-aligned across the other two. A run is as long as
+its contents come to along its axis, and as wide and as tall as the widest
+and tallest thing in it. Runs hold runs, so the box is described to
+whatever depth the box actually has.
 
 Positions are never written down. They fall out of the order things are
-written in: a layer starts where the layers below it end, a section starts
-where the sections before it end, and an object starts where the object
-before it in the same section ends. So resizing a tray moves everything
-after it, which is the arithmetic this exists to stop doing by hand.
+written in: an entry starts where the entry before it in the same run
+ends. So resizing a tray moves everything after it, which is the
+arithmetic this exists to stop doing by hand -- and it moves only what is
+genuinely stacked on it, not everything at the same height elsewhere in
+the box.
 
 That gives every object an exact box, and every check below is a statement
-about those boxes -- they are inside the game box, none of them intersect,
-and each one has something under it. Stated the other way round, as budgets
-per section, the two spanning cases would each need a rule of their own and
-both would only approximate: an object reaching into the next section holds
-a band there, and the next section's own list starts from the wall, inside
-it. Intersecting boxes says the same thing exactly, and says it once.
+about those boxes: they are inside the game box, none of them intersect,
+and each one has something under it. Stated the other way round, as a
+budget per shelf, each of those would need a rule of its own and each
+would only approximate. Intersecting boxes says it exactly, and once.
 
-An object longer than its section, or taller than its layer, does reach
-into the next one, and repeating its id there reserves its band -- a repeat
-is the same object, not a second one, so it moves the entries after it
-along without being counted twice.
+An object is named once. Where it goes is the arrangement's business, and
+the arrangement already says.
+
+Because a position comes only from what was written before it, a thing
+standing over an empty corner has nothing to push it clear of that corner.
+An entry may therefore also be a gap: so much space, holding nothing.
 
 Schema errors are raised as they are found, the way the generators raise
 theirs; misfits are collected, because the useful answer to "does this box
@@ -40,29 +48,27 @@ from gameconfig import box, dims, need, object_sizes
 
 EPS = 1e-6  # everything here is mm to one decimal; this is float noise only
 
-BOX_KEYS = ("size", "clearance", "extras", "layers")
-LAYER_KEYS = ("size", "sections")
-SECTION_KEYS = ("size", "place")
+BOX_KEYS = ("size", "clearance", "extras", "place")
 ENTRY_KEYS = ("id", "turn")
+GROUP_KEYS = ("along", "size", "place")
+GAP_KEYS = ("gap",)
 
-KEYS = "abcdefghijklmnopqrstuvwxyz0123456789"  # legend letters for the maps
+AXES = {"W": 0, "L": 1, "H": 2}
+
+NAME = 26  # narrowest the report's name column is ever drawn
 
 
 class Placement:
-    """One object, once, wherever the layout first puts it."""
+    """One object, where the arrangement puts it."""
 
-    def __init__(self, oid, size, turn, source, note):
+    def __init__(self, oid, size, turn, source, note, path):
         self.id = oid
         self.size = size  # effective W, L, H, already turned
         self.turn = turn
         self.source = source
         self.note = note
-        self.occurrences = []  # every (layer, section, index, w, turn) listed
+        self.path = path  # where it was written, as a run of entry numbers
         self.w = self.l = self.h = (0.0, 0.0)
-
-    @property
-    def first(self):
-        return self.occurrences[0]
 
     def footprint(self):
         return shapely.box(self.w[0], self.l[0], self.w[1], self.l[1])
@@ -71,35 +77,62 @@ class Placement:
         return f"<{self.id} W{self.w} L{self.l} H{self.h}>"
 
 
-class Occurrence:
-    def __init__(self, layer, section, index, w, turn):
-        self.layer = layer
-        self.section = section
-        self.index = index
-        self.w = w
+class Leaf:
+    """One entry naming an object, and how it lies."""
+
+    def __init__(self, oid, turn, extent, path):
+        self.oid = oid
         self.turn = turn
+        self.extent = extent  # W, L, H, already turned
+        self.path = path
+        self.axis = "W"  # the axis its band is measured on, set by the walk
+        self.band = (0.0, 0.0)
 
-    @property
-    def at(self):
-        return f"layer {self.layer} section {self.section}, entry {self.index + 1}"
+
+class Gap:
+    """Space left deliberately empty, so what follows starts clear of it.
+
+    Everything else takes its position from what is written before it, so
+    a thing standing over an empty corner has nothing to push it past that
+    corner -- and the only way to say "start 12 mm in" was to find some
+    object 12 mm wide to put there first. This is that, without the
+    object: it reserves its length along the run that holds it, and
+    nothing at all across the other two.
+    """
+
+    def __init__(self, size, path, axis):
+        self.size = size
+        self.path = path
+        self.axis = axis
+        self.band = (0.0, 0.0)
+        self.extent = tuple(
+            size if i == AXES[axis] else 0.0 for i in range(3)
+        )
 
 
-class Section:
-    def __init__(self, key, stated, entries):
-        self.key = key
+class Group:
+    """A run of entries along one axis, inside the band its parent gives it.
+
+    It is as long as its contents come to along its own axis -- or as long
+    as it says, where it says -- and as wide and as tall as the widest and
+    tallest thing in it.
+    """
+
+    def __init__(self, along, stated, children, path):
+        self.along = along
         self.stated = stated
-        self.entries = entries  # [(object id, (w0, w1))] in written order
-        self.size = 0.0
-        self.l = (0.0, 0.0)
-
-
-class Layer:
-    def __init__(self, key, stated, sections):
-        self.key = key
-        self.stated = stated
-        self.sections = sections
-        self.size = 0.0
-        self.h = (0.0, 0.0)
+        self.children = children
+        self.path = path
+        self.axis = "W"
+        self.band = (0.0, 0.0)
+        run = AXES[along]
+        along_it = sum(child.extent[run] for child in children)
+        self.extent = tuple(
+            (stated if stated is not None else along_it)
+            if axis == run
+            else max(child.extent[axis] for child in children)
+            for axis in range(3)
+        )
 
 
 class Report:
@@ -108,7 +141,7 @@ class Report:
         self.size = size
         self.clearance = clearance
         self.usable = usable
-        self.layers = []
+        self.entries = []  # the arrangement, as written
         self.placed = {}
         self.errors = []
         self.warnings = []
@@ -140,15 +173,73 @@ def scalar(block, key, at, what):
     return value
 
 
-def entry_of(item, at):
-    """One entry of a `place` list: an id, or an id and how it is laid."""
+def place_of(block, at, path, sizes, seen, axis):
+    """The `place` list of the box or of a run, as a list of nodes."""
+    place = need(block, "place", at)
+    if not isinstance(place, list) or not place:
+        raise SystemExit(
+            f"{at}.place: must be a non-empty list of object ids, got "
+            f"{place!r} -- they follow each other in the order they are "
+            f"written"
+        )
+    return [
+        node_of(
+            item,
+            f"{at}.place[{index}]",
+            f"{path}.{index + 1}" if path else str(index + 1),
+            sizes,
+            seen,
+            axis,
+        )
+        for index, item in enumerate(place)
+    ]
+
+
+def node_of(item, at, path, sizes, seen, axis):
+    """One entry: an object, how it is laid, or a run of entries of its own."""
     if isinstance(item, str):
-        return item, False
+        item = {"id": item}
     if not isinstance(item, dict):
         raise SystemExit(
-            f"{at}: a placement is an object id, or an object carrying that id "
-            f"and how it is laid, got {item!r}"
+            f"{at}: a placement is an object id, an object carrying that id "
+            f"and how it is laid, or a run of placements along an axis of its "
+            f"own, got {item!r}"
         )
+
+    forms = [key for key in ("id", "along", "gap") if key in item]
+    if len(forms) > 1:
+        named = " and ".join(repr(key) for key in forms)
+        raise SystemExit(
+            f"{at}: an entry is one object, a run of them, or a gap left "
+            f"empty -- this one carries {named} together"
+        )
+
+    if "gap" in item:
+        closed(item, GAP_KEYS, at, "a gap")
+        size = scalar(item, "gap", at, "a gap")
+        if size is None:
+            raise SystemExit(
+                f"{at}: a gap is how much space to leave empty, in mm"
+            )
+        return Gap(size, path, axis)
+
+    if "place" in item and "along" not in item:
+        raise SystemExit(
+            f"{at}: a run of placements has to say which way it goes -- add "
+            f"'along': {' or '.join(repr(axis) for axis in AXES)}"
+        )
+
+    if "along" in item:
+        closed(item, GROUP_KEYS, at, "a run of placements")
+        along = item["along"]
+        if along not in AXES:
+            raise SystemExit(
+                f"{at}: along says which way a run goes, so it is "
+                f"{', '.join(AXES)}, got {along!r}"
+            )
+        children = place_of(item, at, path, sizes, seen, along)
+        return Group(along, scalar(item, "size", at, "size"), children, path)
+
     closed(item, ENTRY_KEYS, at, "a placement")
     turn = item.get("turn", False)
     if not isinstance(turn, bool):
@@ -156,7 +247,21 @@ def entry_of(item, at):
             f"{at}: turn lays an object across, swapping its W and its L, so it "
             f"is true or false, got {turn!r}"
         )
-    return need(item, "id", at), turn
+    oid = need(item, "id", at)
+    if oid not in sizes:
+        known = ", ".join(sorted(sizes)) or "(nothing is defined)"
+        raise SystemExit(
+            f"{at}: nothing in this file is called {oid!r}\nobjects here: {known}"
+        )
+    if oid in seen:
+        raise SystemExit(
+            f"{at}: {oid!r} is placed here and at {seen[oid]} -- one object "
+            f"goes in one place, and the arrangement already says where. "
+            f"Name it once"
+        )
+    seen[oid] = at
+    w, ln, h = sizes[oid]["size"]
+    return Leaf(oid, turn, (ln, w, h) if turn else (w, ln, h), path)
 
 
 def overlap(a, b):
@@ -165,194 +270,84 @@ def overlap(a, b):
 
 
 def read(cfg, where):
-    """The box section, parsed into layers, sections and placements.
+    """The box section, parsed into the arrangement it describes.
 
     Everything is checked for shape here and nothing for fit: this comes
-    back with each object's effective size and every place it was listed,
-    and knows nothing yet about where any of it lands.
+    back with each entry's effective size, and knows nothing yet about
+    where any of it lands.
     """
-    block = closed(need(cfg, "box", where), BOX_KEYS, f"{where} box", "a box")
-    size = dims(need(block, "size", f"{where} box"), 3, f"{where} box", "size")
+    at = f"{where} box"
+    block = closed(need(cfg, "box", where), BOX_KEYS, at, "a box")
+    size = dims(need(block, "size", at), 3, at, "size")
     clear = block.get("clearance") or 0.0
     if clear < 0:
         raise SystemExit(
-            f"{where} box: clearance is slack taken off the box, so it cannot "
+            f"{at}: clearance is slack taken off the box, so it cannot "
             f"be negative, got {clear}"
         )
     usable = [d - clear for d in size]
     if any(d <= 0 for d in usable):
         raise SystemExit(
-            f"{where} box: a clearance of {clear} mm leaves nothing of a "
+            f"{at}: a clearance of {clear} mm leaves nothing of a "
             f"{size[0]} x {size[1]} x {size[2]} mm box"
         )
 
     sizes = object_sizes(cfg, where)
     report = Report(cfg["game"]["name"], size, clear, usable)
-
-    layers_block = need(block, "layers", f"{where} box")
-    if not isinstance(layers_block, dict):
-        raise SystemExit(
-            f"{where} box.layers: must be an object keyed by layer name, got "
-            f"{layers_block!r} -- layers stack in the order they are written, "
-            f"bottom first"
-        )
-
-    for lkey, lspec in layers_block.items():
-        lat = f"{where} box.layers.{lkey}"
-        closed(lspec, LAYER_KEYS, lat, "a layer")
-        sections_block = need(lspec, "sections", lat)
-        if not isinstance(sections_block, dict):
-            raise SystemExit(
-                f"{lat}.sections: must be an object keyed by section name, got "
-                f"{sections_block!r} -- sections divide the layer along L in "
-                f"the order they are written"
-            )
-
-        sections = []
-        for skey, sspec in sections_block.items():
-            sat = f"{lat}.sections.{skey}"
-            closed(sspec, SECTION_KEYS, sat, "a section")
-            place = need(sspec, "place", sat)
-            if not isinstance(place, list) or not place:
-                raise SystemExit(
-                    f"{sat}.place: must be a non-empty list of object ids, got "
-                    f"{place!r} -- they line up across the section in the order "
-                    f"they are written"
-                )
-
-            cursor, entries = 0.0, []
-            for index, item in enumerate(place):
-                eat = f"{sat}.place[{index}]"
-                oid, turn = entry_of(item, eat)
-                if oid not in sizes:
-                    known = ", ".join(sorted(sizes)) or "(nothing is defined)"
-                    raise SystemExit(
-                        f"{eat}: nothing in this file is called {oid!r}\n"
-                        f"objects here: {known}"
-                    )
-                w, ln, h = sizes[oid]["size"]
-                eff = (ln, w, h) if turn else (w, ln, h)
-                placed = report.placed.get(oid)
-                if placed is None:
-                    placed = Placement(
-                        oid, eff, turn, sizes[oid]["where"], sizes[oid]["note"]
-                    )
-                    report.placed[oid] = placed
-                span = (cursor, cursor + eff[0])
-                placed.occurrences.append(Occurrence(lkey, skey, index, span, turn))
-                entries.append((oid, span))
-                cursor += eff[0]
-
-            sections.append(Section(skey, scalar(sspec, "size", sat, "size"), entries))
-
-        report.layers.append(Layer(lkey, scalar(lspec, "size", lat, "size"), sections))
-
+    report.entries = place_of(block, at, "", sizes, {}, "W")
     return report, sizes
 
 
-def derive(report):
+def walk(report, sizes, node, origin, axis):
+    """Hand a node the corner it starts from, and everything it holds theirs."""
+    node.axis = axis
+    start = origin[AXES[axis]]
+    node.band = (start, start + node.extent[AXES[axis]])
+
+    if isinstance(node, Gap):
+        return
+
+    if isinstance(node, Group):
+        run = AXES[node.along]
+        cursor = origin[run]
+        for child in node.children:
+            corner = list(origin)
+            corner[run] = cursor
+            walk(report, sizes, child, tuple(corner), node.along)
+            cursor += child.extent[run]
+        return
+
+    placed = Placement(
+        node.oid,
+        node.extent,
+        node.turn,
+        sizes[node.oid]["where"],
+        sizes[node.oid]["note"],
+        node.path,
+    )
+    placed.w = (origin[0], origin[0] + node.extent[0])
+    placed.l = (origin[1], origin[1] + node.extent[1])
+    placed.h = (origin[2], origin[2] + node.extent[2])
+    report.placed[node.oid] = placed
+
+
+def derive(report, sizes):
     """Turn written order into a position for every object.
 
-    Three cumulative sums and one lookup back: a section is as long as its
-    own contents unless it says otherwise, a layer as tall as its own, and
-    an object sits where it was first listed. Contents means the objects
-    whose *first* mention is there -- one reaching in from earlier already
-    has its length counted where it started, and counting it again would
-    push everything after it along twice.
+    One walk down from the corner of the box. The top-level entries follow
+    each other across W, and each hands the corners on to whatever it
+    holds; a run's contents start from the run's own corner and follow
+    each other along its axis. Nothing needs measuring first, because a
+    node already knows how big it is.
     """
-    firsts = {}  # (layer, section) -> ids first listed there
-    for placed in report.placed.values():
-        firsts.setdefault((placed.first.layer, placed.first.section), []).append(
-            placed.id
-        )
-
-    ls = {}  # (layer, section) -> its range along L
-    for layer in report.layers:
-        cursor = 0.0
-        for section in layer.sections:
-            own = firsts.get((layer.key, section.key), [])
-            fits = max([report.placed[oid].size[1] for oid in own], default=0.0)
-            section.size = section.stated if section.stated is not None else fits
-            section.l = (cursor, cursor + section.size)
-            ls[(layer.key, section.key)] = section.l
-            cursor += section.size
-
-    lh = {}  # layer -> its range up H
     cursor = 0.0
-    for layer in report.layers:
-        own = [
-            report.placed[oid]
-            for section in layer.sections
-            for oid in firsts.get((layer.key, section.key), [])
-        ]
-        fits = max([placed.size[2] for placed in own], default=0.0)
-        layer.size = layer.stated if layer.stated is not None else fits
-        layer.h = (cursor, cursor + layer.size)
-        lh[layer.key] = layer.h
-        cursor += layer.size
-
-    for placed in report.placed.values():
-        first = placed.first
-        placed.w = first.w
-        l0 = ls[(first.layer, first.section)][0]
-        placed.l = (l0, l0 + placed.size[1])
-        h0 = lh[first.layer][0]
-        placed.h = (h0, h0 + placed.size[2])
-
-    return ls, lh
-
-
-def check_repeats(report, ls, lh):
-    """Every mention of one object has to describe the same object."""
-    for placed in report.placed.values():
-        first = placed.first
-        for occ in placed.occurrences[1:]:
-            if abs(occ.w[0] - first.w[0]) > EPS:
-                report.errors.append(
-                    f"[{placed.id}] starts at W {first.w[0]:.1f} in "
-                    f"{first.at}, but at W {occ.w[0]:.1f} in {occ.at} -- a "
-                    f"repeat reserves the band the object already holds, so "
-                    f"the entries before it have to come to the same width"
-                )
-            if occ.turn != first.turn:
-                report.errors.append(
-                    f"[{placed.id}] is turned in {occ.at} but not in "
-                    f"{first.at} -- it is one object and can only lie one way"
-                )
-            reach_l = overlap(placed.l, ls[(occ.layer, occ.section)])
-            reach_h = overlap(placed.h, lh[occ.layer])
-            if reach_l <= EPS or reach_h <= EPS:
-                report.errors.append(
-                    f"[{placed.id}] is listed in {occ.at}, which it does not "
-                    f"reach: it runs L {placed.l[0]:.1f} -> {placed.l[1]:.1f} "
-                    f"and H {placed.h[0]:.1f} -> {placed.h[1]:.1f}, and that "
-                    f"section is L {ls[(occ.layer, occ.section)][0]:.1f} -> "
-                    f"{ls[(occ.layer, occ.section)][1]:.1f} in a layer "
-                    f"H {lh[occ.layer][0]:.1f} -> {lh[occ.layer][1]:.1f}"
-                )
-
-
-def check_unlisted(report, ls, lh):
-    """Reaching into a section without saying so leaves it unreserved."""
-    for placed in report.placed.values():
-        listed = {(occ.layer, occ.section) for occ in placed.occurrences}
-        for layer in report.layers:
-            if overlap(placed.h, lh[layer.key]) <= EPS:
-                continue
-            for section in layer.sections:
-                key = (layer.key, section.key)
-                if key in listed or overlap(placed.l, ls[key]) <= EPS:
-                    continue
-                report.warnings.append(
-                    f"[{placed.id}] reaches into layer {layer.key} section "
-                    f"{section.key} but is not listed there -- repeat its id "
-                    f"in that section to reserve its W "
-                    f"{placed.w[0]:.1f} -> {placed.w[1]:.1f} band"
-                )
+    for node in report.entries:
+        walk(report, sizes, node, (cursor, 0.0, 0.0), "W")
+        cursor += node.extent[0]
 
 
 def check_bounds(report):
-    """Nothing may stand outside the box, and no budget may overrun it."""
+    """Nothing may stand outside the box."""
     uw, ul, uh = report.usable
     for placed in report.placed.values():
         for axis, span, limit in (
@@ -365,19 +360,6 @@ def check_bounds(report):
                     f"[{placed.id}] ends at {axis} {span[1]:.1f}, past the "
                     f"{limit:.1f} mm of {axis} the box has"
                 )
-
-    total = sum(layer.size for layer in report.layers)
-    if total > uh + EPS:
-        report.errors.append(
-            f"the layers come to {total:.1f} mm of H, past the {uh:.1f} mm the box has"
-        )
-    for layer in report.layers:
-        along = sum(section.size for section in layer.sections)
-        if along > ul + EPS:
-            report.errors.append(
-                f"layer {layer.key} divides into {along:.1f} mm of L, past "
-                f"the {ul:.1f} mm the box has"
-            )
 
 
 def check_overlaps(report):
@@ -449,9 +431,7 @@ def check_placed(report, sizes):
 def check(cfg, where):
     """Read the box section, place everything in it, and check the lot."""
     report, sizes = read(cfg, where)
-    ls, lh = derive(report)
-    check_repeats(report, ls, lh)
-    check_unlisted(report, ls, lh)
+    derive(report, sizes)
     check_bounds(report)
     check_overlaps(report)
     check_support(report)
@@ -462,38 +442,70 @@ def check(cfg, where):
 # --- saying what it found ------------------------------------------------
 
 
-def plan_map(report, layer, keyed, cols=58, max_rows=18):
-    """A top-down plan of one layer: W across the page, L down it.
+def label_of(node):
+    """What a node is called in the report: its id, or the space it is."""
+    if isinstance(node, Group):
+        return f"along {node.along}" + ("  (stated)" if node.stated else "")
+    if isinstance(node, Gap):
+        return "gap"
+    return node.oid
 
-    Rough on purpose -- it is there to show the shape of an arrangement at
-    a glance, and the numbers above it are the ones to read. A cell two
-    objects both claim is drawn as '!', so a collision shows up as a scar
-    rather than as whichever object happened to be drawn second.
+
+def name_width(entries):
+    """How wide the name column has to be for the whole box to line up.
+
+    Indenting a run's contents eats into the column rather than shifting
+    the numbers right, which keeps every size and every range under one
+    another -- until a name is longer than what indenting has left it. So
+    the arrangement is measured first and the column opened up to fit its
+    worst line, and the sizes still start in one place.
     """
-    uw, ul = report.usable[0], report.usable[1]
-    rows = max(1, min(max_rows, round(cols * (ul / uw) / 2)))
-    grid = [[" "] * cols for _ in range(rows)]
 
-    for placed, key in keyed:
-        c0 = max(0, min(cols - 1, round(placed.w[0] / uw * cols)))
-        c1 = max(c0 + 1, min(cols, round(placed.w[1] / uw * cols)))
-        r0 = max(0, min(rows - 1, round(placed.l[0] / ul * rows)))
-        r1 = max(r0 + 1, min(rows, round(placed.l[1] / ul * rows)))
-        for row in range(r0, r1):
-            for col in range(c0, c1):
-                grid[row][col] = "!" if grid[row][col] not in " " else key
+    def deep(node, depth):
+        yield 2 * depth + len(label_of(node))
+        for child in getattr(node, "children", ()):
+            yield from deep(child, depth + 1)
 
-    edge = "    +" + "-" * cols + "+"
-    out = [f"    {0:<{cols + 1}}{uw:.0f}", edge]
-    out += ["    |" + "".join(row) + "|" for row in grid]
-    out.append(edge)
-    out.append(f"    L {layer.l_used:.0f} of {ul:.0f} mm used")
-    return out
+    return max([wide for node in entries for wide in deep(node, 0)] + [NAME])
+
+
+def entry_lines(report, node, depth, width):
+    """One line per entry, indented under the run that holds it.
+
+    Each line reads on the axis of the run it belongs to, not always on W:
+    the box's own entries follow each other across W, and the entries of a
+    run follow each other along whatever axis the run named.
+    """
+    pad = "  " * depth
+    field = width - 2 * depth
+    lo, hi = node.band
+    size = f"{node.extent[0]:6.1f} x{node.extent[1]:6.1f} x{node.extent[2]:5.1f}"
+    where = f"   {node.axis} {lo:6.1f} ->{hi:7.1f}"
+
+    if isinstance(node, Group):
+        yield f"    {pad}{label_of(node):<{field}}{size}{where}"
+        for child in node.children:
+            yield from entry_lines(report, child, depth + 1, width)
+        return
+
+    if isinstance(node, Gap):
+        yield f"    {pad}{label_of(node):<{field}}{size}{where}"
+        return
+
+    placed = report.placed[node.oid]
+    turned = "  (turned)" if node.turn else ""
+    yield f"    {pad}{label_of(node):<{field}}{size}{where}{turned}"
+    if placed.note:
+        yield f"    {pad}{' ' * field}{placed.note}"
 
 
 def show(report):
     """The whole report, in the shape the generators print theirs."""
     uw, ul, uh = report.usable
+    across = sum(node.extent[0] for node in report.entries)
+    along = max([node.extent[1] for node in report.entries], default=0.0)
+    up = max([node.extent[2] for node in report.entries], default=0.0)
+
     print("=" * 66)
     print(f"Box Layout -- {report.name}")
     print("=" * 66)
@@ -503,53 +515,21 @@ def show(report):
     if report.clearance:  # or usable is the same three numbers again
         print(f"    clearance {report.clearance} mm off each axis")
         print(f"    usable    {uw:.1f} x {ul:.1f} x {uh:.1f} mm")
-    stacked = sum(layer.size for layer in report.layers)
-    print(f"    layers    {len(report.layers)}, {stacked:.1f} of {uh:.1f} mm of H")
+    print(f"    filled    {across:.1f} x {along:.1f} x {up:.1f} mm")
+    print()
+    print("-" * 66)
     print()
 
-    for layer in report.layers:
-        layer.l_used = sum(section.size for section in layer.sections)
-        fit = "stated" if layer.stated is not None else "its tallest"
-        print("-" * 66)
-        print(f"[{layer.key}]   H {layer.h[0]:.1f} -> {layer.h[1]:.1f} mm   ({fit})")
-        print(
-            f"    sections  {layer.l_used:.1f} of {ul:.1f} mm of L, "
-            f"{ul - layer.l_used:.1f} free"
-        )
-        print()
-
-        keyed, letters = [], iter(KEYS)
-        for section in layer.sections:
-            fit = "stated" if section.stated is not None else "its longest"
-            print(
-                f"  ({section.key})   L {section.l[0]:.1f} -> "
-                f"{section.l[1]:.1f} mm   ({fit})"
-            )
-            used = 0.0
-            for oid, span in section.entries:
-                placed = report.placed[oid]
-                key = next(letters, "*")
-                keyed.append((placed, key))
-                again = "  (again)" if placed.first.section != section.key else ""
-                turned = "  (turned)" if placed.turn else ""
-                print(
-                    f"    {key}  {oid:<26}"
-                    f"{placed.size[0]:6.1f} x{placed.size[1]:6.1f} x{placed.size[2]:5.1f}"
-                    f"   W {span[0]:6.1f} ->{span[1]:7.1f}{turned}{again}"
-                )
-                if placed.note:
-                    print(f"       {' ' * 26}{placed.note}")
-                used = max(used, span[1])
-            if uw - used > EPS:
-                print(
-                    f"       {'free':<26}{uw - used:6.1f}"
-                    f"{'':>15}   W {used:6.1f} ->{uw:7.1f}"
-                )
-            print()
-
-        for line in plan_map(report, layer, keyed):
+    width = name_width(report.entries)
+    for node in report.entries:
+        for line in entry_lines(report, node, 0, width):
             print(line)
-        print()
+    if uw - across > EPS:
+        print(
+            f"    {'free':<{width}}{uw - across:6.1f}"
+            f"{'':>15}   W {across:6.1f} ->{uw:7.1f}"
+        )
+    print()
 
     print("-" * 66)
     for kind, said in [("warn", w) for w in report.warnings] + [
@@ -569,7 +549,7 @@ def preview(report, path):
 
     Shrunk a hair each way so neighbours that touch stay two blocks in the
     viewer rather than one, and stood on a thin plate the size of the box
-    so a layer can be told from the floor it is over.
+    so the arrangement can be told from the floor it is over.
     """
 
     def shrink(span):

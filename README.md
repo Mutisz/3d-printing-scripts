@@ -8,6 +8,7 @@ STLs ready to slice.
 
 | Script | Makes |
 | --- | --- |
+| [init_game.py](init_game.py) | Not a generator — scaffolds `games/<game_id>.json` for a game that has none yet, with one worked example of each thing the schema describes |
 | [make_all.py](make_all.py) | Every generator below, in turn, for one game, then the fit check |
 | [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
 | [make_card_box.py](make_card_box.py) | Closed card sleeves — floor, ceiling, both long walls and one short one, with the far end left open so a deck slides in and out. Thumb slots top and bottom to pinch the stack back out |
@@ -32,6 +33,7 @@ pip install -r requirements.txt
 Every script takes one argument, the game to build:
 
 ```bash
+python init_game.py new_game            # start a game off with a parameter file
 python make_all.py cafe_baras           # everything for that game
 python make_card_holder.py cafe_baras   # or just one generator
 python make_resource_tray.py cafe_baras
@@ -74,6 +76,13 @@ Parameters live in one JSON file per game, `games/<game_id>.json`, holding both
 the card holders and the trays for that game. Nothing is configured by editing
 the scripts.
 
+`python init_game.py <game_id>` writes a starting point: one card holder, one
+card box, one tray and a box layout placing all three, using the keys that get
+used in practice rather than every key there is. Every number in it is invented
+— it builds and it fits, but it describes no real game, so measure your
+components and edit it down. It refuses to overwrite a file that already
+exists.
+
 Each file declares the `schema_version` it was written against, and the loader
 refuses a version it does not understand rather than misreading it. The schema
 is documented in full in the [gameconfig.py](gameconfig.py) docstring — JSON has
@@ -99,8 +108,7 @@ Sketch:
   },
   "box": {
     "size": [244.0, 244.0, 50.0],
-    "layers": { "bottom": { "sections": {
-        "row": { "place": ["main_deck", "coins"] } } } }
+    "place": ["main_deck", "coins"]
   }
 }
 ```
@@ -397,15 +405,14 @@ in the box, which is arithmetic done on the kitchen table and redone from
 scratch every time a tray is resized. The `box` section states the arrangement
 instead, and [check_box.py](check_box.py) works the rest out.
 
-It is stated the way you would describe it out loud — layers up the box,
-sections along it, objects across it — in the same `[W, L, H]` frame as every
-other size in the file:
+It is stated the way you would describe it out loud, in the same `[W, L, H]`
+frame as every other size in the file:
 
 | | |
 | --- | --- |
-| **W** | across the box. Objects within a section line up along W, left to right |
-| **L** | along the box. Sections divide L |
-| **H** | up. Layers stack in H, bottom first |
+| **W** | across the box. The arrangement's own entries follow each other along W |
+| **L** | along the box |
+| **H** | up the box |
 
 ```jsonc
 "box": {
@@ -414,60 +421,84 @@ other size in the file:
   "extras": {                      // what is in the box that no script prints
     "manuals": { "size": [300.0, 300.0, 60.0] }
   },
-  "layers": {                      // bottom to top
-    "cards": {
-      "sections": {                // along L, in written order
-        "base_a": { "place": ["base_a_standard", "base_a_small"] },
-        "base_b": { "place": ["personal_files", "recruits",
-                              { "id": "markers", "turn": true }] }
-      }
-    },
-    "top": { "sections": { "boxes": { "place": ["manuals"] } } }
-  }
+  "place": [                       // across W, in written order
+    "base_a_standard",
+    "personal_files",
+    { "id": "markers", "turn": true }
+  ]
 }
 ```
 
-Nothing states a position. A layer starts where the layers below it end, a
-section where the sections before it end, and an object where the object before
-it in the same section ends — so a resized tray moves everything after it, and
-the check cannot fall out of date behind the parts.
-
 An entry in `place` is an object id, and an id is anything the file defines: a
 card holder, a card box, a tray, or an `extras` entry for the things no script
-here prints — boards, rulebooks, bags. Ids are flat across the whole file, and
-a name used twice is refused rather than one of the pair quietly winning.
-`{ "id": ..., "turn": true }` lays an object across, swapping its W and its L,
-which is the only way something like a 27 × 221 mm marker tray fits anywhere.
+here prints — boards, rulebooks, bags. Ids are flat across the whole file, a
+name used twice is refused rather than one of the pair quietly winning, and each
+object is placed exactly once. `{ "id": ..., "turn": true }` lays an object
+across, swapping its W and its L, which is the only way something like a
+27 × 221 mm marker tray fits anywhere.
 
-`size` on a layer or a section is optional, and the default is a tight fit
-around that layer's or section's own contents — which is the arithmetic you
-were doing by hand. State one only to reserve headroom, or to let something
-taller than its layer poke up into the next one.
+Nothing states a position. An entry starts where the entry before it in the same
+run ends — so a resized tray moves what is stacked on it, leaves the rest of the
+box alone, and the check cannot fall out of date behind the parts.
 
-Which is the other thing to know: an object longer than its section, or taller
-than its layer, **reaches into the next one**. Repeat its id there to reserve
-the band it holds:
+#### Runs
+
+A single list across W would only describe a very dull box. Any entry can be a
+**run** instead of a single thing: `along` says which way it goes, `place` says
+what is in it, and it takes the slot one object would have taken. Its contents
+follow each other along its own axis from the corner it was handed, and start
+together on the other two. It comes to as much as they do — or to its own
+optional `size`, where you want to reserve more than its contents need.
+
+Runs hold runs, so the box is described to whatever depth it actually has. Arnak
+wants a thin tray against one wall, a pile of boards beside it topped by a board
+laid over everything, and three trays end to end down the far side:
 
 ```jsonc
-"row_1": { "size": 193.0, "place": ["landers_equipment_tokens", "markers"] },
-"row_2": {                "place": ["landers_equipment_tokens", "markers", "figures"] }
+"place": [
+  "replaced_components",
+  { "along": "H", "place": [
+      { "along": "W", "place": [
+          { "along": "H", "place": ["player_boards", "setup"] },
+          { "along": "L", "place": ["archeogical_sites_large", "guardians"] }
+      ]},
+      "game_board_manual"
+  ]}
+]
 ```
 
-A repeat is the same object, not a second one. It moves the entries after it
-along without being counted twice, and every mention of it has to agree about
-where it starts and which way it lies.
+Read it outward from any tray and it says where that tray is: `setup` is on
+`player_boards`, that stack is beside the site trays, and `game_board_manual`
+lies over the whole of it. Because a run stacks only what is in it, a tall
+narrow tray at one end of the box does not push up everything at the other end
+— which is exactly what a fixed layer would have done.
+
+#### Gaps
+
+Every position comes from what was written before it, which leaves one thing
+unsayable: something standing over an empty corner has nothing to push it clear
+of that corner. In Arnak the `replaced_components` tray is 12 mm wide but only
+116 long, so past it the box is free right up to the wall — and the boards that
+lie over the whole box still have to start 12 mm in to clear its 66 mm height.
+
+A `gap` is what to write there. It reserves that much space along the run
+holding it, holds nothing, and is checked for nothing:
+
+```jsonc
+{ "along": "W", "place": [ { "gap": 12.0 }, "game_board_manual" ] }
+```
+
+Without it the only way to offset something was to find an object the right
+width to put in front of it, which meant inventing a part that does not exist.
 
 From all that every object gets an exact box, and the checks are statements
 about those boxes. Three of them stop the run: something standing outside the
 game box, two things in the same place, or something off the floor with nothing
 at all under it. The rest are warnings, because they are judgement calls — a
-tray only partly supported, one resting on air below a layer taller than its
-contents, one reaching into a section without saying so, or a part that was
-built and then placed nowhere. It prints what each section has left over and a
-rough plan of each layer, so the leftovers are somewhere you can see them, and
-writes `models/<game_id>/box/<game_id>_box_preview.stl` — one plain block per
-object where the report says it sits, which the dev container opens in the
-editor.
+tray only partly supported, one resting on air, or a part that was built and
+then placed nowhere. It prints what the box has left over, and writes
+`models/<game_id>/box/<game_id>_box_preview.stl` — one plain block per object
+where the report says it sits, which the dev container opens in the editor.
 
 What it will not do is arrange the box for you. It checks the arrangement you
 wrote.

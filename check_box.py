@@ -7,24 +7,25 @@ every part actually sits, and says whether the arrangement holds together:
 that it is all inside the box, that nothing is in the same place as
 anything else, and that everything off the floor has something under it.
 
-The arrangement is stated the way you would describe it out loud. Layers
-stack up the box, bottom first. Each layer divides along the box into
-sections. Each section lines its objects up across the box, left to right.
-Nothing states a position: a layer starts where the layers below it end, a
-section where the sections before it end, an object where the object before
-it ends. So a resized tray moves everything after it and the check comes
-out of date the moment the numbers do, rather than a week later on the
-kitchen table.
+The arrangement is stated the way you would describe it out loud, as one
+list. Its entries follow each other across the box, left to right. Any
+entry can be a run of its own instead of a single thing -- "along" says
+which way that run goes, "place" says what is in it -- and its contents
+follow each other along that axis, from the corner the run was handed.
+Runs hold runs, so a pile of boards inside one slot, or a row of trays end
+to end inside another, is written where it actually is.
+
+Nothing states a position: an entry starts where the entry before it in
+the same run ends. So a resized tray moves what is stacked on it, leaves
+the rest of the box alone, and the check comes out of date the moment the
+numbers do rather than a week later on the kitchen table.
 
 Objects are named by id, and an id is anything this file defines: a card
 holder, a card box, a tray, or an entry under box.extras for the things no
-script here prints -- boards, rulebooks, bags. An object longer than its
-section, or taller than its layer, reaches into the next one; repeat its id
-there to reserve the band it takes up.
+script here prints -- boards, rulebooks, bags. Each is named once.
 
 What it cannot do is arrange the box for you. It checks the arrangement you
-wrote, reports what each section has left over, and draws a rough plan of
-each layer so the leftovers are somewhere you can see them.
+wrote, and reports what is left over.
 
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 check_box.py <game_id>

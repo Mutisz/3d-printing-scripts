@@ -1,0 +1,597 @@
+{
+  "schema_version": 9,
+  "game": {
+    "id": "arnak",
+    "name": "Arnak"
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "validation": {
+      "sleeve": [65.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "variants": {
+      "items": {
+        "size": [68.0, 93.0, 30.0],
+        "emboss": {
+          "text": "PRZEDMIOTY"
+        }
+      },
+      "artifacts": {
+        "size": [68.0, 93.0, 30.0],
+        "emboss": {
+          "text": "ARTEFAKTY"
+        }
+      },
+      "fear": {
+        "size": [68.0, 93.0, 18.0],
+        "emboss": {
+          "text": "STRACH"
+        }
+      },
+      "leader_decks": {
+        "size": [68.0, 93.0, 18.0],
+        "emboss": {
+          "text": "LIDERZY"
+        }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "meeples_1": {
+        "size": [136.0, 40.0, 24.0],
+        "split": "W",
+        "compartments": {
+          "meeples_red": {
+            "emboss": {
+              "text": "CZERWONE"
+            }
+          },
+          "meeples_2": {
+            "emboss": {
+              "text": "ZIELONE"
+            }
+          }
+        }
+      },
+      "meeples_2": {
+        "size": [136.0, 40.0, 24.0],
+        "split": "W",
+        "compartments": {
+          "meeples_red": {
+            "emboss": {
+              "text": "NIEBIESKIE"
+            }
+          },
+          "meeples_2": {
+            "emboss": {
+              "text": "ŻÓŁTE"
+            }
+          }
+        }
+      },
+      "rival": {
+        "size": [70.0, 93.0, 48.0],
+        "split": "L",
+        "compartments": {
+          "rival_archeologist": {
+            "emboss": {
+              "text": ["RYWALE", "ARCHEOLODZY"]
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "rival_green": {
+            "emboss": {
+              "text": ["RYWALE", "ZIELONE"]
+            },
+            "openings": [
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "rival_red": {
+            "emboss": {
+              "text": ["RYWALE", "CZERWONE"]
+            },
+            "openings": [
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "rival_purple": {
+            "emboss": {
+              "text": ["RYWALE", "FIOLETOWE"]
+            },
+            "openings": [
+              {
+                "side": "L+"
+              }
+            ]
+          },
+          "rival_goals": {
+            "emboss": {
+              "text": ["RYWALE", "CELE"]
+            },
+            "openings": [
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "leader_components": {
+        "size": [70.0, 40.0, 48.0],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "LIDERZY"
+            },
+            "notches": [
+              {
+                "side": "L-"
+              }
+            ]
+          }
+        }
+      },
+      "tablets": {
+        "size": [75.0, 44.3, 28.5],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "TABLICZKI"
+            }
+          }
+        }
+      },
+      "arrowheads": {
+        "size": [75.0, 44.3, 28.5],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "GROTY"
+            }
+          }
+        }
+      },
+      "jewels": {
+        "size": [75.0, 44.3, 28.5],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "KLEJNOTY"
+            }
+          }
+        }
+      },
+      "coins": {
+        "size": [75.0, 66.5, 28.5],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "MONETY"
+            }
+          }
+        }
+      },
+      "compasses": {
+        "size": [75.0, 66.5, 28.5],
+        "split": "L",
+        "compartments": {
+          "leader_components": {
+            "emboss": {
+              "text": "KOMPASY"
+            }
+          }
+        }
+      },
+
+      "replaced_components": {
+        "size": [12.0, 116.0, 66.0],
+        "split": "L",
+        "compartments": {
+          "replaced_components": {
+            "emboss": {
+              "text": "ZASTĄPIONE"
+            },
+            "notches": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+      "setup": {
+        "size": [166.0, 116.0, 12.0],
+        "split": "W",
+        "compartments": {
+          "setup_scepters": {
+            "size": 50.0,
+            "emboss": {
+              "text": ["BERŁA", "ZEGAREK"]
+            }
+          },
+          "setup_other": {
+            "compartments": {
+              "tents": {
+                "emboss": {
+                  "text": "NAMIOTY"
+                }
+              },
+              "leaders_draw_blockers": {
+                "compartments": {
+                  "leaders_draw": {
+                    "emboss": {
+                      "text": ["LOSOWANIE", "LIDERÓW"]
+                    }
+                  },
+                  "blockers": {
+                    "emboss": {
+                      "text": "BLOKADY"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "temple": {
+        "size": [50.0, 116.0, 35.0],
+        "split": "L",
+        "compartments": {
+          "temple_bronze": {
+            "emboss": {
+              "text": ["ŚWIATYNIA", "BRĄZOWA"]
+            }
+          },
+          "temple_silver": {
+            "size": 25.0,
+            "emboss": {
+              "text": ["ŚWIATYNIA", "SREBRNA"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "temple_gold": {
+            "size": 29.0,
+            "emboss": {
+              "text": ["ŚWIATYNIA", "ZŁOTA"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      },
+      "research": {
+        "size": [53.0, 116.0, 24.5],
+        "split": "L",
+        "compartments": {
+          "research": {
+            "emboss": {
+              "text": ["NAGRODY", "NAUKOWE"]
+            }
+          }
+        }
+      },
+      "idols": {
+        "size": [53.0, 116.0, 24.5],
+        "split": "L",
+        "compartments": {
+          "idols": {
+            "emboss": {
+              "text": "BOŻKI"
+            }
+          }
+        }
+      },
+
+      "archeogical_sites_large": {
+        "size": [78.0, 85.0, 36.0],
+        "split": "L",
+        "compartments": {
+          "archeogical_sites_large": {
+            "emboss": {
+              "text": ["STANOWISKA", "DUŻE"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              }
+            ]
+          }
+        }
+      },
+      "archeogical_sites_small": {
+        "size": [78.0, 82.0, 36.0],
+        "split": "L",
+        "compartments": {
+          "archeogical_sites_small": {
+            "emboss": {
+              "text": ["STANOWISKA", "MAŁE"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              }
+            ]
+          }
+        }
+      },
+      "guardians": {
+        "size": [78.0, 82.0, 57.0],
+        "split": "L",
+        "compartments": {
+          "guardians": {
+            "emboss": {
+              "text": "STRAŻNICY"
+            },
+            "openings": [
+              {
+                "side": "W-"
+              }
+            ]
+          }
+        }
+      },
+      "backup_tokens": {
+        "size": [78.0, 40.0, 21.0],
+        "split": "L",
+        "compartments": {
+          "backup_tokens": {
+            "emboss": {
+              "text": "REZERWOWE"
+            }
+          }
+        }
+      },
+      "assistants": {
+        "size": [78.0, 127.0, 21.0],
+        "split": "L",
+        "compartments": {
+          "assistants_1": {
+            "size": 41.0,
+            "emboss": {
+              "text": ["ASYST-", "ENCI"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "assistants_2": {
+            "size": 41.0,
+            "emboss": {
+              "text": ["ASYST-", "ENCI"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          },
+          "assistants_3": {
+            "size": 41.0,
+            "emboss": {
+              "text": ["ASYST-", "ENCI"]
+            },
+            "openings": [
+              {
+                "side": "W-"
+              },
+              {
+                "side": "W+"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "box": {
+    "size": [359.0, 249.0, 70.0],
+    "extras": {
+      "leader_boards": {
+        "size": [166.0, 111.0, 23.0]
+      },
+      "occultist_board": {
+        "size": [216.0, 111.0, 5.0]
+      },
+      "player_boards": {
+        "size": [269.0, 116.0, 8.0]
+      },
+      "game_board_manual": {
+        "size": [346.0, 246.0, 13.0]
+      },
+      "bottom_board_temple": {
+        "size": [186.0, 246.0, 9.0]
+      }
+    },
+    "place": [
+      {
+        "along": "H",
+        "place": [
+          {
+            "along": "W",
+            "place": [
+              {
+                "along": "H",
+                "place": [
+                  {
+                    "along": "L",
+                    "place": [
+                      {
+                        "along": "W",
+                        "place": [
+                          {
+                            "along": "H",
+                            "size": 48.0,
+                            "place": ["replaced_components"]
+                          },
+                          {
+                            "along": "H",
+                            "place": [
+                              "player_boards",
+                              {
+                                "along": "W",
+                                "place": [
+                                  {
+                                    "along": "H",
+                                    "place": [
+                                      "occultist_board",
+                                      {
+                                        "along": "W",
+                                        "place": [
+                                          {
+                                            "along": "H",
+                                            "place": ["leader_boards", "setup"]
+                                          },
+                                          "temple"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "along": "H",
+                                    "size": 40.0,
+                                    "place": ["research", "idols"]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "along": "W",
+                        "place": [
+                          {
+                            "along": "L",
+                            "place": [
+                              {
+                                "along": "W",
+                                "place": [
+                                  { "along": "H", "place": ["items", "fear"] },
+                                  {
+                                    "along": "H",
+                                    "place": ["artifacts", "leader_decks"]
+                                  },
+                                  "rival"
+                                ]
+                              },
+                              {
+                                "along": "W",
+                                "place": [
+                                  {
+                                    "along": "H",
+                                    "place": ["meeples_1", "meeples_2"]
+                                  },
+                                  "leader_components"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "along": "H",
+                            "size": 48.0,
+                            "place": [
+                              {
+                                "along": "L",
+                                "place": ["tablets", "arrowheads", "jewels"]
+                              },
+                              { "along": "L", "place": ["coins", "compasses"] }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "along": "W",
+                    "place": [{ "gap": 12.0 }, "bottom_board_temple"]
+                  }
+                ]
+              },
+              {
+                "along": "L",
+                "place": [
+                  {
+                    "along": "H",
+                    "place": [
+                      {
+                        "along": "L",
+                        "place": [
+                          "archeogical_sites_large",
+                          "archeogical_sites_small"
+                        ]
+                      },
+                      { "along": "L", "place": ["assistants", "backup_tokens"] }
+                    ]
+                  },
+                  "guardians"
+                ]
+              }
+            ]
+          },
+          {
+            "along": "W",
+            "place": [{ "gap": 12.0 }, "game_board_manual"]
+          }
+        ]
+      }
+    ]
+  }
+}

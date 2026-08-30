@@ -1,5 +1,5 @@
 {
-  "schema_version": 8,
+  "schema_version": 9,
   "game": {
     "id": "iss_vanguard",
     "name": "ISS Vanguard"
@@ -1088,20 +1088,5 @@
       }
     }
   },
-  "box": {
-    "size": [317.0, 365.0, 147.0],
-    "layers": {
-      "cards": {
-        "sections": {
-          "base_a": {
-            "place": ["base_a_standard", "base_a_small"]
-          },
-          "base_b": {
-            "place": ["personal_files", "recruits", "base_b_standard", "base_b_small"]
-          }
-        }
-      }
-    }
-  },
-  "notes": "BOX 365x317x147, SECTION BOARDS 15, MANUAL STACK 60, SLEEVE L 82x121 ,SLEEVE M 65x90, SLEEVE S 46x70. Box layout above is started, not finished: the two base rows are the ORGANISER ROW BASE 311 from these notes. The rest of the trays, the card boxes, the section boards and the manual stack are still to be placed -- check_box.py lists them."
+  "notes": "BOX 365x317x147, SECTION BOARDS 15, MANUAL STACK 60, SLEEVE L 82x121 ,SLEEVE M 65x90, SLEEVE S 46x70. ORGANISER ROW BASE 311. No box layout here: one was started that placed only the two base rows, and it was dropped rather than half-carried -- the trays, the card boxes, the section boards and the manual stack all still need laying out, so it wants doing from scratch against the whole box."
 }
