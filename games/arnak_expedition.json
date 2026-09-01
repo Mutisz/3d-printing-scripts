@@ -1,0 +1,164 @@
+{
+  "schema_version": 9,
+  "game": {
+    "id": "arnak_expedition",
+    "name": "Arnak: Search for the Expedition"
+  },
+  "card_boxes": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [66.0, 91.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "emboss": {
+      "depth": 0.5,
+      "along": "W"
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
+    "variants": {
+      "chapter_1": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "1"] }
+      },
+      "chapter_2": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "2"] }
+      },
+      "chapter_3": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "3"] }
+      },
+      "chapter_4": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "4"] }
+      },
+      "chapter_5": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "5"] }
+      },
+      "chapter_6": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": ["ROZDZIAŁ", "6"] }
+      },
+      "items": {
+        "size": [69.0, 94.0, 12.0],
+        "emboss": { "text": "PRZEDMIOTY" }
+      },
+      "artifacts": {
+        "size": [69.0, 94.0, 12.0],
+        "emboss": { "text": "ARTEFAKTY" }
+      },
+      "leader_decks": {
+        "size": [69.0, 94.0, 10.0],
+        "emboss": { "text": "LIDERZY" }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "archeogical_sites_guardians": {
+        "size": [110.0, 76.0, 20.0],
+        "split": "L",
+        "compartments": {
+          "archeogical_sites_guardians": {
+            "emboss": {
+              "text": ["STANOWISKA", "STRAŻNICY"]
+            }
+          }
+        }
+      },
+      "leader_components": {
+        "size": [110.0, 112.0, 20.0],
+        "split": "L",
+        "compartments": {
+          "journalist": {
+            "size": 55.0,
+            "emboss": {
+              "text": "DZIENNIKARZ"
+            }
+          },
+          "mechanic_draw": {
+            "compartments": {
+              "mechanic": {
+                "emboss": {
+                  "text": "MECHANICZKA"
+                }
+              },
+              "draw": {
+                "size": 32.0,
+                "emboss": {
+                  "text": ["LOSOWANIE", "LIDERÓW"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "assistants": {
+        "size": [43.0, 58.0, 20.0],
+        "split": "L",
+        "compartments": {
+          "assistants": {
+            "emboss": {
+              "text": ["ASYS-", "TENCI"]
+            },
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ]
+          }
+        }
+      },
+      "campaign": {
+        "size": [136.0, 58.0, 20.0],
+        "split": "L",
+        "compartments": {
+          "campaign": {
+            "emboss": {
+              "text": "KAMPANIA"
+            }
+          }
+        }
+      },
+
+      "meeples": {
+        "size": [69.0, 58.0, 22.0],
+        "split": "L",
+        "compartments": {
+          "meeples": {
+            "emboss": {
+              "text": "ARCHEOLODZY"
+            }
+          }
+        }
+      }
+    }
+  },
+  "box": {
+    "size": [179.0, 246.0, 55.0],
+    "extras": {
+      "leader_boards": {
+        "size": [111.0, 225.0, 10.0]
+      },
+      "temple": {
+        "size": [179.0, 246.0, 5.0]
+      }
+    },
+    "place": []
+  }
+}

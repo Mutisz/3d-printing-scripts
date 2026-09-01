@@ -4,39 +4,65 @@
     "id": "el_dorado",
     "name": "El Dorado"
   },
-  "card_holders": {
+  "card_boxes": {
     "wall": 1.0,
     "floor": 1.0,
-    "separator": {
-      "thickness": 1.0,
-      "fit": 0.2,
-      "tab_out": null
-    },
-    "emboss": {
-      "depth": 0.4
-    },
+    "ceiling": 1.0,
     "validation": {
       "sleeve": [60.0, 90.0],
       "clearance": 1.0,
       "card_thickness": 0.6
     },
+    "emboss": {
+      "depth": 0.5,
+      "along": "W"
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
     "variants": {
       "journey": {
-        "size": [63.0, 93.0, 60.0],
+        "size": [63.0, 93.0, 50.0],
         "emboss": {
           "text": "WYPRAWA"
-        },
-        "separators": {
-          "dragons": {
-            "emboss": {
-              "text": "SMOKI"
-            }
-          },
-          "treasures": {
-            "emboss": {
-              "text": "SKARBY"
-            }
-          }
+        }
+      },
+
+      "starting": {
+        "size": [63.0, 93.0, 24.0],
+        "emboss": {
+          "text": "STARTOWE"
+        }
+      },
+      "companions": {
+        "size": [63.0, 93.0, 6.0],
+        "emboss": {
+          "text": "TOWARZYSZE"
+        }
+      }
+    }
+  },
+  "card_holders": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "validation": {
+      "sleeve": [60.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.6
+    },
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
+      "muisca": {
+        "size": [63.0, 93.0, 10.0],
+        "emboss": {
+          "text": "MUISCA"
         }
       },
 
@@ -47,34 +73,9 @@
         }
       },
       "heroes": {
-        "size": [63.0, 93.0, 10.0],
+        "size": [63.0, 93.0, 15.0],
         "emboss": {
           "text": "BOHATEROWIE"
-        }
-      },
-      "starting": {
-        "size": [63.0, 93.0, 35.0],
-        "emboss": {
-          "text": "STARTOWE"
-        },
-        "separators": {
-          "companions": {
-            "emboss": {
-              "text": "TOWARZYSZE"
-            }
-          },
-          "bonus": {
-            "emboss": {
-              "text": "BONUS"
-            }
-          }
-        }
-      },
-
-      "muisca": {
-        "size": [63.0, 93.0, 10.0],
-        "emboss": {
-          "text": "MUISCA"
         }
       }
     }
@@ -82,9 +83,12 @@
   "trays": {
     "wall": 1.0,
     "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
     "variants": {
       "meeples": {
-        "size": [63.0, 93.0, 25.0],
+        "size": [63.0, 93.0, 30.0],
         "split": "L",
         "compartments": {
           "meeples": {
@@ -95,7 +99,7 @@
         }
       },
       "curses": {
-        "size": [63.0, 93.0, 25.0],
+        "size": [63.0, 93.0, 30.0],
         "split": "L",
         "compartments": {
           "curses": {
@@ -177,7 +181,7 @@
             "size": 20.0
           },
           "borders": {
-            "depth": 20.0,
+            "depth": 30.0,
             "compartments": {
               "half_1": {
                 "openings": [

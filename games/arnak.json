@@ -164,7 +164,7 @@
         "size": [75.0, 44.3, 28.5],
         "split": "L",
         "compartments": {
-          "leader_components": {
+          "tablets": {
             "emboss": {
               "text": "TABLICZKI"
             }
@@ -175,7 +175,7 @@
         "size": [75.0, 44.3, 28.5],
         "split": "L",
         "compartments": {
-          "leader_components": {
+          "arrowheads": {
             "emboss": {
               "text": "GROTY"
             }
@@ -186,7 +186,7 @@
         "size": [75.0, 44.3, 28.5],
         "split": "L",
         "compartments": {
-          "leader_components": {
+          "jewels": {
             "emboss": {
               "text": "KLEJNOTY"
             }
@@ -197,7 +197,7 @@
         "size": [75.0, 66.5, 28.5],
         "split": "L",
         "compartments": {
-          "leader_components": {
+          "coins": {
             "emboss": {
               "text": "MONETY"
             }
@@ -208,7 +208,7 @@
         "size": [75.0, 66.5, 28.5],
         "split": "L",
         "compartments": {
-          "leader_components": {
+          "compasses": {
             "emboss": {
               "text": "KOMPASY"
             }
@@ -426,7 +426,7 @@
           "assistants_3": {
             "size": 41.0,
             "emboss": {
-              "text": ["ASYST-", "ENCI"]
+              "text": ["ASYS-", "TENCI"]
             },
             "openings": [
               {
