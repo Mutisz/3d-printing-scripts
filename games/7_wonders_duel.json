@@ -4,42 +4,93 @@
     "id": "7_wonders_duel",
     "name": "7 Wonders Duel"
   },
-  "card_holders": {
+  "card_boxes": {
     "wall": 1.0,
     "floor": 1.0,
-    "separator": {
-      "thickness": 1.0,
-      "fit": 0.2
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [46.0, 71.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
     },
     "emboss": {
-      "depth": 0.4
+      "size": 6.0,
+      "depth": 0.5,
+      "along": "W"
     },
-    "validation": {
-      "clearance": 1.0,
-      "card_thickness": 0.6
+    "notch": {
+      "width": 30.0,
+      "reach": 15.0
     },
     "variants": {
       "age_1": {
-        "size": [49.0, 74.0, 38.0],
-        "validation": { "sleeve": [46.0, 71.0] },
-        "emboss": { "text": "EPOKI" },
-        "separators": {
-          "age_2": { "emboss": { "text": "EPOKA II" } },
-          "age_3": { "emboss": { "text": "EPOKA III" } }
+        "size": [49.0, 74.0, 19.0],
+        "emboss": {
+          "text": ["EPOKA", "1"]
         }
       },
-      "pantheon_deck": {
-        "size": [74.0, 116.0, 12.0],
-        "validation": { "sleeve": [63.0, 113.0] },
-        "emboss": { "text": "PANTEON" },
-        "corner": 0.25
+      "age_2": {
+        "size": [49.0, 74.0, 19.0],
+        "emboss": {
+          "text": ["EPOKA", "2"]
+        }
       },
-      "wonders_deck": {
-        "size": [74.0, 116.0, 26.0],
+      "age_3": {
+        "size": [49.0, 74.0, 17.0],
+        "emboss": {
+          "text": ["EPOKA", "3"]
+        }
+      },
+      "senators": {
+        "size": [49.0, 74.0, 9.0],
+        "emboss": {
+          "text": "SENATORZY"
+        }
+      },
+      "guilds": {
+        "size": [49.0, 74.0, 6.0],
+        "emboss": {
+          "text": "GILDIE"
+        }
+      },
+      "temples": {
+        "size": [49.0, 74.0, 6.0],
+        "emboss": {
+          "text": "ŚWIĄTYNIE"
+        }
+      },
+
+      "pantheon": {
+        "size": [74.0, 116.0, 12.0],
+        "notch": {
+          "width": 40.0
+        },
+        "validation": { "sleeve": [63.0, 113.0] },
+        "emboss": {
+          "size": 8.0,
+          "text": "PANTEON"
+        }
+      },
+      "wonders": {
+        "size": [74.0, 116.0, 13.0],
+        "notch": {
+          "width": 40.0
+        },
         "validation": { "sleeve": [68.0, 102.0] },
-        "emboss": { "text": ["CUDA", "SPISKI"] },
-        "separators": {
-          "intrigues": { "emboss": { "text": "SPISKI" } }
+        "emboss": {
+          "size": 8.0,
+          "text": "CUDA"
+        }
+      },
+      "intrigues": {
+        "size": [74.0, 116.0, 13.0],
+        "notch": {
+          "width": 40.0
+        },
+        "validation": { "sleeve": [68.0, 102.0] },
+        "emboss": {
+          "size": 8.0,
+          "text": "SPISKI"
         }
       }
     }
@@ -48,6 +99,7 @@
     "wall": 1.0,
     "floor": 1.0,
     "emboss": {
+      "size": 8.0,
       "depth": 0.4
     },
     "variants": {
@@ -56,16 +108,33 @@
         "split": "L",
         "compartments": {
           "progress_tokens": {
-            "emboss": { "text": "ŻETONY POSTĘPU" }
+            "emboss": {
+              "text": "ŻETONY POSTĘPU"
+            }
           }
         }
       },
-      "influence_cubes": {
+      "influence_cubes_1": {
         "size": [74.0, 58.0, 12.0],
         "split": "L",
         "compartments": {
           "influence_cubes": {
-            "emboss": { "text": "KOSTKI WPŁYWU" }
+            "emboss": {
+              "size": 6.0,
+              "text": ["KOSTKI WPŁYWU", "ZŁOTE"]
+            }
+          }
+        }
+      },
+      "influence_cubes_2": {
+        "size": [74.0, 58.0, 12.0],
+        "split": "L",
+        "compartments": {
+          "influence_cubes": {
+            "emboss": {
+              "size": 6.0,
+              "text": ["KOSTKI WPŁYWU", "SREBRNE"]
+            }
           }
         }
       },
@@ -74,13 +143,19 @@
         "split": "L",
         "compartments": {
           "1": {
-            "emboss": { "text": "1" }
+            "emboss": {
+              "text": "1"
+            }
           },
           "3": {
-            "emboss": { "text": "3" }
+            "emboss": {
+              "text": "3"
+            }
           },
           "6": {
-            "emboss": { "text": "6" }
+            "emboss": {
+              "text": "6"
+            }
           }
         }
       },
@@ -89,29 +164,41 @@
         "split": "L",
         "compartments": {
           "edicts": {
-            "emboss": { "text": "EDYKTY" }
+            "emboss": {
+              "text": "EDYKTY"
+            }
           },
           "pantheon": {
-            "emboss": { "text": "PANTEON" }
+            "emboss": {
+              "text": "PANTEON"
+            }
           },
           "donations": {
             "size": 30,
-            "emboss": { "text": "DATKI" }
+            "emboss": {
+              "text": "DATKI"
+            }
           }
         }
       },
-      "misc": {
+      "figures_military_markers": {
         "size": [32.0, 197.0, 38.0],
         "split": "L",
         "compartments": {
-          "tiles_1": {
-            "size": null
-          },
-          "tiles_2": {
-            "size": null
-          },
           "figures": {
-            "size": null
+            "emboss": {
+              "text": "PIONY"
+            }
+          },
+          "military_markers_base": {
+            "emboss": {
+              "text": ["ZNACZNIKI", "MILITARNE"]
+            }
+          },
+          "military_markers_agora": {
+            "emboss": {
+              "text": ["ZNACZNIKI", "MILITARNE"]
+            }
           }
         }
       }

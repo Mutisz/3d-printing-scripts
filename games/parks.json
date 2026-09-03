@@ -9,55 +9,83 @@
     "floor": 1.0,
     "separator": {
       "thickness": 1.0,
-      "fit": 0.2,
-      "tab_out": null
+      "fit": 0.2
     },
     "validation": {
+      "sleeve": [52.0, 77.0],
       "clearance": 1.0,
       "card_thickness": 0.6
     },
+    "emboss": {
+      "size": 8.0,
+      "depth": 0.4
+    },
     "variants": {
       "large_parks": {
+        "validation": {
+          "sleeve": [72.0, 123.0]
+        },
         "size": [75.0, 126.0, 50.0],
-        "validation": { "sleeve": [72.0, 123.0] },
-        "corner": 0.24,
-        "contains": "Park cards"
+        "corner": 0.3,
+        "emboss": {
+          "size": null,
+          "text": "PARKI"
+        }
       },
 
       "small_equipment": {
         "size": [55.0, 80.0, 30.0],
-        "validation": { "sleeve": [52.0, 77.0] },
-        "contains": "Equipment cards"
+        "corner": 0.3,
+        "emboss": {
+          "text": "EKWIPUNEK"
+        }
       },
       "small_canteens": {
         "size": [55.0, 80.0, 20.0],
-        "validation": { "sleeve": [52.0, 77.0] },
-        "contains": "Canteen cards"
+        "corner": 0.3,
+        "emboss": {
+          "text": "MANIERKI"
+        }
       },
 
-      "small_ranger": {
+      "small_solo": {
         "size": [55.0, 80.0, 10.0],
-        "validation": { "sleeve": [52.0, 77.0] },
-        "contains": "Ranger cards"
+        "corner": 0.3,
+        "emboss": {
+          "text": "SOLO"
+        }
       },
-      "small_season_year": {
+      "small_seasons": {
         "size": [55.0, 80.0, 15.0],
-        "validation": { "sleeve": [52.0, 77.0] },
-        "contains": "Season and year cards",
-        "print": 2
+        "corner": 0.3,
+        "emboss": {
+          "text": "SEZONY"
+        }
+      },
+      "small_year": {
+        "size": [55.0, 80.0, 15.0],
+        "corner": 0.3,
+        "emboss": {
+          "text": "LATA"
+        }
       }
     }
   },
   "trays": {
     "wall": 1.0,
     "floor": 1.0,
+    "emboss": {
+      "depth": 0.4
+    },
     "variants": {
       "campfires": {
         "size": [55.0, 80.0, 10.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Campfire tokens"
+          "campfires": {
+            "emboss": {
+              "text": "OGNISKA"
+            }
           }
         }
       },
@@ -66,8 +94,10 @@
         "size": [75.0, 80.0, 30.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Trail tiles",
+          "trail": {
+            "emboss": {
+              "text": "SZLAK"
+            },
             "openings": [
               {
                 "side": "W-"
@@ -83,8 +113,10 @@
         "size": [75.0, 80.0, 20.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Campsite tiles",
+          "campsites": {
+            "emboss": {
+              "text": "BIWAKI"
+            },
             "openings": [
               {
                 "side": "W-"
@@ -101,17 +133,21 @@
         "size": [75.0, 80.0, 10.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Tents"
+          "tents": {
+            "emboss": {
+              "text": "NAMIOTY"
+            }
           }
         }
       },
-      "misc": {
+      "first_player_camera_bison": {
         "size": [75.0, 80.0, 15.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Camera token, First player token, Bison token"
+          "first_player_camera_bison": {
+            "emboss": {
+              "text": ["PIERWSZY TURYSTA", "APARAT", "BIZON"]
+            }
           }
         }
       },
@@ -120,6 +156,9 @@
         "split": "L",
         "compartments": {
           "p1": {
+            "emboss": {
+              "text": "NIEBIESKI"
+            },
             "notches": [
               {
                 "side": "W-"
@@ -130,6 +169,9 @@
             ]
           },
           "p2": {
+            "emboss": {
+              "text": "RÓŻOWY"
+            },
             "notches": [
               {
                 "side": "W-"
@@ -140,6 +182,9 @@
             ]
           },
           "p3": {
+            "emboss": {
+              "text": "ZIELONY"
+            },
             "notches": [
               {
                 "side": "W-"
@@ -150,6 +195,9 @@
             ]
           },
           "p4": {
+            "emboss": {
+              "text": "FIOLETOWY"
+            },
             "notches": [
               {
                 "side": "W-"
@@ -160,6 +208,9 @@
             ]
           },
           "p5": {
+            "emboss": {
+              "text": "BIAŁY"
+            },
             "notches": [
               {
                 "side": "W-"
@@ -171,32 +222,53 @@
           }
         }
       },
-      "resources_1": {
+      "mountains_forests": {
         "size": [37.5, 125.0, 25.0],
         "split": "L",
         "compartments": {
-          "mountains": {},
-          "trees": {}
-        }
-      },
-
-      "resource_2": {
-        "size": [75.0, 79.0, 17.5],
-        "split": "L",
-        "compartments": {
-          "main": {
-            "contains": "Water or sun tokens",
-            "print": 2
+          "mountains": {
+            "emboss": {
+              "text": "GÓRY"
+            }
+          },
+          "trees": {
+            "emboss": {
+              "text": "LASY"
+            }
           }
         }
       },
-      "resource_3": {
+
+      "sun": {
+        "size": [75.0, 79.0, 17.5],
+        "split": "L",
+        "compartments": {
+          "sun": {
+            "emboss": {
+              "text": "SŁOŃCE"
+            }
+          }
+        }
+      },
+      "water": {
+        "size": [75.0, 79.0, 17.5],
+        "split": "L",
+        "compartments": {
+          "water": {
+            "emboss": {
+              "text": "WODA"
+            }
+          }
+        }
+      },
+      "wildlife": {
         "size": [75.0, 79.0, 15],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Wildlife tokens",
-            "print": 2
+          "wildlife": {
+            "emboss": {
+              "text": "PRZYRODA"
+            }
           }
         }
       },
@@ -205,8 +277,10 @@
         "size": [130.0, 45.0, 25.0],
         "split": "L",
         "compartments": {
-          "main": {
-            "contains": "Picture tokens"
+          "pictures": {
+            "emboss": {
+              "text": "ZDJĘCIA"
+            }
           }
         }
       }

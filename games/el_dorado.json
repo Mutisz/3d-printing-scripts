@@ -168,8 +168,16 @@
         "size": [96.0, 212.0, 38.0],
         "split": "L",
         "compartments": {
-          "short_1": {},
-          "short_2": {}
+          "mist": {
+            "emboss": {
+              "text": "MGŁY"
+            }
+          },
+          "currents_passes": {
+            "emboss": {
+              "text": ["RWĄCY NURT", "PRZEŁĘCZE"]
+            }
+          }
         }
       },
 
