@@ -36,6 +36,17 @@ slotted the same but carries nothing. The slots are cut before the words
 are placed and the words are given the ceiling that is left, so a label
 never runs into one.
 
+A box can hold separators too. They are named, not counted: each id is
+one sheet and one STL, and each says only what it wants of its own --
+thickness, fit, a label, or nothing at all. Where a well's separator
+carries a tab out through the open end, a box's is the bare rectangle,
+the whole cavity across W and along L less the fit that lets it slide.
+There is nowhere for a tab to go and nothing to hang it on: a box is
+emptied by drawing the stack out of the mouth, and the sheets come with
+it. Each takes its own label, which is the point of naming them -- a
+sheet reading AGE II is worth more than a sheet -- and each takes its
+thickness out of the stack, so the card count reports what is left.
+
 Every dimension comes from games/<game_id>.json; see gameconfig for the
 schema. Run as: python3 make_card_box.py <game_id>
 """
@@ -81,6 +92,63 @@ VALID = validation(BOXES, f"{WHERE} card_boxes")
 
 if T <= 0 or F <= 0 or C <= 0:
     raise SystemExit(f"{WHERE} card_boxes: wall, floor and ceiling must be positive")
+
+# Separators: the bare rectangle of the cavity, less the fit that lets it
+# slide. A well's sheet reaches a tab out through its open end to show the
+# split from outside; a box has no outside to show it on, so this is the
+# sheet and nothing else.
+#
+# Unlike a well's, the block is optional -- a section whose boxes never ask
+# for a separator has no reason to state one. What it does state is what
+# every sheet takes unless it says its own.
+SEP_KEYS = ("thickness", "fit")
+SHEET_KEYS = SEP_KEYS + ("emboss",)
+
+
+def sep_block(block, at, keys):
+    """A separator block, closed to the keys a sheet takes.
+
+    Closed for the reason the notch block is: the section's numbers are
+    inherited without a variant saying a word, so a typo here would go on
+    to be reported against the sheet that never stated it.
+    """
+    if not isinstance(block, dict):
+        raise ValueError(f"{at}: must be an object, got {block!r}")
+    unknown = [key for key in block if key not in keys]
+    if unknown:
+        named = ", ".join(repr(key) for key in unknown)
+        raise ValueError(
+            f"{at}: {named} is not something a separator takes -- it takes "
+            f"{', '.join(keys)}"
+        )
+    return block
+
+
+SEP = sep_block(BOXES.get("separator") or {}, f"{WHERE} card_boxes separator", SEP_KEYS)
+
+
+def sheet_of(sheet_spec, seat):
+    """The two numbers one sheet is built to: its own word over the section's.
+
+    Neither has a default to fall back on. A sheet is only as good as the
+    cavity it fills, and a guessed thickness or fit would be a sheet that
+    binds or rattles rather than one that says it was never sized.
+    """
+    said = {**SEP, **sheet_spec}
+    for key in SEP_KEYS:
+        if said.get(key) is None:
+            raise ValueError(
+                f"{seat}: no {key} to build the sheet to -- state one here, or "
+                f"once for the whole section under card_boxes.separator"
+            )
+    thick, fit = said["thickness"], said["fit"]
+    if thick <= 0 or fit < 0:
+        raise ValueError(
+            f"{seat}: thickness must be positive and fit cannot be negative, "
+            f"got {thick} and {fit}"
+        )
+    return thick, fit
+
 
 # The thumb slots, one shape for both faces. A thumb is a thumb whatever
 # size the card is, so unlike a corner post these are millimetres and not a
@@ -159,6 +227,13 @@ print()
 for name, spec in VARIANTS.items():
     at = f"{WHERE} card_boxes.variants.{name}"
     W, L, H = dims(need(spec, "size", at), 3, at, "size")
+    seps = spec.get("separators") or {}
+    if not isinstance(seps, dict):
+        raise ValueError(
+            f"[{name}] separators must be an object keyed by separator id, got "
+            f"{seps!r} -- one entry per sheet, each stating whatever it wants "
+            f"of its own and taking the section's numbers for the rest"
+        )
 
     INNER_W = W - 2 * T  # between the long walls
     INNER_L = L - T  # closed end to the mouth
@@ -194,6 +269,57 @@ for name, spec in VARIANTS.items():
             f"mouth to the closed end, leaving no ceiling to hold the walls "
             f"apart -- state less than {INNER_L}"
         )
+
+    sheets = []
+    for sid, sheet_spec in seps.items():
+        seat = f"{at} separators.{sid}"
+        if sheet_spec is None:  # a bare null reads as "nothing of my own"
+            sheet_spec = {}
+        sheet_spec = sep_block(sheet_spec, seat, SHEET_KEYS)
+        if not sid or "/" in sid or "\\" in sid:
+            raise ValueError(
+                f"{at} separators: {sid!r} will not do as an id -- it names an "
+                f"STL, so it cannot be empty or carry a path separator"
+            )
+
+        thick, fit = sheet_of(sheet_spec, seat)
+        sheet_w, sheet_l = INNER_W - fit, INNER_L - fit
+        if sheet_w <= 0 or sheet_l <= 0:
+            raise ValueError(
+                f"{seat}: a {fit} mm fit leaves no sheet inside the "
+                f"{INNER_W} x {INNER_L} mm cavity"
+            )
+
+        # Flat on the bed, which is the only way a sheet prints. The box
+        # itself is stood on end further down; a rectangle has no reason to
+        # follow it there.
+        mesh_sep = box((0, sheet_w), (0, sheet_l), (0, thick))
+        if sheet_spec.get("emboss"):
+            # Onto the face, which is all a bare rectangle has to offer.
+            solid, sheet_label = emboss_solid(
+                sheet_spec["emboss"],
+                (0, sheet_w),
+                (0, sheet_l),
+                thick,
+                f"{seat} emboss",
+                EMB,
+            )
+            if sheet_label["cut"]:
+                mesh_sep = trimesh.boolean.difference([mesh_sep, solid])
+            else:
+                mesh_sep = trimesh.boolean.union([mesh_sep, solid])
+            mesh_sep.merge_vertices()
+            mesh_sep.update_faces(mesh_sep.nondegenerate_faces())
+
+        sheets.append({"id": sid, "mesh": mesh_sep, "thick": thick})
+
+    sep_stack = sum(sheet["thick"] for sheet in sheets)
+    if sep_stack >= INNER_H:
+        raise ValueError(
+            f"[{name}] {len(sheets)} separators are {sep_stack:.1f} mm of a "
+            f"{INNER_H} mm stack, leaving no room for cards"
+        )
+    card_stack = INNER_H - sep_stack
 
     over = 2.0  # overshoot so cuts clear the outer faces
 
@@ -242,6 +368,12 @@ for name, spec in VARIANTS.items():
     path = f"{OUTDIR}/{GAME_ID}_card_box_{name}.stl"
     mesh.export(path)
 
+    sep_paths = []
+    for sheet in sheets:
+        sep_path = f"{OUTDIR}/{GAME_ID}_card_box_separator_{name}_{sheet['id']}.stl"
+        sheet["mesh"].export(sep_path)
+        sep_paths.append(sep_path)
+
     print("-" * 60)
     print(f"[{name}]")
     print("  Dimensions")
@@ -254,7 +386,23 @@ for name, spec in VARIANTS.items():
             f"mm to spare{own_note(own_checks, 'sleeve', 'clearance')}"
         )
     print("  Capacity")
-    if card_thick:
+    if sheets:
+        print(
+            f"    stack     {INNER_H} mm less {sep_stack:.1f} mm of separators "
+            f"-> {card_stack:.1f} mm of cards"
+        )
+        if card_thick:
+            print(
+                f"    ~{card_stack / card_thick:.0f} sleeved cards + "
+                f"{len(sheets)} separators"
+                f"{own_note(own_checks, 'card_thickness')}"
+            )
+        else:
+            print(
+                f"    {len(sheets)} separators, and no card thickness to "
+                f"estimate a card count from"
+            )
+    elif card_thick:
         print(
             f"    stack     {INNER_H} mm -> ~{INNER_H / card_thick:.0f} sleeved "
             f"cards{own_note(own_checks, 'card_thickness')}"
@@ -265,4 +413,6 @@ for name, spec in VARIANTS.items():
             f"card count from"
         )
     print(f"  -> {path}")
+    for sep_path in sep_paths:
+        print(f"  -> {sep_path}")
     print()

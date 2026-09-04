@@ -11,7 +11,7 @@ STLs ready to slice.
 | [init_game.py](init_game.py) | Not a generator — scaffolds `games/<game_id>.json` for a game that has none yet, with one worked example of each thing the schema describes |
 | [make_all.py](make_all.py) | Every generator below, in turn, for one game, then the fit check |
 | [make_card_well.py](make_card_well.py) | Top-loaded card trays — solid floor and three walls, the fourth open at the middle between two corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
-| [make_card_box.py](make_card_box.py) | Closed card sleeves — floor, ceiling, both long walls and one short one, with the far end left open so a deck slides in and out. Thumb slots top and bottom to pinch the stack back out |
+| [make_card_box.py](make_card_box.py) | Closed card sleeves — floor, ceiling, both long walls and one short one, with the far end left open so a deck slides in and out. Thumb slots top and bottom to pinch the stack back out. Plus plain rectangular separators, if the game asks for them |
 | [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions, optional raised floors for small pieces, and walls that can be notched or opened out entirely |
 | [check_box.py](check_box.py) | Not a generator — works out where every part lands in the game box and says whether it all fits, then draws it |
 | [boxlayout.py](boxlayout.py) | Not a generator — the placement and fit arithmetic that check does |

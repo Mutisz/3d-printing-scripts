@@ -163,11 +163,33 @@ Schema, version 10
                                    end is rounded, semicircular once the
                                    reach is half the width or more
     },
+    "separator": {                 optional, unlike a well's, which every
+      "thickness": float,          section states: a game whose boxes never
+      "fit": float                 ask for a separator has no reason to
+    },                             state one. What it does state is what
+                                   every sheet below takes unless it says
+                                   its own. There is no tab_out here -- a
+                                   box's sheet is the bare rectangle, with
+                                   nowhere to reach a tab out to
     "variants": {
       "<name>": {
         "size": [W, L, H],         outside, lying down: W across, L from the
                                    closed end to the mouth, H the stack
         "notch": {...},            optional, standing in for the section's
+        "separators": {            optional; one entry per sheet, keyed by
+                                   an id that also names its STL. The sheet
+                                   is the cavity across W and along L, less
+                                   the fit, and slides out of the mouth with
+                                   the cards -- so it takes its thickness
+                                   off the stack the cards had. {} is a
+                                   sheet on the section's numbers
+          "<id>": {
+            "thickness": float,    here or on the section, but somewhere:
+            "fit": float,          neither has a default to fall back on
+            "emboss": {...}        optional label on the sheet face, raised
+                                   or cut, the same shape as elsewhere
+          }
+        },
         "validation": {...},       optional, standing in for the section's
         "emboss": {...}            optional label on the ceiling, clear of
                                    its slot; the same shape as elsewhere.

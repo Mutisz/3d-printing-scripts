@@ -99,10 +99,15 @@ def template(game_id):
                 "width": 25.0,
                 "reach": 20.0,
             },
+            "separator": {
+                "thickness": 1.0,
+                "fit": 0.4,
+            },
             "variants": {
                 "reference_cards": {
                     "size": [70.0, 94.0, 20.0],
                     "emboss": {"text": "REFERENCE"},
+                    "separators": {"solo": {"emboss": {"text": "SOLO"}}},
                 }
             },
         },

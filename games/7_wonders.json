@@ -4,23 +4,30 @@
     "id": "7_wonders",
     "name": "7 Wonders"
   },
-  "card_wells": {
+  "card_boxes": {
     "wall": 1.0,
     "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [67.0, 101.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
     "separator": {
       "thickness": 1.0,
       "fit": 0.2
     },
     "emboss": {
-      "depth": 0.4
+      "along": "W",
+      "size": 8.0,
+      "depth": 0.5
     },
-    "validation": {
-      "sleeve": [67.0, 101.0],
-      "clearance": 1.0,
-      "card_thickness": 0.7
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
     },
     "variants": {
-      "epoka_1": {
+      "age_1": {
         "size": [72.25, 104.0, 40.0],
         "emboss": { "text": "EPOKA 1" },
         "separators": {
@@ -28,7 +35,7 @@
           "armada": { "emboss": { "text": "ARMADA" } }
         }
       },
-      "epoka_2": {
+      "age_2": {
         "size": [72.25, 104.0, 40.0],
         "emboss": { "text": "EPOKA 2" },
         "separators": {
@@ -36,7 +43,7 @@
           "armada": { "emboss": { "text": "ARMADA" } }
         }
       },
-      "epoka_3": {
+      "age_3": {
         "size": [72.25, 104.0, 40.0],
         "emboss": { "text": "EPOKA 3" },
         "separators": {
@@ -51,12 +58,26 @@
       "islands": {
         "size": [72.25, 104.0, 14.0],
         "emboss": { "text": "WYSPY" }
-      },
-
+      }
+    }
+  },
+  "card_wells": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "validation": {
+      "sleeve": [103.0, 154.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "depth": 0.4
+    },
+    "variants": {
       "edifice": {
-        "validation": {
-          "sleeve": [103.0, 154.0]
-        },
         "size": [106.0, 157.0, 24.0],
         "emboss": { "text": "BUDOWLE" }
       }
