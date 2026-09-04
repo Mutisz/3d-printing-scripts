@@ -4,9 +4,9 @@ Card boxes: a closed sleeve, open at one short end.
 Cards lie flat in a tube. The floor, the ceiling, both long walls and one
 short wall are solid; the other short wall is not there at all, and that
 opening is the mouth the stack comes out of. Nothing lifts off and there
-is nothing to lose -- where a well-style card holder is open down both
-long sides and wants a lid before it will stack, a box is closed all
-round and stacks on whatever face you put it on.
+is nothing to lose -- where a card well is open at one end and wants a
+lid before it will stack, a box is closed all round and stacks on
+whatever face you put it on.
 
 What it gives up is the reach-in: there is no picking a card out of the
 middle. So the ceiling and the floor each carry a slot, running back from

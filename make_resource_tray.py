@@ -30,11 +30,11 @@ this still prints without supports.
 
 Where a notch is not enough, an opening takes the whole wall out instead:
 floor to rim, over the wall's whole length bar a post left standing at
-each corner -- the open side of a card holder, in a tray. Those posts are
+each corner -- the open end of a card well, in a tray. Those posts are
 what keeps the contents from following your fingers out, so how long they
 are is the one thing an opening is really configured by: corner, the
 fraction of the wall kept at each end -- 0.2 unless stated, the same
-default a card holder takes.
+default a card well takes.
 
 A compartment can also be labelled: emboss puts its name, or whatever text
 you give it, on its own floor in a single-stroke font -- raised off it, or
@@ -182,7 +182,7 @@ def notch_cut(side, xr, yr, H, width, depth):
 def opening_cut(side, xr, yr, H, post, depth):
     """One whole wall of a rect taken out, bar a post left at each corner.
 
-    The card holder's open side, in a tray: rim to floor over the length of
+    The card well's open end, in a tray: rim to floor over the length of
     the wall, less the `post` mm kept at each end. Square-ended, because the
     posts are the whole point -- they are what the contents cannot get past,
     and rounding them would only make the gap between them longer.
@@ -271,7 +271,7 @@ def plan(comps, split, W, L, H, where):
                 corner = 0.2  # leaves the middle 60%, as a notch does
             o_depth = spec.get("depth")
             if o_depth is None:
-                o_depth = depth  # rim to floor, the way a card holder opens
+                o_depth = depth  # rim to floor, the way a card well opens
 
             if not 0 <= corner < 0.5:
                 raise ValueError(

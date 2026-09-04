@@ -2,12 +2,12 @@
 Per-game parameter files, shared by every generator.
 
 Every game keeps one file at games/<game_id>.json carrying the parameters
-for everything printed for that game -- card holders, card boxes and
+for everything printed for that game -- card wells, card boxes and
 resource trays alike. Each script takes the game id as its only argument
 and reads that one file, so a dimension is stated once and only once.
 
 What the sections have in common lives here too, not in any one of them:
-the validation block a card holder and a card box are both checked
+the validation block a card well and a card box are both checked
 against, the dimension parsing under it, and the registry of every object
 by id that the box layout is arranged out of.
 
@@ -15,15 +15,22 @@ Files declare the schema version they were written against. Bump
 SCHEMA_VERSION whenever the shape below changes incompatibly; the loader
 then refuses files it cannot read rather than silently misreading them.
 
-Schema, version 9
------------------
+Schema, version 10
+------------------
 {
-  "schema_version": 9,
+  "schema_version": 10,
   "game": {"id": str, "name": str},
 
-  "card_holders": {                omit the whole section if none
+  "card_wells": {                  omit the whole section if none
     "wall": float,                 wall thickness
     "floor": float,                floor thickness
+    "corner": float,               optional, default 0.2; the section's
+                                   default for every variant's own corner
+                                   below -- state it once here for a game
+                                   whose wells all want the same post
+                                   proportion, or leave it out and each
+                                   variant falls back to 0.2 unless it says
+                                   its own
     "validation": {                optional, and every key in it optional
                                    too: none of this sizes anything, it only
                                    checks the cavity a variant's size left
@@ -32,7 +39,7 @@ Schema, version 9
                                    unless it overrides it
       "sleeve": [W, L],            optional; the card the cavity is checked
                                    against -- and what the escape check
-                                   measures the side opening against. Omit
+                                   measures the end opening against. Omit
                                    it and neither check runs
       "clearance": float,          optional, default 0; how much bigger than
                                    the sleeve the cavity has to come out
@@ -40,7 +47,7 @@ Schema, version 9
                                    the card count, giving mm of stack only
     },
     "emboss": {                    optional; what every label in this section
-      "size": float,               starts from, holders and separators alike.
+      "size": float,               starts from, wells and separators alike.
       "stroke": float,             Any key an emboss takes beyond its text,
       "height": float,             and a label saying null to one of them has
       "depth": float,              it worked out as if unset. height and depth
@@ -53,24 +60,25 @@ Schema, version 9
                                    looser fit
       "tab_out": float | null      reach past the sheet; null means wall
     },                             tab length is not set here: it fills the
-                                   variant's side opening, less the fit
+                                   variant's end opening, less the fit
     "lid": {                       optional, and stating it at all is what
                                    gives every variant a lid: the notch a
-                                   lid seats in is cut into the holder, so
+                                   lid seats in is cut into the well, so
                                    it is the section's call, not one
                                    variant's. A lid closes the top of a
-                                   holder off so the next one up has
+                                   well off so the next one up has
                                    nothing to fall into
       "thickness": float,          required; the sheet, which spans the
                                    cavity supported only at its two ends,
                                    so 1.5 mm and up on a long cavity
       "fit": float,                optional, default the separator's;
-                                   shrinks the sheet and the side tabs
+                                   shrinks the sheet and its open-end tab
       "notch": float,              optional, default 0.3; the fraction of
-                                   each end wall the notch takes, as corner
-                                   is a fraction of L. Under 1, and no
-                                   wider than the cavity, or it would cut
-                                   into the corner posts
+                                   the closed end wall the tab takes, as
+                                   corner is a fraction of the open end's.
+                                   Under 1, and no wider than the cavity,
+                                   or it would cut into that wall's own
+                                   corners
       "notch_fit": float,          optional, default 0.6; how much wider
                                    than its tab the notch is cut, in all.
                                    Slop here is invisible, while a pinched
@@ -81,18 +89,19 @@ Schema, version 9
                                    comes off the top of the card stack
       "emboss": {...}              optional label cut into the lid, the
                                    same shape as elsewhere but depth only.
-                                   Left out, the lid takes the holder's own
+                                   Left out, the lid takes the well's own
                                    label, so a stack reads from outside
     },
     "variants": {
       "<name>": {
         "size": [W, L, H],         outside dimensions; the cavity is what is
                                    left inside the walls and over the floor
-        "corner": float,           optional, default 0.2; the fraction of L
-                                   each corner post keeps, so 0.2 leaves the
-                                   middle 60% of each long wall open. Under
-                                   0.5, and not so small that a post comes
-                                   out thinner than a wall
+        "corner": float,           optional, default the section's, or 0.2
+                                   if the section states none; the fraction
+                                   of W each corner post keeps at the open
+                                   end, so 0.2 leaves the middle 60% of that
+                                   end open. Under 0.5, and not so small
+                                   that a post comes out thinner than a wall
         "separators": {            optional; one entry per sheet, keyed by
                                    an id that also names its STL. Every key
                                    inside is optional, so {} is a sheet on
@@ -107,12 +116,12 @@ Schema, version 9
         },
         "validation": {            optional; the same three keys, each one
           "sleeve": [W, L],        standing in for the section's for this
-          "clearance": float,      variant alone -- a holder taking a
+          "clearance": float,      variant alone -- a well taking a
           "card_thickness": float  different card states only what differs
         },
         "lid": bool | {...},       optional; only meaningful where the
                                    section states a lid, and then only to
-                                   disagree with it. false for a holder
+                                   disagree with it. false for a well
                                    that goes without one, true for one on
                                    the section's numbers, or the same keys
                                    again for what differs
@@ -204,7 +213,7 @@ Schema, version 9
             ],
             "openings": [          optional open sides: the whole wall taken
                                    out but a corner post each end, the way a
-                                   card holder opens
+                                   card well opens
               {
                 "side": str,       which wall, as for a notch
                 "corner": float,   optional, default 0.2; the fraction of
@@ -270,7 +279,7 @@ Schema, version 9
     },
     "place": [                     the arrangement. These follow each other
                                    across W, in written order. Each entry
-                                   is an object id -- any card_holders,
+                                   is an object id -- any card_wells,
                                    card_boxes or trays variant, or an
                                    extras entry -- an object, or a run of
                                    entries along an axis of its own:
@@ -328,7 +337,7 @@ import shutil
 
 import trimesh
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 GAMES_DIR = "games"
 MODELS_DIR = "models"
 
@@ -414,7 +423,7 @@ def dims(value, count, at, what):
 # out, and card_thickness what the capacity estimate counts in -- so a
 # section states them for every variant, a variant overrides the ones it
 # disagrees with, and a part with none stated comes out exactly the same,
-# just unchecked. A card holder and a card box are checked the same way,
+# just unchecked. A card well and a card box are checked the same way,
 # which is why this lives here rather than in either of them.
 VAL_KEYS = ("sleeve", "clearance", "card_thickness")
 
@@ -486,23 +495,24 @@ def own_note(own, *keys):
 # them do, under one flat set of ids -- which is what a layout arranges. It
 # lives here for the reason validation() does: no one section owns it, and
 # the uniqueness it needs has to hold across all four at once.
-PART_SECTIONS = ("card_holders", "card_boxes", "trays")
+PART_SECTIONS = ("card_wells", "card_boxes", "trays")
 
 
-def tabs_proud(holders, spec):
-    """How far a holder's separator tabs stand past its stated W, each side.
+def tabs_proud(wells, spec):
+    """How far a well's separator tabs stand past its stated L, at the open end.
 
     A separator's tab reaches `tab_out` out from the cavity wall, so it
-    clears the outside of the holder by whatever that is over the wall
-    thickness -- and a holder in a box is as wide as its widest tab, not as
-    wide as its size says. `null`, the usual setting, lands the tab flush
-    and adds nothing. Lids never protrude: their side tabs are built a wall
-    out on purpose, to fill the rim.
+    clears the outside of the well by whatever that is over the wall
+    thickness -- and a well in a box is as long as its tab, not as long as
+    its size says, when that tab reaches past flush. `null`, the usual
+    setting, lands the tab flush and adds nothing. A lid never protrudes:
+    its own open-end tab is built a wall out on purpose, to fill the rim,
+    which is the same flush amount a default separator tab already is.
     """
-    wall = holders.get("wall")
+    wall = wells.get("wall")
     if wall is None:
         return 0.0
-    fallback = (holders.get("separator") or {}).get("tab_out")
+    fallback = (wells.get("separator") or {}).get("tab_out")
     outs = [
         sheet.get("tab_out", fallback)
         for sheet in (spec.get("separators") or {}).values()
@@ -535,11 +545,11 @@ def object_sizes(cfg, where):
             at = f"{section}.variants.{name}"
             size = dims(need(spec, "size", f"{where} {at}"), 3, f"{where} {at}", "size")
             note = None
-            if section == "card_holders":
+            if section == "card_wells":
                 proud = tabs_proud(block, spec)
                 if proud > 0:
-                    size = [size[0] + 2 * proud, size[1], size[2]]
-                    note = f"W includes {2 * proud:.1f} mm of tab standing proud"
+                    size = [size[0], size[1] + proud, size[2]]
+                    note = f"L includes {proud:.1f} mm of tab standing proud"
             add(name, size, at, note)
 
     for name, spec in ((cfg.get("box") or {}).get("extras") or {}).items():

@@ -10,7 +10,7 @@ STLs ready to slice.
 | --- | --- |
 | [init_game.py](init_game.py) | Not a generator — scaffolds `games/<game_id>.json` for a game that has none yet, with one worked example of each thing the schema describes |
 | [make_all.py](make_all.py) | Every generator below, in turn, for one game, then the fit check |
-| [make_card_holder.py](make_card_holder.py) | Top-loaded card trays — solid floor and end walls, long sides open between four corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
+| [make_card_well.py](make_card_well.py) | Top-loaded card trays — solid floor and three walls, the fourth open at the middle between two corner posts so cards stay reachable but cannot slide out. Plus matching card separators, if the game asks for them |
 | [make_card_box.py](make_card_box.py) | Closed card sleeves — floor, ceiling, both long walls and one short one, with the far end left open so a deck slides in and out. Thumb slots top and bottom to pinch the stack back out |
 | [make_resource_tray.py](make_resource_tray.py) | Open-top trays split into a row of compartments, with exact outside dimensions, optional raised floors for small pieces, and walls that can be notched or opened out entirely |
 | [check_box.py](check_box.py) | Not a generator — works out where every part lands in the game box and says whether it all fits, then draws it |
@@ -35,7 +35,7 @@ Every script takes one argument, the game to build:
 ```bash
 python init_game.py new_game            # start a game off with a parameter file
 python make_all.py cafe_baras           # everything for that game
-python make_card_holder.py cafe_baras   # or just one generator
+python make_card_well.py cafe_baras     # or just one generator
 python make_resource_tray.py cafe_baras
 python check_box.py cafe_baras          # does it all fit in the box?
 ```
@@ -46,7 +46,7 @@ compartments or the card capacity — and writes STLs to its own folder under
 
 ```
 models/cafe_baras/
-├── card_holders/   written by make_card_holder.py
+├── card_wells/     written by make_card_well.py
 ├── card_boxes/     written by make_card_box.py
 ├── trays/          written by make_resource_tray.py
 └── box/            written by check_box.py — the packing preview
@@ -63,7 +63,7 @@ when there is nothing to build, so removing a whole section from the parameter
 file clears the parts it used to make.
 
 `make_all.py` runs each of them in turn and prints nothing of its own — the
-report you see is theirs. A game that defines no trays (or no card holders, or
+report you see is theirs. A game that defines no trays (or no card wells, or
 no box layout) is not an error: the script with nothing to do says so and exits
 clean. Any other failure stops the run where it happened — the scripts that
 would have followed are not started — and `make_all.py` exits with the failing
@@ -73,10 +73,10 @@ leaves you the STLs it was complaining about.
 ## Configuring
 
 Parameters live in one JSON file per game, `games/<game_id>.json`, holding both
-the card holders and the trays for that game. Nothing is configured by editing
+the card wells and the trays for that game. Nothing is configured by editing
 the scripts.
 
-`python init_game.py <game_id>` writes a starting point: one card holder, one
+`python init_game.py <game_id>` writes a starting point: one card well, one
 card box, one tray and a box layout placing all three, using the keys that get
 used in practice rather than every key there is. Every number in it is invented
 — it builds and it fits, but it describes no real game, so measure your
@@ -92,13 +92,13 @@ Sketch:
 
 ```jsonc
 {
-  "schema_version": 8,
+  "schema_version": 10,
   "game": { "id": "cafe_baras", "name": "Cafe Baras" },
-  "card_holders": {
-    "wall": 1.0, "floor": 1.0,
+  "card_wells": {
+    "wall": 1.0, "floor": 1.0, "corner": 0.11,
     "validation": { "sleeve": [67.0, 91.0], "clearance": 1.0, "card_thickness": 0.6 },
     "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },
-    "variants": { "main_deck": { "size": [70.0, 94.0, 31.0], "corner": 0.11,
+    "variants": { "main_deck": { "size": [70.0, 94.0, 31.0],
                                  "separators": { "age-i": {}, "age-ii": {} } } }
   },
   "trays": {
@@ -119,16 +119,16 @@ file — rather than exporting a bad mesh.
 
 ### Outside dimensions, and the `validation` block
 
-Card holders are stated the way trays are: `size` is the outside `[W, L, H]`,
+Card wells are stated the way trays are: `size` is the outside `[W, L, H]`,
 because that is the hard constraint when the thing has to drop into a box. The
 cavity is whatever is left inside the walls and over the floor.
 
 Nothing under `validation` takes part in that. Those three keys only check what
-the size already decided, or estimate what will stack in it, so a holder built
+the size already decided, or estimate what will stack in it, so a well built
 with the block deleted comes out byte for byte the same — just unchecked.
 
 ```jsonc
-"card_holders": {
+"card_wells": {
   "validation": {                              // every variant starts here
     "sleeve": [67.0, 91.0],                    // the card the cavity is checked against
     "clearance": 1.0,                          // room it must have over that sleeve
@@ -142,7 +142,7 @@ with the block deleted comes out byte for byte the same — just unchecked.
 }
 ```
 
-A variant's `validation` is merged over the section's key by key, so a holder
+A variant's `validation` is merged over the section's key by key, so a well
 taking a different card states only what differs — `mini_cards` above keeps the
 section's clearance and card thickness and swaps the sleeve alone. Report lines
 built from a variant's own numbers are marked `(this variant only)`.
@@ -151,7 +151,7 @@ Every key is optional at both levels. State a `sleeve` and the cavity is checked
 against it, the report saying how much room is left over, and a cavity too small
 for the sleeve plus `clearance` stops the build; `clearance` is that demanded
 margin, in total across each axis, and defaults to 0. The escape check — is the
-side opening shorter than a card? — needs a sleeve too, and stops the build the
+end opening shorter than a card? — needs a sleeve too, and stops the build the
 same way, naming the smallest `corner` that would keep the card in.
 `card_thickness` only feeds the "~N sleeved cards" estimate; without it the
 report gives the stack in mm and leaves the count out.
@@ -163,7 +163,7 @@ Separators are named rather than counted. Each key under a variant's
 of its own — an empty object takes the section's numbers for everything.
 
 ```jsonc
-"card_holders": {
+"card_wells": {
   "separator": { "thickness": 1.0, "fit": 0.2, "tab_out": null },  // defaults
   "variants": {
     "main_deck": { "separators": {
@@ -177,14 +177,14 @@ of its own — an empty object takes the section's numbers for everything.
 
 `thickness`, `fit` and `tab_out` override the `separator` section per sheet, and
 `emboss` raises a label on the sheet face — the same label option compartments
-and holders take. The id names the file, so `age-i` above comes out as
+and wells take. The id names the file, so `age-i` above comes out as
 `<game>_card_separator_main_deck_age-i.stl`.
 
-A sheet's tabs are not configured. Each one fills the side opening its holder
-actually has — `L` less the two corner posts — minus the same `fit` that
-shrinks the sheet, so the tab is as long as it can be, reaches through the
-opening whatever the corner posts are set to, and cannot fall out of step with
-them. `tab_out` still sets how far it stands proud; `null` means flush with the
+A sheet's tab is not configured. It fills the end opening its well actually
+has — `W` less the two corner posts — minus the same `fit` that shrinks the
+sheet, so the tab is as wide as it can be, reaches through the opening
+whatever the corner posts are set to, and cannot fall out of step with them.
+`tab_out` still sets how far it stands proud; `null` means flush with the
 outer wall.
 
 Every sheet is written as its own STL, and their combined thickness comes off
@@ -256,7 +256,7 @@ shorter wall — so trays still print without supports.
 
 When a notch is not enough, `openings` takes the whole wall out instead — rim
 to floor, over the wall's whole length bar a post left standing at each end.
-That is the card holder's open side, in a tray: reach in from the side and lift
+That is the card well's open end, in a tray: reach in from the side and lift
 a stack straight out, while the posts keep it from sliding out on its own.
 
 ```jsonc
@@ -278,11 +278,13 @@ leaving the middle 60% open, the same span a notch defaults to. It has to be
 under `0.5`, or there is nothing left between the posts; set it to `0` to take
 the wall out entirely.
 
-The card holder's `corner` is the same setting under another roof, and takes the
-same default: state it as a fraction of `L`, or get `0.2` at each end and the
-middle 60% of each long side open. There it also has to leave a post at least
+The card well's `corner` is the same setting under another roof, and takes the
+same default: state it as a fraction of `W`, or get `0.2` at each end and the
+middle 60% of the well's one open end open. It can be defaulted for the whole
+`card_wells` section too, the way `separator` and `emboss` already are, rather
+than repeated on every variant. There it also has to leave a post at least
 one wall thick, since a post thinner than the wall it stands in is no post, and
-— where a `sleeve` is stated — an opening shorter than the card, or the holder
+— where a `sleeve` is stated — an opening shorter than the card, or the well
 would not hold it.
 
 `depth` defaults to the compartment's own depth, so the opening runs all the way
@@ -297,9 +299,9 @@ merges the two compartments into one.
 ### Embossed labels
 
 Any compartment with a floor of its own can have a label raised off it, so a
-tray comes out of the box knowing what goes where. A card holder takes the same
+tray comes out of the box knowing what goes where. A card well takes the same
 option on its variant, which puts the label on the cavity floor, under where the
-cards sit — an empty holder still says which deck it belongs to.
+cards sit — an empty well still says which deck it belongs to.
 
 ```jsonc
 "compartments": {
@@ -336,13 +338,13 @@ numbers on every compartment:
 
 A label's own word wins over the section's, and `null` sends a key back to
 being worked out — so `{ "text": "AUTO", "size": null }` sizes itself to its
-compartment even under a section that states a size. `card_holders.emboss`
-works the same and covers both the holder floor and its separators. The block
+compartment even under a section that states a size. `card_wells.emboss`
+works the same and covers both the well floor and its separators. The block
 takes only those four keys: `text` belongs to the label, and anything else —
 a typo included — is refused rather than silently ignored.
 
 ```jsonc
-"card_holders": {
+"card_wells": {
   "variants": {
     "main_deck": { "size": [70.0, 94.0, 31.0], "emboss": { "text": "MAIN DECK" } }
   }
@@ -430,7 +432,7 @@ frame as every other size in the file:
 ```
 
 An entry in `place` is an object id, and an id is anything the file defines: a
-card holder, a card box, a tray, or an `extras` entry for the things no script
+card well, a card box, a tray, or an `extras` entry for the things no script
 here prints — boards, rulebooks, bags. Ids are flat across the whole file, a
 name used twice is refused rather than one of the pair quietly winning, and each
 object is placed exactly once. `{ "id": ..., "turn": true }` lays an object

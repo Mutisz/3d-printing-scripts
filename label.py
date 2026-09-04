@@ -1,7 +1,7 @@
 """
 Embossed labels, for either generator.
 
-A tray compartment and a card holder cavity are the same thing to a label:
+A tray compartment and a card well cavity are the same thing to a label:
 a rectangle of floor at a known height, wanting words on it. So the sizing,
 the fitting and the checks live here once, and each generator says where
 the floor is and prints the result in its own house style.
@@ -73,7 +73,7 @@ def emboss_solid(spec, xr, yr, z0, where, defaults=None):
     """A label standing proud of one floor, given the rect it has to fit.
 
     `xr` and `yr` bound that floor and `z0` is the height it sits at, which
-    is all this needs to know -- a tray compartment and a card holder cavity
+    is all this needs to know -- a tray compartment and a card well cavity
     are the same problem seen twice.
 
     Sized to the rect and turned to run along whichever way is longer unless

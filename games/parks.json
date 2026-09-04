@@ -1,10 +1,10 @@
 {
-  "schema_version": 9,
+  "schema_version": 10,
   "game": {
     "id": "parks",
     "name": "PARKS"
   },
-  "card_holders": {
+  "card_wells": {
     "wall": 1.0,
     "floor": 1.0,
     "separator": {
@@ -26,7 +26,6 @@
           "sleeve": [72.0, 123.0]
         },
         "size": [75.0, 126.0, 50.0],
-        "corner": 0.3,
         "emboss": {
           "size": null,
           "text": "PARKI"
@@ -35,36 +34,30 @@
 
       "small_equipment": {
         "size": [55.0, 80.0, 30.0],
-        "corner": 0.3,
         "emboss": {
           "text": "EKWIPUNEK"
         }
       },
-      "small_canteens": {
-        "size": [55.0, 80.0, 20.0],
-        "corner": 0.3,
-        "emboss": {
-          "text": "MANIERKI"
-        }
-      },
-
       "small_solo": {
         "size": [55.0, 80.0, 10.0],
-        "corner": 0.3,
         "emboss": {
           "text": "SOLO"
         }
       },
-      "small_seasons": {
+      "small_canteens": {
         "size": [55.0, 80.0, 15.0],
-        "corner": 0.3,
+        "emboss": {
+          "text": "MANIERKI"
+        }
+      },
+      "small_seasons": {
+        "size": [55.0, 80.0, 12.0],
         "emboss": {
           "text": "SEZONY"
         }
       },
       "small_year": {
-        "size": [55.0, 80.0, 15.0],
-        "corner": 0.3,
+        "size": [55.0, 80.0, 23.0],
         "emboss": {
           "text": "LATA"
         }
@@ -157,7 +150,8 @@
         "compartments": {
           "p1": {
             "emboss": {
-              "text": "NIEBIESKI"
+              "size": 4.0,
+              "text": ["NIEBIE-", "SKI"]
             },
             "notches": [
               {
@@ -170,6 +164,7 @@
           },
           "p2": {
             "emboss": {
+              "size": 4.0,
               "text": "RÓŻOWY"
             },
             "notches": [
@@ -183,6 +178,7 @@
           },
           "p3": {
             "emboss": {
+              "size": 4.0,
               "text": "ZIELONY"
             },
             "notches": [
@@ -196,7 +192,8 @@
           },
           "p4": {
             "emboss": {
-              "text": "FIOLETOWY"
+              "size": 4.0,
+              "text": ["FIOLE-", "TOWY"]
             },
             "notches": [
               {
@@ -209,6 +206,7 @@
           },
           "p5": {
             "emboss": {
+              "size": 4.0,
               "text": "BIAŁY"
             },
             "notches": [

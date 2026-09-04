@@ -1,10 +1,10 @@
 {
-  "schema_version": 9,
+  "schema_version": 10,
   "game": {
     "id": "trakty_kontrakty",
     "name": "Trakty i Kontrakty"
   },
-  "card_holders": {
+  "card_wells": {
     "wall": 1.0,
     "floor": 1.0,
     "separator": {

@@ -23,7 +23,7 @@ from gameconfig import load_game, parse_game_id
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = (
-    "make_card_holder.py",
+    "make_card_well.py",
     "make_card_box.py",
     "make_resource_tray.py",
     "check_box.py",  # last: it builds nothing, and reports on what the rest did

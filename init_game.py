@@ -2,7 +2,7 @@
 Scaffold a parameter file for a game that has none yet.
 
 Writes games/<game_id>.json holding one worked example of each thing the
-schema describes -- a card holder, a card box, a tray, and a box layout
+schema describes -- a card well, a card box, a tray, and a box layout
 placing all three -- using the keys that earn their place in the files
 already here, rather than every key there is. The numbers are made up.
 What comes out loads and, as it stands, even fits; none of it is measured
@@ -55,9 +55,10 @@ def template(game_id):
             "id": game_id,
             "name": game_id.replace("_", " ").title(),
         },
-        "card_holders": {
+        "card_wells": {
             "wall": 1.0,
             "floor": 1.0,
+            "corner": 0.2,
             "validation": {
                 "clearance": 1.0,
                 "card_thickness": 0.6,
@@ -72,7 +73,6 @@ def template(game_id):
             "variants": {
                 "main_deck": {
                     "size": [70.0, 94.0, 30.0],
-                    "corner": 0.2,
                     "validation": {"sleeve": [66.0, 90.0]},
                     "emboss": {"text": "MAIN DECK"},
                     "separators": {

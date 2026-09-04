@@ -1,56 +1,61 @@
 """
-Card holders: top-loaded tray, open top, open long sides.
+Card wells: top-loaded tray, open top, open at one end.
 
-Cards lie flat and stack upward, dropped in through the open top. The floor
-and the two short end walls are solid and full height. The two long walls
-are gone but for a short fragment at each corner -- four posts that leave
-the long sides open to reach in from. How much wall each post keeps is
-corner, a fraction of that wall rather than a length in mm, so the posts
-hold their proportion whatever size the variant is: unless one is stated
-it is 0.2, a fifth of the length at each end, leaving the middle 60% of
-each long side open.
+Cards lie flat and stack upward, dropped in through the open top. The
+floor is solid, and so are three of the four walls: both long walls and
+one of the two short ones. The fourth wall -- the other short one -- is
+gone but for a short fragment at each corner, two posts that leave the
+middle of that end open to reach in from. How much wall each post keeps
+is corner, a fraction of that wall's own length rather than a length in
+mm, so the posts hold their proportion whatever size the variant is:
+unless one is stated it is 0.2, a fifth of the wall at each end, leaving
+the middle 60% open. State it once on the section and every variant
+takes it unless it says otherwise.
 
-Those openings are shorter than a card's 91 mm length, so the corner posts
-block a card from sliding straight out sideways; it would have to rotate
-first. Access without escape.
+That opening is narrower than a card's W, so the corner posts block a
+card from sliding straight out; it would have to rotate first. Access
+without escape.
 
-A holder can be labelled: emboss puts text on the cavity floor, under
-where the cards sit -- raised off it, or cut into it if the label states a
-depth, so a holder still says what deck it is for once it is
-out of the box and empty. It is the same option a tray compartment takes,
-and every separator takes it too -- which is the point of naming them, as
-a sheet reading AGE II is worth more than a sheet.
+A well can be labelled: emboss puts text on the cavity floor, under
+where the cards sit -- raised off it, or cut into it if the label states
+a depth, so a well still says what deck it is for once it is out of the
+box and empty. It is the same option a tray compartment takes, and every
+separator takes it too -- which is the point of naming them, as a sheet
+reading AGE II is worth more than a sheet.
 
 Separators are named, not counted. Each id is one sheet and one STL, and
-each says only what it wants of its own: thickness, fit, tab_out, a label,
-or nothing at all.
+each says only what it wants of its own: thickness, fit, tab_out, a
+label, or nothing at all. Its one tab reaches out through the well's
+open end, as long as that opening allows less the same fit that shrinks
+the sheet -- nothing to configure, nothing to keep in step when corner
+changes.
 
-Holders stack badly left open: the top of one is nearly all cavity mouth,
+Wells stack badly left open: the top of one is nearly all cavity mouth,
 so the one set on it drops a corner in. A lid closes that. It is the
-separator sheet again, carrying a tab at each end that drops into a notch
-cut down from the rim of the end walls, which holds it there rather than
-loose on the cards. Its side tabs -- the pair a separator wears to be
-caught by -- land in the side openings and fill the last of the rim, so a
-lidded holder tops out as a solid rectangle with nothing left to fall
-into. State the lid block and every variant gets one, since the notch is
-cut into the holder and a game that stacks one holder stacks them all; a
-variant says false to go without.
+separator sheet again, carrying a tab at the closed end that drops into
+a notch cut down from the rim of that wall, holding it there rather than
+loose on the cards, and a second tab at the open end that fills what is
+left of that rim, landing in the opening itself. State the lid block and
+every variant gets one, since the notch is cut into the well and a game
+that stacks one well stacks them all; a variant says false to go
+without.
 
-A lid takes the holder's own label unless it states another, which puts
+A lid takes the well's own label unless it states another, which puts
 the deck's name where a stack shows it instead of on the cavity floor,
-which only an empty holder shows. Cut in, not raised: letters standing
-proud of a lid are what the holder above would rock on.
+which only an empty well shows. Cut in, not raised: letters standing
+proud of a lid are what the well above would rock on.
 
 A variant is stated by its outside dimensions, as a tray is: what has to
 fit the game box is the hard constraint, and the cavity is what is left
-inside the walls. Nothing under validation sizes any of that: the sleeve,
-the clearance it wants and the card thickness only ever check the cavity
-the size already decided, or estimate what will stack in it. State them
-once for the section, override any of them on a variant taking a different
-card, or leave them out and the same holder is built unchecked.
+inside the walls. Nothing under validation sizes any of that: the
+sleeve, the clearance it wants and the card thickness only ever check
+the cavity the size already decided, or estimate what will stack in it.
+State them once for the section, override any of them on a variant
+taking a different card, or leave them out and the same well is built
+unchecked.
 
 Every dimension comes from games/<game_id>.json; see gameconfig for the
-schema. Run as: python3 make_card_holder.py <game_id>
+schema. Run as: python3 make_card_well.py <game_id>
 """
 
 import math
@@ -75,30 +80,35 @@ CFG = load_game(GAME_ID)
 WHERE = f"games/{GAME_ID}.json"
 
 # Emptied before anything is read, so dropping the section from the file
-# clears the holders it used to build rather than stranding them.
-OUTDIR = outdir(GAME_ID, "card_holders")
+# clears the wells it used to build rather than stranding them.
+OUTDIR = outdir(GAME_ID, "card_wells")
 
-HOLDERS = CFG.get("card_holders")
-if not HOLDERS:  # an ordinary state, not an error: exit clean so runners can tell
-    print(f"{WHERE}: no 'card_holders' section, nothing to build")
+WELLS = CFG.get("card_wells")
+if not WELLS:  # an ordinary state, not an error: exit clean so runners can tell
+    print(f"{WHERE}: no 'card_wells' section, nothing to build")
     raise SystemExit(0)
 
-T = need(HOLDERS, "wall", WHERE)
-F = need(HOLDERS, "floor", WHERE)
-VARIANTS = need(HOLDERS, "variants", WHERE)
-EMB = emboss_defaults(HOLDERS, f"{WHERE} card_holders")  # for holders and sheets
+T = need(WELLS, "wall", WHERE)
+F = need(WELLS, "floor", WHERE)
+VARIANTS = need(WELLS, "variants", WHERE)
+EMB = emboss_defaults(WELLS, f"{WHERE} card_wells")  # for wells and sheets
 
-VALID = validation(HOLDERS, f"{WHERE} card_holders")
+VALID = validation(WELLS, f"{WHERE} card_wells")
+
+# The section's own corner, taken as every variant's default so a game
+# whose wells all want the same post proportion states it once instead of
+# on each one. A variant that disagrees still says so itself.
+SECTION_CORNER = WELLS.get("corner")
 
 # Separators: a flat sheet the full size of the cavity, so it stands proud
-# of the cards and is easy to catch. A tab each side reaches out through the
-# open long side, showing the split from outside the holder. The tab is as
+# of the cards and is easy to catch. A tab reaches out through the well's
+# one open end, showing the split from outside the well. The tab is as
 # long as that opening allows, so it is not configured: it follows the
 # variant's corner posts, less the same fit as the sheet.
 #
 # These are the numbers every sheet takes unless it states its own, so a
 # variant can slip one thicker or looser divider in among the rest.
-SEP = need(HOLDERS, "separator", WHERE)
+SEP = need(WELLS, "separator", WHERE)
 SEP_T = need(SEP, "thickness", f"{WHERE} separator")
 SEP_FIT = need(SEP, "fit", f"{WHERE} separator")
 SEP_TAB_OUT = SEP.get("tab_out")
@@ -107,18 +117,18 @@ if SEP_TAB_OUT is None:  # null means "land flush with the outer wall"
 
 SHEET_CACHE = {}  # variants sharing a cavity share one sheet, so build it once
 
-# The lid, which is that sheet once more with an end tab each side. Stating
-# this block is what turns lids on, and it turns them on for the whole
-# section: the notch an end tab sits in is cut into the holder, so it is not
-# something one variant decides for itself without saying so.
+# The lid, which is that sheet once more with a tab at the closed end too.
+# Stating this block is what turns lids on, and it turns them on for the
+# whole section: the notch that tab sits in is cut into the well, so it is
+# not something one variant decides for itself without saying so.
 #
 # Its two fits pull opposite ways. Side to side the notch only has to locate
 # the tab, and slop there is invisible; but a tab pinched in a tight notch
 # stops short of its seat and leaves the lid standing proud, which is the one
 # thing a stacking lid must not do. So the notch is cut wide and seated close.
-LID = HOLDERS.get("lid")
+LID = WELLS.get("lid")
 LID_KEYS = ("thickness", "fit", "notch", "notch_fit", "seat", "emboss")
-LID_NOTCH = 0.3  # of the end wall each end tab takes, as corner is of L
+LID_NOTCH = 0.3  # of the closed end wall the tab takes, as corner is of W
 LID_NOTCH_FIT = 0.6  # how much wider than its tab the notch is cut, in all
 LID_SEAT = 0.2  # how far under the rim the lid comes to rest
 
@@ -143,14 +153,14 @@ def lid_keys(block, at):
 
 
 if LID is not None:
-    lid_keys(LID, f"{WHERE} card_holders")
-    need(LID, "thickness", f"{WHERE} card_holders.lid")
+    lid_keys(LID, f"{WHERE} card_wells")
+    need(LID, "thickness", f"{WHERE} card_wells.lid")
 
 
 def lid_of(spec, at):
     """The lid a variant gets, or None if it goes without one.
 
-    The section's numbers under the variant's own word, and the holder's
+    The section's numbers under the variant's own word, and the well's
     own label unless the lid states another -- naming the lid is the point
     of a lid you can read in a stack, and typing that name twice is not.
     """
@@ -167,7 +177,7 @@ def lid_of(spec, at):
     if LID is None:
         raise ValueError(
             f"{at} lid: nothing to build one from -- what a lid is made of is "
-            f"stated once for the whole section, in card_holders.lid"
+            f"stated once for the whole section, in card_wells.lid"
         )
     lid_keys(own, at)
     said = {**LID, **own}
@@ -184,11 +194,11 @@ def lid_of(spec, at):
         )
     if not 0 < notch < 1:
         raise ValueError(
-            f"{at} lid: notch is the fraction of the end wall each tab takes, "
-            f"so it must be in (0, 1), got {notch}"
+            f"{at} lid: notch is the fraction of the closed end wall the tab "
+            f"takes, so it must be in (0, 1), got {notch}"
         )
 
-    # The holder's words, and the lid's over them. Saying which way the
+    # The well's words, and the lid's over them. Saying which way the
     # letters go overrides the other kind rather than colliding with it, the
     # way a label already overrides its section's default.
     label = dict(spec.get("emboss") or {})
@@ -209,53 +219,47 @@ def lid_of(spec, at):
         "seat": seat,
         "label": label or None,
         # Whose words they are, which is not the same as who stated a block:
-        # a lid may say only how deep to cut the holder's own name.
+        # a lid may say only how deep to cut the well's own name.
         "own_label": "text" in (mine or {}),
     }
 
 
-def tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out, end_tab=0.0):
-    """Flat sheet with a tab each long side, laid out print-ready on the bed.
+def tabbed_sheet(sheet_w, sheet_l, tab_len, thick, tab_out, notch_w=0.0):
+    """Flat sheet with a tab out the open end, laid out print-ready on the bed.
 
-    A separator and a lid are the one part twice over: `end_tab` is how wide
-    a tab it also carries at each end, to seat in the holder's notches, and
-    no end tab at all is a separator.
+    A separator's whole story: one tab, reaching out through the well's one
+    open end. A lid carries a second, narrower tab at the other end instead
+    -- `notch_w` -- to seat in the notch cut there; nothing else tells the
+    two apart.
     """
-    key = (sheet_w, sheet_l, tab_len, thick, tab_out, end_tab)
+    key = (sheet_w, sheet_l, tab_len, thick, tab_out, notch_w)
     if key not in SHEET_CACHE:
-        y0 = tab_out if end_tab else 0.0  # room at each end for those tabs
+        y0 = tab_out if notch_w else 0.0  # room at the closed end for its tab
         top = y0 + sheet_l  # far edge of the sheet
-        tab_y0 = y0 + (sheet_l - tab_len) / 2
-        tab_y = (tab_y0, tab_y0 + tab_len)
-        far = tab_out + sheet_w  # inner edge of the far tab
-        parts = [box((tab_out, far), (y0, top), (0, thick))]
-        if tab_out > 0:  # a sheet asked to sit flush has no tabs to build
-            parts += [
-                box((0, tab_out), tab_y, (0, thick)),
-                box((far, far + tab_out), tab_y, (0, thick)),
-            ]
-        if end_tab:
-            end_x0 = tab_out + (sheet_w - end_tab) / 2
-            end_x = (end_x0, end_x0 + end_tab)
-            parts += [
-                box(end_x, (0, y0), (0, thick)),
-                box(end_x, (top, top + tab_out), (0, thick)),
-            ]
+        parts = [box((0, sheet_w), (y0, top), (0, thick))]
+        if tab_out > 0:  # a sheet asked to sit flush has no tab to build
+            tx0 = (sheet_w - tab_len) / 2
+            parts.append(
+                box((tx0, tx0 + tab_len), (top, top + tab_out), (0, thick))
+            )
+        if notch_w:
+            nx0 = (sheet_w - notch_w) / 2
+            parts.append(box((nx0, nx0 + notch_w), (0, y0), (0, thick)))
         SHEET_CACHE[key] = trimesh.boolean.union(parts) if len(parts) > 1 else parts[0]
     return SHEET_CACHE[key]
 
 
 print("=" * 60)
-print(f"Card Holder Generator -- {CFG['game']['name']}")
+print(f"Card Well Generator -- {CFG['game']['name']}")
 print("=" * 60)
 print()
 
 for name, spec in VARIANTS.items():
-    at = f"{WHERE} card_holders.variants.{name}"
+    at = f"{WHERE} card_wells.variants.{name}"
     W, L, H = dims(need(spec, "size", at), 3, at, "size")
-    corner = spec.get("corner")
+    corner = spec.get("corner", SECTION_CORNER)
     if corner is None:
-        corner = 0.2  # posts down a fifth of each long wall, the middle 60% open
+        corner = 0.2  # posts a fifth of the open end, leaving the middle 60% open
     seps = spec.get("separators") or {}
     if not isinstance(seps, dict):
         raise ValueError(
@@ -275,16 +279,16 @@ for name, spec in VARIANTS.items():
         )
     if not 0 < corner < 0.5:
         raise ValueError(
-            f"[{name}] corner is the fraction of the long wall each post keeps, "
-            f"so it must be in (0, 0.5) to leave posts and an opening between "
-            f"them, got {corner}"
+            f"[{name}] corner is the fraction of the open end's own wall each "
+            f"post keeps, so it must be in (0, 0.5) to leave posts and an "
+            f"opening between them, got {corner}"
         )
-    post = corner * L  # what that fraction comes to on this variant
+    post = corner * W  # what that fraction comes to on this variant
     if post < T:
         raise ValueError(
-            f"[{name}] corner {corner} of a {L} mm wall leaves a {post:.1f} mm "
+            f"[{name}] corner {corner} of a {W} mm wall leaves a {post:.1f} mm "
             f"post, narrower than the {T} mm wall it stands in -- state at "
-            f"least {math.ceil(T / L * 1000) / 1000}"
+            f"least {math.ceil(T / W * 1000) / 1000}"
         )
 
     sleeve, clear, card_thick, own_checks = checks_of(spec, at, VALID)
@@ -298,25 +302,25 @@ for name, spec in VARIANTS.items():
             f"the outside size or thin the walls"
         )
 
-    # The tab fills the side opening bar the fit, so it is as long as the
+    # The tab fills the end opening bar the fit, so it is as wide as the
     # posts allow and always clears them: nothing to configure, nothing to
     # keep in step when the corner changes.
-    OPENING = L - 2 * post
+    OPENING = W - 2 * post
 
-    # An opening no shorter than the card is a holder that cannot hold it:
-    # the card slides straight out the side it was meant to be reached in.
-    if sleeve and OPENING + 1e-9 >= sleeve[1]:
-        keep = math.floor((L - sleeve[1]) / (2 * L) * 1000) / 1000 + 0.001
+    # An opening no shorter than the card is a well that cannot hold it:
+    # the card slides straight out the end it was meant to be reached in.
+    if sleeve and OPENING + 1e-9 >= sleeve[0]:
+        keep = math.floor((W - sleeve[0]) / (2 * W) * 1000) / 1000 + 0.001
         raise ValueError(
-            f"[{name}] corner {corner} leaves a {OPENING:.1f} mm side opening, "
-            f"no shorter than the {sleeve[1]} mm card it has to keep in, so the "
-            f"card can slide out -- state a corner of at least {keep:g}, or "
-            f"shorten L"
+            f"[{name}] corner {corner} leaves a {OPENING:.1f} mm end opening, "
+            f"no shorter than the {sleeve[0]} mm card it has to keep in, so "
+            f"the card can slide out -- state a corner of at least {keep:g}, "
+            f"or shorten W"
         )
 
     # The lid's own numbers on this variant. The notch has to stay inside
     # the cavity: run it out to the corners and it would cut the tops off
-    # the posts, which are the very bits holding the long sides up.
+    # the closed end wall's own corners.
     lid = lid_of(spec, at)
     lid_down = 0.0  # how much off the top of the stack a seated lid takes
     if lid:
@@ -332,24 +336,24 @@ for name, spec in VARIANTS.items():
                 f"on a {W} mm wall, wider than the {INNER_W} mm cavity it has to "
                 f"stay inside -- state at most "
                 f"{math.floor(INNER_W / W * 1000) / 1000}, or the notch eats into "
-                f"the corner posts"
+                f"the closed end's own corners"
             )
         if lid_w <= 0 or lid_l <= 0 or lid_tab_len <= 0:
             raise ValueError(
                 f"[{name}] a {lid['fit']} mm lid fit leaves no sheet in the "
                 f"{INNER_W} x {INNER_L} mm cavity, or no tab in its "
-                f"{OPENING:.1f} mm side opening"
+                f"{OPENING:.1f} mm end opening"
             )
         if lid_tab_w > lid_w:
             raise ValueError(
-                f"[{name}] a {lid_tab_w:.1f} mm end tab is wider than the "
+                f"[{name}] a {lid_tab_w:.1f} mm notch tab is wider than the "
                 f"{lid_w:.1f} mm sheet it hangs off"
             )
         if lid_tab_w < T:
             raise ValueError(
                 f"[{name}] a lid notch of {lid['notch']} on a {W} mm wall, less "
                 f"{lid['notch_fit']} mm of notch_fit, leaves a {lid_tab_w:.1f} mm "
-                f"end tab, thinner than the {T} mm wall it seats in -- state at "
+                f"notch tab, thinner than the {T} mm wall it seats in -- state at "
                 f"least {math.ceil((T + lid['notch_fit']) / W * 1000) / 1000}"
             )
 
@@ -387,7 +391,7 @@ for name, spec in VARIANTS.items():
             )
         if tab_len <= 0:
             raise ValueError(
-                f"{seat}: the {OPENING:.1f} mm side opening is no wider than the "
+                f"{seat}: the {OPENING:.1f} mm end opening is no wider than the "
                 f"{fit} mm fit, leaving no tab -- shorten the corner posts"
             )
 
@@ -395,10 +399,10 @@ for name, spec in VARIANTS.items():
         sheet_label = None
         if sheet_spec.get("emboss"):
             # Onto the face of the sheet, which is the only surface a
-            # separator has: the tabs are a wall thick and hold nothing.
+            # separator has: the tab is a wall thick and holds nothing.
             solid, sheet_label = emboss_solid(
                 sheet_spec["emboss"],
-                (tab_out, tab_out + sheet_w),
+                (0, sheet_w),
                 (0, sheet_l),
                 thick,
                 f"{seat} emboss",
@@ -417,7 +421,7 @@ for name, spec in VARIANTS.items():
                 "w": sheet_w,
                 "l": sheet_l,
                 "tab": tab_len,
-                "over": sheet_w + 2 * tab_out,  # width over the tabs
+                "over": sheet_l + tab_out,  # length over the tab
                 "label": sheet_label,
             }
         )
@@ -437,18 +441,17 @@ for name, spec in VARIANTS.items():
     cuts = [
         box((0, W), (0, L), (0, H)),  # solid blank
         box((T, W - T), (T, L - T), (F, H + over)),  # card cavity
-        # Take out both long walls between the corner posts. The span
-        # between them is already cavity, so one cut does both sides.
-        box((-over, W + over), (post, L - post), (F, H + over)),
+        # Take the closed-end wall's opposite wall out between the corner
+        # posts -- the one open end this well has.
+        box((post, W - post), (L - T - over, L + over), (F, H + over)),
     ]
     if lid:
         # Down from the rim, so nothing here is printed over air: what is
-        # left under the cut is the shoulder the lid comes to rest on.
+        # left under the cut is the shoulder the lid comes to rest on. Only
+        # the closed end needs a notch -- the open end's rim is already the
+        # opening the lid's other tab lands in.
         nx0, nx1 = (W - notch_w) / 2, (W + notch_w) / 2
-        cuts += [
-            box((nx0, nx1), (-over, T + over), (H - lid_down, H + over)),
-            box((nx0, nx1), (L - T - over, L + over), (H - lid_down, H + over)),
-        ]
+        cuts.append(box((nx0, nx1), (-over, T + over), (H - lid_down, H + over)))
     mesh = trimesh.boolean.difference(cuts)
     label = spec.get("emboss")
     if label:  # onto the cavity floor, after it has been milled out
@@ -461,22 +464,22 @@ for name, spec in VARIANTS.items():
             mesh = trimesh.boolean.union([mesh, solid])
     mesh.merge_vertices()
     mesh.update_faces(mesh.nondegenerate_faces())
-    path = f"{OUTDIR}/{GAME_ID}_card_holder_{name}.stl"
+    path = f"{OUTDIR}/{GAME_ID}_card_well_{name}.stl"
     mesh.export(path)
 
     lid_label = None
     if lid:
-        # The side tabs are not the lid's to shorten: they are what fills
-        # the rim over the side openings, and a rim with a gap in it is the
-        # hole this whole part exists to close. So they reach a wall out,
-        # as a separator's do by default.
+        # The open-end tab is not the lid's to shorten: it is what fills
+        # the rim over that opening, and a rim with a gap in it is the hole
+        # this whole part exists to close. So it reaches a wall out, as a
+        # separator's does by default.
         mesh_lid = tabbed_sheet(
             lid_w, lid_l, lid_tab_len, lid["thickness"], T, lid_tab_w
         )
         if lid["label"]:
             solid, lid_label = emboss_solid(
                 lid["label"],
-                (T, T + lid_w),
+                (0, lid_w),
                 (T, T + lid_l),
                 lid["thickness"],
                 f"{at} lid emboss",
@@ -485,7 +488,7 @@ for name, spec in VARIANTS.items():
             if not lid_label["cut"]:
                 raise ValueError(
                     f"{at} lid emboss: letters standing {lid_label['amount']} mm "
-                    f"proud of a lid are what the next holder up would rock on "
+                    f"proud of a lid are what the next well up would rock on "
                     f"-- state depth, on the lid or on the section, so the name "
                     f"is cut into it instead"
                 )
