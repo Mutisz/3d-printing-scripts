@@ -7,33 +7,48 @@
   "card_wells": {
     "wall": 1.0,
     "floor": 1.0,
+    "validation": {
+      "sleeve": [46.0, 65.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
     "separator": {
       "thickness": 1.0,
       "fit": 0.2
     },
-    "validation": {
-      "clearance": 1.0,
-      "card_thickness": 0.6
+    "emboss": {
+      "size": 6.0,
+      "depth": 0.4
     },
     "variants": {
-      "main_deck": {
+      "critters_buildings_1": {
         "size": [50.0, 69.0, 40.0],
-        "validation": { "sleeve": [46.0, 65.0] },
-        "separators": {
-          "1": {}
-        }
+        "emboss": { "text": ["STWORZENIA", "BUDOWLE"] }
+      },
+      "critters_buildings_2": {
+        "size": [50.0, 69.0, 40.0],
+        "emboss": { "text": ["STWORZENIA", "BUDOWLE"] }
+      },
+      "good_news": {
+        "size": [50.0, 69.0, 40.0],
+        "emboss": { "text": "DOBRE WIEŚCI" }
       }
     }
   },
   "trays": {
     "wall": 1.0,
     "floor": 1.0,
+    "emboss": {
+      "size": 6.0,
+      "depth": 0.4
+    },
     "variants": {
       "setup_1": {
         "size": [244.0, 47.0, 20.0],
         "split": "W",
         "compartments": {
           "a": {
+            "emboss": { "text": "A" },
             "openings": [
               {
                 "side": "L-"
@@ -44,6 +59,7 @@
             ]
           },
           "b": {
+            "emboss": { "text": "B" },
             "openings": [
               {
                 "side": "L-"
@@ -54,6 +70,7 @@
             ]
           },
           "c": {
+            "emboss": { "text": "C" },
             "openings": [
               {
                 "side": "L-"
@@ -64,6 +81,7 @@
             ]
           },
           "d": {
+            "emboss": { "text": "D" },
             "openings": [
               {
                 "side": "L-"
@@ -74,6 +92,7 @@
             ]
           },
           "e": {
+            "emboss": { "text": "E" },
             "openings": [
               {
                 "side": "L-"
@@ -92,6 +111,7 @@
         "compartments": {
           "events_other": {
             "size": 47.6,
+            "emboss": { "text": ["FESTYN", "PODRÓŻ"] },
             "openings": [
               {
                 "side": "L-"
@@ -103,6 +123,7 @@
           },
           "sesons": {
             "size": 47.6,
+            "emboss": { "text": "PORY ROKU" },
             "openings": [
               {
                 "side": "L-"
@@ -112,59 +133,93 @@
               }
             ]
           },
-          "day_night_pawns": {}
+          "sun_moon_pawns": {
+            "emboss": { "text": ["SŁOŃCE", "KSIĘŻYC"] }
+          }
         }
       },
 
-      "player_tray": {
-        "size": [52.8, 97.0, 20.0],
-        "split": "L",
+      "player_rabbit": {
+        "size": [138.4, 47.0, 20.0],
+        "split": "W",
         "compartments": {
-          "pawns": {
-            "size": 45
+          "player_rabbit_pawns": {
+            "emboss": { "text": "ZAJĄC" },
+            "size": 54
           },
-          "resources": {}
+          "player_rabbit_resources": {
+            "emboss": { "text": "ZASOBY" }
+          }
+        }
+      },
+      "player_turtle": {
+        "size": [138.4, 47.0, 20.0],
+        "split": "W",
+        "compartments": {
+          "player_turtle_pawns": {
+            "emboss": { "text": "ŻÓŁW" },
+            "size": 54
+          },
+          "player_turtle_resources": {
+            "emboss": { "text": "ZASOBY" }
+          }
         }
       },
 
       "campaign": {
-        "size": [105.6, 100.0, 20.0],
+        "size": [105.6, 100.0, 40.0],
         "split": "L",
         "compartments": {
           "resource_sharing": {
-            "size": 52
+            "size": 52,
+            "emboss": { "text": "KAMPANIA" }
           },
-          "goals": {}
+          "goals": {
+            "emboss": { "text": "ZNACZNIKI CELU" }
+          }
         }
       },
 
       "automa_pawns": {
-        "size": [105.6, 50.0, 20.0],
+        "size": [105.6, 47.0, 20.0],
         "split": "W",
         "compartments": {
-          "main": {}
+          "automa_pawns": {
+            "emboss": { "text": "SKUNKSY" }
+          }
         }
       },
 
       "resources_1": {
-        "size": [69, 147.0, 20.0],
+        "size": [69, 150.0, 20.0],
         "split": "L",
         "compartments": {
           "wood": {
-            "size": 48
+            "size": 48,
+            "emboss": { "text": "GAŁĄZKI" }
           },
-          "victory_points": {}
+          "victory_points": {
+            "emboss": { "text": "PUNKTY" }
+          }
         }
       },
 
       "resources_2": {
-        "size": [69, 147.0, 20.0],
+        "size": [69, 150.0, 20.0],
         "split": "L",
         "compartments": {
-          "berries": {},
-          "amber": {},
-          "stones": {},
-          "usage": {}
+          "berries": {
+            "emboss": { "text": "JAGODY" }
+          },
+          "resin": {
+            "emboss": { "text": "ŻYWICA" }
+          },
+          "pebbles": {
+            "emboss": { "text": "KAMYKI" }
+          },
+          "usage": {
+            "emboss": { "text": "UŻYCIA" }
+          }
         }
       },
 
@@ -172,7 +227,9 @@
         "size": [105.6, 97.0, 40.0],
         "split": "W",
         "compartments": {
-          "main": {}
+          "river": {
+            "emboss": { "text": "RZEKA" }
+          }
         }
       }
     }

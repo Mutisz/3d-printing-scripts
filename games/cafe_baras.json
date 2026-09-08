@@ -7,26 +7,59 @@
   "card_wells": {
     "wall": 1.0,
     "floor": 1.0,
-    "corner": 0.11,
-    "separator": {
-      "thickness": 1.0,
-      "fit": 0.2,
-      "tab_out": null
-    },
     "validation": {
       "sleeve": [67.0, 91.0],
       "clearance": 1.0,
       "card_thickness": 0.6
     },
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "emboss": {
+      "size": 8.0,
+      "depth": 0.4
+    },
     "variants": {
-      "main_deck": {
+      "cafe_1": {
         "size": [70.0, 94.0, 31.0],
-        "separators": {}
+        "emboss": { "text": "KAWIARNIA" }
       },
-      "cafes_and_customers": {
+      "cafe_2": {
+        "size": [70.0, 94.0, 31.0],
+        "emboss": { "text": "KAWIARNIA" }
+      }
+    }
+  },
+  "card_boxes": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [60.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.6
+    },
+    "emboss": {
+      "size": 8.0,
+      "depth": 0.5,
+      "along": "W"
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
+    "variants": {
+      "counters": {
+        "size": [70.0, 94.0, 10.0],
+        "emboss": {
+          "text": "LADY"
+        }
+      },
+      "customers": {
         "size": [70.0, 94.0, 21.0],
-        "separators": {
-          "1": {}
+        "emboss": {
+          "text": ["WYJĄTKOWI", "GOŚCIE"]
         }
       }
     }
@@ -34,16 +67,25 @@
   "trays": {
     "wall": 1.0,
     "floor": 1.0,
+    "emboss": {
+      "size": 8.0,
+      "depth": 0.4
+    },
     "variants": {
       "coins": {
-        "size": [70.0, 94.0, 21.0],
+        "size": [70.0, 94.0, 31.0],
         "split": "L",
         "compartments": {
           "1": {
-            "size": null
+            "emboss": {
+              "text": "1"
+            }
           },
           "5": {
-            "size": 30.0
+            "size": 30.0,
+            "emboss": {
+              "text": "5"
+            }
           }
         }
       }
