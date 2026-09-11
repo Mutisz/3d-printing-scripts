@@ -9,7 +9,7 @@
     "floor": 1.0,
     "ceiling": 1.0,
     "validation": {
-      "sleeve": [66.0, 91.0],
+      "sleeve": [65.0, 90.0],
       "clearance": 1.0,
       "card_thickness": 0.7
     },
@@ -55,7 +55,7 @@
         "emboss": { "text": "ARTEFAKTY" }
       },
       "leader_decks": {
-        "size": [69.0, 94.0, 10.0],
+        "size": [69.0, 110.0, 12.0],
         "emboss": { "text": "LIDERZY" }
       }
     }

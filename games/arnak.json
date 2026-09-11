@@ -4,6 +4,32 @@
     "id": "arnak",
     "name": "Arnak"
   },
+  "card_boxes": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [65.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "emboss": {
+      "depth": 0.5,
+      "along": "W"
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
+    "variants": {
+      "leader_decks": {
+        "size": [68.0, 93.0, 18.0],
+        "emboss": {
+          "text": "LIDERZY"
+        }
+      }
+    }
+  },
   "card_wells": {
     "wall": 1.0,
     "floor": 1.0,
@@ -36,12 +62,6 @@
         "size": [68.0, 93.0, 18.0],
         "emboss": {
           "text": "STRACH"
-        }
-      },
-      "leader_decks": {
-        "size": [68.0, 93.0, 18.0],
-        "emboss": {
-          "text": "LIDERZY"
         }
       }
     }

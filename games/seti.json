@@ -1,0 +1,519 @@
+{
+  "schema_version": 10,
+  "game": {
+    "id": "seti",
+    "name": "Seti"
+  },
+  "card_boxes": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "ceiling": 1.0,
+    "validation": {
+      "sleeve": [66.0, 91.0],
+      "clearance": 1.0,
+      "card_thickness": 0.7
+    },
+    "emboss": {
+      "depth": 0.5,
+      "along": "W"
+    },
+    "notch": {
+      "width": 40.0,
+      "reach": 15.0
+    },
+    "variants": {
+      "quick_start": {
+        "size": [69.0, 94.0, 19.0],
+        "emboss": {
+          "text": ["SZYBKI", "START"]
+        }
+      },
+      "rival_deck": {
+        "size": [69.0, 94.0, 19.0],
+        "emboss": {
+          "text": ["AKCJE", "RYWALA"]
+        }
+      }
+    }
+  },
+  "card_wells": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "validation": {
+      "sleeve": [65.0, 90.0],
+      "clearance": 1.0,
+      "card_thickness": 0.5
+    },
+    "emboss": {
+      "depth": 0.4,
+      "size": 8.0
+    },
+    "separator": {
+      "thickness": 1.0,
+      "fit": 0.2
+    },
+    "variants": {
+      "main_deck_1": {
+        "size": [68.0, 93.0, 50.0],
+        "emboss": {
+          "text": "TALIA GŁÓWNA"
+        }
+      },
+      "main_deck_2": {
+        "size": [68.0, 93.0, 50.0],
+        "emboss": {
+          "text": "TALIA GŁÓWNA"
+        }
+      },
+      "alien_deck": {
+        "size": [68.0, 93.0, 50.0],
+        "emboss": {
+          "text": "TALIE OBCYCH"
+        }
+      },
+      "space_agencies": {
+        "validation": {
+          "sleeve": [88.0, 117.0]
+        },
+        "size": [96.0, 131.0, 8.0],
+        "emboss": {
+          "text": "AGENCJE KOSMICZNE"
+        }
+      }
+    }
+  },
+  "trays": {
+    "wall": 1.0,
+    "floor": 1.0,
+    "emboss": {
+      "size": 8.0,
+      "depth": 0.4
+    },
+    "variants": {
+      "player_white": {
+        "size": [60.0, 62.5, 25.0],
+        "split": "L",
+        "compartments": {
+          "player_markers": {
+            "emboss": {
+              "text": "BIAŁY"
+            }
+          },
+          "track_markers_100vp": {
+            "size": 16.0,
+            "compartments": {
+              "track_markers": {},
+              "100vp": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "player_orange": {
+        "size": [60.0, 62.5, 25.0],
+        "split": "L",
+        "compartments": {
+          "player_markers": {
+            "emboss": {
+              "text": ["POMARA-", "ŃCZOWY"]
+            }
+          },
+          "track_markers_100vp": {
+            "size": 16.0,
+            "compartments": {
+              "track_markers": {},
+              "100vp": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "player_green": {
+        "size": [60.0, 62.5, 25.0],
+        "split": "L",
+        "compartments": {
+          "player_markers": {
+            "emboss": {
+              "text": "ZIELONY"
+            }
+          },
+          "track_markers_100vp": {
+            "size": 16.0,
+            "compartments": {
+              "track_markers": {},
+              "100vp": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "player_purple": {
+        "size": [60.0, 62.5, 25.0],
+        "split": "L",
+        "compartments": {
+          "player_markers": {
+            "emboss": {
+              "text": ["FIOLE-", "TOWY"]
+            }
+          },
+          "track_markers_100vp": {
+            "size": 16.0,
+            "compartments": {
+              "track_markers": {},
+              "100vp": {
+                "openings": [
+                  {
+                    "side": "L+"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+
+      "data": {
+        "size": [60.0, 125.0, 25.0],
+        "split": "L",
+        "compartments": {
+          "data": {
+            "emboss": {
+              "text": "DANE"
+            }
+          }
+        }
+      },
+      "credits_energy_signal": {
+        "size": [60.0, 125.0, 25.0],
+        "split": "L",
+        "compartments": {
+          "credits": {
+            "emboss": {
+              "text": "KREDYTY"
+            }
+          },
+          "energy": {
+            "emboss": {
+              "text": "ENERGIA"
+            }
+          },
+          "signal": {
+            "size": 23.0,
+            "emboss": {
+              "text": "SYGNAŁY"
+            }
+          }
+        }
+      },
+
+      "technology": {
+        "size": [163.0, 38.0, 19.0],
+        "split": "W",
+        "compartments": {
+          "probe_1": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "SONDY"
+            }
+          },
+          "probe_2": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "SONDY"
+            }
+          },
+          "telescope_1": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "TELESKOP"
+            }
+          },
+          "telescope_2": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "TELESKOP"
+            }
+          },
+          "computer_1": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "KOMPUTER"
+            }
+          },
+          "computer_2": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "KOMPUTER"
+            }
+          }
+        }
+      },
+      "victory_points": {
+        "size": [41.0, 38.0, 19.0],
+        "split": "L",
+        "compartments": {
+          "sun": {
+            "emboss": {
+              "size": 5.0,
+              "text": "PZ"
+            }
+          }
+        }
+      },
+
+      "rival": {
+        "size": [43.0, 64.0, 42.0],
+        "split": "L",
+        "compartments": {
+          "automa_1": {
+            "size": 12.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "RYWAL 1"
+            }
+          },
+          "automa_2": {
+            "size": 26.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "RYWAL 2"
+            }
+          },
+          "automa_3": {
+            "size": 22.0,
+            "openings": [
+              {
+                "side": "L-"
+              },
+              {
+                "side": "L+"
+              }
+            ],
+            "emboss": {
+              "size": 5.0,
+              "text": "RYWAL 3"
+            }
+          }
+        }
+      },
+      "sun": {
+        "size": [43.0, 67.0, 42.0],
+        "split": "L",
+        "compartments": {
+          "sun": {
+            "emboss": {
+              "size": 5.0,
+              "text": "SŁOŃCE"
+            }
+          }
+        }
+      },
+      "rival_longterm": {
+        "size": [112.0, 19.0, 69.0],
+        "split": "L",
+        "compartments": {
+          "rival_longterm": {
+            "emboss": {
+              "size": 5.0,
+              "text": "CELE DŁUGOTERMINOWE RYWALA"
+            },
+            "notches": [
+              {
+                "side": "L-"
+              }
+            ]
+          }
+        }
+      },
+
+      "aliens": {
+        "size": [204.0, 28.0, 18.0],
+        "split": "W",
+        "compartments": {
+          "mascamites": {
+            "emboss": {
+              "size": 5.0,
+              "text": "MASKAMICI"
+            }
+          },
+          "anomalies": {
+            "emboss": {
+              "size": 5.0,
+              "text": "ANOMALIE"
+            }
+          },
+          "exercians": {
+            "emboss": {
+              "size": 5.0,
+              "text": ["EGZER-", "CJANIE"]
+            }
+          },
+          "centaurians": {
+            "emboss": {
+              "size": 5.0,
+              "text": ["CENTAUR-", "IANIE"]
+            }
+          },
+          "amoeabas": {
+            "emboss": {
+              "size": 5.0,
+              "text": "AMEBY"
+            }
+          }
+        }
+      },
+
+      "xenolab_institute": {
+        "size": [53.0, 42.0, 21.0],
+        "split": "L",
+        "compartments": {
+          "xenolab_institute": {
+            "emboss": {
+              "size": 5.0,
+              "text": "XENOLAB"
+            }
+          }
+        }
+      },
+      "oumauma": {
+        "size": [53.0, 89.0, 21.0],
+        "split": "L",
+        "compartments": {
+          "oumauma": {
+            "emboss": {
+              "text": "OUMAUMA"
+            }
+          }
+        }
+      },
+      "gliphids": {
+        "size": [53.0, 131.0, 21.0],
+        "split": "L",
+        "compartments": {
+          "gliphids": {
+            "emboss": {
+              "text": "GLIFIDZI"
+            }
+          }
+        }
+      },
+
+      "solar_system_milestones": {
+        "size": [100.0, 100.0, 18.0],
+        "split": "L",
+        "compartments": {
+          "solar_system": {
+            "emboss": {
+              "size": 5.0,
+              "text": ["PIERWSZY GRACZ", "ŻETONY OBROTU", "KAMIENIE MILOWE"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "box": {
+    "size": [360.0, 250.0, 70.0],
+    "clearance": 1.0,
+    "extras": {
+      "board_manual": {
+        "size": [360.0, 231.0, 20.0]
+      },
+      "player_boards": {
+        "size": [300.0, 100.0, 18.0]
+      },
+      "alien_boards": {
+        "size": [110.0, 200.0, 18.0]
+      },
+      "star_boards": {
+        "size": [300.0, 138.0, 9.0]
+      }
+    },
+    "place": []
+  }
+}
